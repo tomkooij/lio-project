@@ -19,13 +19,16 @@ import tables
 import sapphire.esd
 import scipy.stats 
 
-STATIONS = [501]
+STATION = 501
+STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
 FILENAME = 'station_501_april2010.h5'
 
-HIGH_PH = 820 # fitted with april 2010 data
-LOW_PH = 120
+HIGH_PH = 820 # fitted with april 2010 data 
+                # (far beyond 1 MIP in the pulseheight histogram)
+                # Pennink 2010 specifies 200 ADC counts which does not result in same figures
+LOW_PH = 120 # in the pulseheight histrogram this is the gamma cutoff
 
 #
 # Read event data from the ESD
@@ -55,7 +58,7 @@ def plot_dt_histogram(tA,tB,bins):
     dt = tA - tB
     
     # remove -1 and -999
-    fixed_dt = dt.compress((tA >= 0) & (tB >= 0) & (ph1 < 120) & (ph2 < 120))
+    fixed_dt = dt.compress((tA >= 0) & (tB >= 0))
 
     hist(fixed_dt, bins=bins)
 
@@ -71,19 +74,10 @@ def fit_norm(tA,tB):
     
 
 
-
-#
-def plot_dt_histogram_ph(tA,tB):
-
-    
-    
-    return True
-
-   
+ 
     
 #data = create_new_event_file(FILENAME, STATIONS, START, END)
-#data.close()
-    
+#data.close()   
 data = open_existing_event_file(FILENAME)
 
 events = data.root.s501.events
@@ -100,43 +94,35 @@ ph3 = ph[:,2]
 ph4 = ph[:,3]
     
 bins2ns5 = arange(-201.25,202.26,2.5)
-    
+
+dt = t1 - t2       
 #
-# Plot histogram for tA-tB using hardcoded event selection based on pulseheight
-#
-    
-dt = t1 - t2    
+# Plot histogram for t1-t2 using hardcoded event selection based on pulseheight
+#    
     
 # remove -1 and -999
 # select events based on pulseheight    
 fixed_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
 print "number of events: %d" % len (fixed_dt)
-    
+
+#
+# Plot pulseheight histogram (usefull for pulseheight limits)
+#
+#hist(ph1, bins = 200, log=True, histtype='step')
+#figure()    
+
+
 hist(fixed_dt, bins=bins2ns5)
 (mu, sigma) = scipy.stats.norm.fit(fixed_dt)
         
 print "avg: %f, sigma: %f" % (mu,sigma**0.5)
 
-fitted_pdf = scipy.stats.norm.pdf(bins2ns5, mu, sigma)
-plot(bins2ns5, fitted_pdf)
+#fitted_pdf = scipy.stats.norm.pdf(bins2ns5, mu, sigma)
+#plot(bins2ns5, fitted_pdf)
 
-def gauss(data):
-    
-    X = arange(data.size)
-    x = sum(X*data)/sum(data)
-    sigma = sqrt(abs(sum((X-x)**2*data)/sum(data)))
-     
-    scale = data.max()
- 
-    return x, sigma, scale
-
-(x,sigma, scale) = gauss(fixed_dt)
-
-print (x,sigma,scale)    
-X = arange(fixed_dt.size)    
-fit = lambda t : scale*exp(-(t-x)**2/(2*sigma**2))
- 
+#y = matplotlib.mlab.normpdf(bins2ns5, mu, sigma)
+#plot(bins2ns5, y, 'r--', linewidth=2)
 #plot(fit(bins2ns5)) 
 
 
-#data.close()
+data.close()
