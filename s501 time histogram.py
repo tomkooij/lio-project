@@ -19,13 +19,9 @@ import tables
 import sapphire.esd
 import scipy.stats 
 
-
-from pylab import *
-from numpy import loadtxt
 from scipy.optimize import leastsq
 
-fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)+p[3]
-errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+
 
 filename = "gaussdata.csv"
 #data     = loadtxt(filename,skiprows=1,delimiter=',')
@@ -111,7 +107,9 @@ ph2 = ph[:,1]
 ph3 = ph[:,2]
 ph4 = ph[:,3]
     
-bins2ns5 = arange(-201.25,202.26,2.5)
+#bins2ns5 = arange(-201.25,202.26,2.5)
+bins2ns5 = arange(-101.25,101.26,2.5)
+bins2ns5_midden = arange(-100,100.1,2.5)
 
 dt = t1 - t2       
 #
@@ -120,7 +118,7 @@ dt = t1 - t2
     
 # remove -1 and -999
 # select events based on pulseheight    
-fixed_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
+fixed_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
 print "number of events: %d" % len (fixed_dt)
 
 #
@@ -149,32 +147,28 @@ print "avg: %f, sigma: %f" % (mu,sigma**0.5)
 #plot(bins2ns5, y, 'r--', linewidth=2)
 #plot(fit(bins2ns5)) 
 
-init  = [1.0, 0.5, 0.5, 0.5]
+
 
 ydata = histogram(fixed_dt, bins=bins2ns5)
-
-
 #
-# De bins zijn nog niet goed
-# ydata[0] = de y waarden van het histogram
-# ydata[1] = de linker en rechter grenzen van de bins (ydata[0].size = ydata[1].size-1)
-# 
-# Dit moet het midden van de grens worden. BINS2NS aanpassen
+# least squares fit of gaussian distribution 
 #
+fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+init  = [1.0, 0.5, 0.5]
+
 histogram_y = ydata[0]
-histogram_x = ydata[1][:-1] # remove last bin edge
+histogram_x = bins2ns5_midden 
 
 out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
 c = out[0]
 
-print "A exp[-0.5((x-mu)/sigma)^2] + k "
-print "Parent Coefficients:"
-print "1.000, 0.200, 0.300, 0.625"
+print "A exp[-0.5((x-mu)/sigma)^2]"
 print "Fit Coefficients:"
-print c[0],c[1],abs(c[2]),c[3]
+print c[0],c[1],abs(c[2])
 
 
-title(r'$A = %.3f\  \mu = %.3f\  \sigma = %.3f\ k = %.3f $' %(c[0],c[1],abs(c[2]),c[3]));
+title(r'$A = %.3f\  \mu = %.3f\  \sigma = %.3f\ $' %(c[0],c[1],abs(c[2])));
 plot(histogram_x, fitfunc(c, histogram_x))
 #plot(histogram_x, histogram_y)
 show()
