@@ -39,10 +39,14 @@ START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
 FILENAME = 'station_501_april2010.h5'
 
-HIGH_PH = 200 # fitted with april 2010 data 
-                # (far beyond 1 MIP in the pulseheight histogram)
-                # Pennink 2010 specifies 200 ADC counts which does not result in same figures
-LOW_PH = 120 # in the pulseheight histrogram this is the gamma cutoff
+#
+# Pennink, 2010 p32 specifies these cutoff ADC counts 
+# >200 ADC count = charged particle
+# <120 ADC counts = gamma
+# These values are consistent with a pulseheight histogram
+#
+HIGH_PH = 200  
+LOW_PH = 120
 
 #
 # Read event data from the ESD
@@ -126,7 +130,14 @@ print "number of events: %d" % len (fixed_dt)
 #figure()    
 
 
+#
+# Plot histogram
+#
 hist(fixed_dt, bins=bins2ns5)
+
+#
+# THIS IS BULLSHIT!!! We are guassfitting the data NOT THE HISTOGRAM
+#
 (mu, sigma) = scipy.stats.norm.fit(fixed_dt)
         
 print "avg: %f, sigma: %f" % (mu,sigma**0.5)
@@ -164,7 +175,8 @@ print c[0],c[1],abs(c[2]),c[3]
 
 
 title(r'$A = %.3f\  \mu = %.3f\  \sigma = %.3f\ k = %.3f $' %(c[0],c[1],abs(c[2]),c[3]));
-
+plot(histogram_x, fitfunc(c, histogram_x))
+#plot(histogram_x, histogram_y)
 show()
 
 
