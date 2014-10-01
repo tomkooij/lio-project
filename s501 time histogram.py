@@ -19,13 +19,27 @@ import tables
 import sapphire.esd
 import scipy.stats 
 
+
+from pylab import *
+from numpy import loadtxt
+from scipy.optimize import leastsq
+
+fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)+p[3]
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+
+filename = "gaussdata.csv"
+#data     = loadtxt(filename,skiprows=1,delimiter=',')
+#xdata    = data[:,0]
+#ydata    = data[:,1]
+
+
 STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
 FILENAME = 'station_501_april2010.h5'
 
-HIGH_PH = 820 # fitted with april 2010 data 
+HIGH_PH = 200 # fitted with april 2010 data 
                 # (far beyond 1 MIP in the pulseheight histogram)
                 # Pennink 2010 specifies 200 ADC counts which does not result in same figures
 LOW_PH = 120 # in the pulseheight histrogram this is the gamma cutoff
@@ -124,5 +138,34 @@ print "avg: %f, sigma: %f" % (mu,sigma**0.5)
 #plot(bins2ns5, y, 'r--', linewidth=2)
 #plot(fit(bins2ns5)) 
 
+init  = [1.0, 0.5, 0.5, 0.5]
 
-data.close()
+ydata = histogram(fixed_dt, bins=bins2ns5)
+
+
+#
+# De bins zijn nog niet goed
+# ydata[0] = de y waarden van het histogram
+# ydata[1] = de linker en rechter grenzen van de bins (ydata[0].size = ydata[1].size-1)
+# 
+# Dit moet het midden van de grens worden. BINS2NS aanpassen
+#
+histogram_y = ydata[0]
+histogram_x = ydata[1][:-1] # remove last bin edge
+
+out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
+c = out[0]
+
+print "A exp[-0.5((x-mu)/sigma)^2] + k "
+print "Parent Coefficients:"
+print "1.000, 0.200, 0.300, 0.625"
+print "Fit Coefficients:"
+print c[0],c[1],abs(c[2]),c[3]
+
+
+title(r'$A = %.3f\  \mu = %.3f\  \sigma = %.3f\ k = %.3f $' %(c[0],c[1],abs(c[2]),c[3]));
+
+show()
+
+
+#data.close()
