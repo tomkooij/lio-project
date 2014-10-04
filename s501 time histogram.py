@@ -21,6 +21,15 @@ import scipy.stats
 
 from scipy.optimize import leastsq
 
+<<<<<<< HEAD
+=======
+
+
+filename = "gaussdata.csv"
+#data     = loadtxt(filename,skiprows=1,delimiter=',')
+#xdata    = data[:,0]
+#ydata    = data[:,1]
+>>>>>>> 818f6c319eb3217d9f549ea71fdaf21268c2afc8
 
 
 STATION = 501
@@ -100,6 +109,13 @@ ph1 = ph[:,0]
 ph2 = ph[:,1]
 ph3 = ph[:,2]
 ph4 = ph[:,3]
+<<<<<<< HEAD
+=======
+    
+#bins2ns5 = arange(-201.25,202.26,2.5)
+bins2ns5 = arange(-101.25,101.26,2.5)
+bins2ns5_midden = arange(-100,100.1,2.5)
+>>>>>>> 818f6c319eb3217d9f549ea71fdaf21268c2afc8
 
 #bins2ns5 = arange(-201.25,202.26,2.5)
 bins2ns5 = arange(-101.25,101.26,2.5)
@@ -111,7 +127,11 @@ dt = t1 - t2
 #
 
 # remove -1 and -999
+<<<<<<< HEAD
 # select events based on pulseheight
+=======
+# select events based on pulseheight    
+>>>>>>> 818f6c319eb3217d9f549ea71fdaf21268c2afc8
 fixed_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
 print "number of events: %d" % len (fixed_dt)
 
@@ -132,6 +152,7 @@ hist(fixed_dt, bins=bins2ns5)
 #
 (mu, sigma) = scipy.stats.norm.fit(fixed_dt)
 
+<<<<<<< HEAD
 print "avg: %f, sigma: %f" % (mu,sigma**0.5)
 
 #
@@ -140,13 +161,28 @@ print "avg: %f, sigma: %f" % (mu,sigma**0.5)
 ydata = histogram(fixed_dt, bins=bins2ns5)
 #
 # least squares fit of gaussian distribution
+=======
+#y = matplotlib.mlab.normpdf(bins2ns5, mu, sigma)
+#plot(bins2ns5, y, 'r--', linewidth=2)
+#plot(fit(bins2ns5)) 
+
+
+
+ydata = histogram(fixed_dt, bins=bins2ns5)
+#
+# least squares fit of gaussian distribution 
+>>>>>>> 818f6c319eb3217d9f549ea71fdaf21268c2afc8
 #
 fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
 errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 init  = [1.0, 0.5, 0.5]
 
 histogram_y = ydata[0]
+<<<<<<< HEAD
 histogram_x = bins2ns5_midden
+=======
+histogram_x = bins2ns5_midden 
+>>>>>>> 818f6c319eb3217d9f549ea71fdaf21268c2afc8
 
 out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
 c = out[0]
