@@ -168,15 +168,22 @@ grafiek22 = grafiek.add_subplot(224)
 #
 dt = t1 - t2
 
-print "Figure 11\n"
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
+grafiek11.hist(dt1, bins=bins2ns5)
+grafiek11.set_title("ph1 < 120, ph2> 200")
+dt2 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH))
+grafiek12.hist(dt2, bins=bins2ns5)
+grafiek12.set_title("ph1 > 200, ph2 < 120")
+
+print "Figure 21\n"
 # remove -1 and -999
 # select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
-plot_histogram_with_gaussfit(dt1, bins2ns5, bins2ns5_midden, grafiek11, "ph1,ph2<120")
+dt3 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
+plot_histogram_with_gaussfit(dt3, bins2ns5, bins2ns5_midden, grafiek21, "ph1,ph2<120")
 
-print "Figure 12\n"
-dt2 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
-plot_histogram_with_gaussfit(dt2,bins2ns5, bins2ns5_midden, grafiek12, "ph1,ph2>200")
+print "Figure 22\n"
+dt4 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
+plot_histogram_with_gaussfit(dt4,bins2ns5, bins2ns5_midden, grafiek22, "ph1,ph2>200")
 
 
 show()
