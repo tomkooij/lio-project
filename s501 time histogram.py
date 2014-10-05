@@ -155,7 +155,7 @@ bins2ns5_midden = arange(-100,100.1,2.5)
 #figure()
 
 #
-# Plot histogram
+# 4 subplots to recreate the figure from Pennink 2010
 #
 grafiek = figure()
 grafiek11 = grafiek.add_subplot(221)
@@ -164,26 +164,35 @@ grafiek21 = grafiek.add_subplot(223)
 grafiek22 = grafiek.add_subplot(224)
 
 #
-# Plot histogram for t1-t2 using hardcoded event selection based on pulseheight
+# Plot histogram for t1-t2 using event selection based on pulseheight
+# 
 #
 dt = t1 - t2
 
+# remove -1 and -999
+# select events based on pulseheight
 dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
 grafiek11.hist(dt1, bins=bins2ns5)
-grafiek11.set_title("ph1 < 120, ph2> 200")
+grafiek11.set_title("ph1 < 120, ph2 > 200")
+
 dt2 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH))
 grafiek12.hist(dt2, bins=bins2ns5)
 grafiek12.set_title("ph1 > 200, ph2 < 120")
 
+
 print "Figure 21\n"
-# remove -1 and -999
-# select events based on pulseheight
 dt3 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
 plot_histogram_with_gaussfit(dt3, bins2ns5, bins2ns5_midden, grafiek21, "ph1,ph2<120")
 
 print "Figure 22\n"
 dt4 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
 plot_histogram_with_gaussfit(dt4,bins2ns5, bins2ns5_midden, grafiek22, "ph1,ph2>200")
+
+# Adjust x-axes, has to be done after plotting
+grafiek11.set_xlim([-50,50])
+grafiek12.set_xlim([-50,50])
+grafiek22.set_xlim([-50,50])
+grafiek21.set_xlim([-50,50])
 
 
 show()
