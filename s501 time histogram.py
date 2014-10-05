@@ -62,23 +62,61 @@ def open_existing_event_file(filename):
     return data
 
 #
-def plot_dt_histogram(tA,tB,bins):
-    dt = tA - tB
+#
+# Least squares fit of histogram data to guassian distribution
+#   Includes y-scale factor, ignores y-offset
+# 
+# Source: http://stackoverflow.com/a/15521359
+#
+# histogram_y = array of y data
+# histogram_x = array of middle of bins
+#
+def gauss_fit_histogram(histogram_y, histogram_x):
+    
+    #
+    # least squares fit of gaussian distribution
+    #
+    fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
+    errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+    init  = [1.0, 0.5, 0.5]
+    
+    out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
+    c = out[0]
 
-    # remove -1 and -999
-    fixed_dt = dt.compress((tA >= 0) & (tB >= 0))
+    print "A exp[-0.5((x-mu)/sigma)^2]"
+    print "Fit Coefficients:"
+    print c[0],c[1],abs(c[2])
+    return c
 
-    hist(fixed_dt, bins=bins)
+#
+# Create a pylab (sub)plot with histogram and guassfit
+#
+# Usage:
+#
+# import matplotlib.pyplot as plt
+# grafiek = plt.figure()
+# dt_data = [ ... datapoints ...]
+# bins = arrange( )
+# bins_middle = arrange() 
+# title = "Data histogram"
+# plot_histogram_with_gaussfit(dt_data, bins, bins_middle, grafiek, title)
+# plt.show() 
 
+def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, title):
 
-    return True
-
-def fit_norm(tA,tB):
-    dt = tA - tB
-    fixed_dt = dt.compress((tA>=0) & (tB>=0))
-    (mu, sigma) = scipy.stats.norm.fit(fixed_dt)
-#    print (mu, sigma)
-    return (mu, sigma)
+    print "Number of datapoints (events): %d" % dt_data.size    
+    grafiek.hist(dt_data, bins=bins_edges)
+        
+    #
+    # Create histogram array
+    #
+    ydata = histogram(dt_data, bins=bins_edges)
+    histogram_y = ydata[0]
+    histogram_x = bins_middle
+    c = gauss_fit_histogram(histogram_y, histogram_x)
+     
+    grafiek.set_title(title)
+    grafiek.plot(histogram_x, fitfunc(c, histogram_x))
 
 
 
@@ -87,6 +125,7 @@ def fit_norm(tA,tB):
 #data = create_new_event_file(FILENAME, STATIONS, START, END)
 #data.close()
 data = open_existing_event_file(FILENAME)
+
 
 events = data.root.s501.events
 
@@ -105,63 +144,37 @@ ph4 = ph[:,3]
 bins2ns5 = arange(-101.25,101.26,2.5)
 bins2ns5_midden = arange(-100,100.1,2.5)
 
-dt = t1 - t2
-#
-# Plot histogram for t1-t2 using hardcoded event selection based on pulseheight
-#
-
-# remove -1 and -999
-
-# select events based on pulseheight
-fixed_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
-print "number of events: %d" % len (fixed_dt)
-
 #
 # Plot pulseheight histogram (usefull for pulseheight limits)
 #
 #hist(ph1, bins = 200, log=True, histtype='step')
 #figure()
 
-
 #
 # Plot histogram
 #
-hist(fixed_dt, bins=bins2ns5)
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
 
 #
-# This does not work!?!?!?
+# Plot histogram for t1-t2 using hardcoded event selection based on pulseheight
 #
-(mu, sigma) = scipy.stats.norm.fit(fixed_dt)
+dt = t1 - t2
 
-<<<<<<< HEAD
-print "avg: %f, sigma: %f" % (mu,sigma**0.5)
+print "Figure 11\n"
+# remove -1 and -999
+# select events based on pulseheight
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
+plot_histogram_with_gaussfit(dt1, bins2ns5, bins2ns5_midden, grafiek11, "ph1,ph2<120")
 
-#
-# Create histogram array
-#
-ydata = histogram(fixed_dt, bins=bins2ns5)
-#
-# least squares fit of gaussian distribution
-#
-fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
-errfunc  = lambda p, x, y: (y - fitfunc(p, x))
-init  = [1.0, 0.5, 0.5]
-
-histogram_y = ydata[0]
-histogram_x = bins2ns5_midden 
-
-out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
-c = out[0]
-
-print "A exp[-0.5((x-mu)/sigma)^2]"
-print "Fit Coefficients:"
-print c[0],c[1],abs(c[2])
+print "Figure 12\n"
+dt2 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
+plot_histogram_with_gaussfit(dt2,bins2ns5, bins2ns5_midden, grafiek12, "ph1,ph2>200")
 
 
-title(r'$A = %.3f\  \mu = %.3f\  \sigma = %.3f\ $' %(c[0],c[1],abs(c[2])));
-plot(histogram_x, fitfunc(c, histogram_x))
-#plot(histogram_x, histogram_y)
 show()
 
-
-#data.close()
+data.close()
