@@ -71,13 +71,15 @@ def open_existing_event_file(filename):
 # histogram_y = array of y data
 # histogram_x = array of middle of bins
 #
+#
+# least squares fit of gaussian distribution
+#
+fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+
 def gauss_fit_histogram(histogram_y, histogram_x):
     
-    #
-    # least squares fit of gaussian distribution
-    #
-    fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
-    errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+    
     init  = [1.0, 0.5, 0.5]
     
     out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
@@ -116,6 +118,8 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
     c = gauss_fit_histogram(histogram_y, histogram_x)
      
     grafiek.set_title(title)
+# dit moet eigenlijk relatief en geen absolute x,y coordinaten in de grafiek zijn
+#    grafiek.text(-150,100,r'$\mu=100,\ \sigma=15$')
     grafiek.plot(histogram_x, fitfunc(c, histogram_x))
 
 
