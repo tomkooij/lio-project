@@ -2,17 +2,11 @@
 Read data from station 501 and plot t1-t2 histogram
 
 Goal: recreate graphs form D.Pennink 2010
-t1-t2 from station 501, during April 2010
-
-29sep: created
-29sep: TODO consider dt = t1-t2; select events based on ph2 and/or ph2 (cp-gamma, gamma-cp and/or gamma-gamma) plot histogram and fit gaussian
+t1-t2 from station 501, FULL YEAR 2010
 
 ph1 > TRIGGER = charged particle
 ph1 < TRIGGER = gamma
 
-Find out value of TRIGGER (<120 and >200 ADC counts volgens LIO verslag)
-Zelf uitgetest: sigma=9ns volgt bij HIGH_PH = 800.
-PROBLEEM: Hoe hoger HIGH_PH hoe smaller de verdeling!!!!
 """
 
 import tables
@@ -27,7 +21,7 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
-FILENAME = 'station_501_april2010.h5'
+FILENAME = 'station_501_2010_fullyear.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -130,21 +124,18 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 #data.close()
 data = open_existing_event_file(FILENAME)
 
-
 events = data.root.s501.events
 
 t1 = events.col('t1')
 t2 = events.col('t2')
-t3 = events.col('t3')
-t4 = events.col('t4')
+
 ph = events.col('pulseheights')
 
 ph1 = ph[:,0]
 ph2 = ph[:,1]
-ph3 = ph[:,2]
-ph4 = ph[:,3]
 
-#bins2ns5 = arange(-201.25,202.26,2.5)
+
+#bins2ns5 = arange(-201.25,202.26,2.5)dm
 bins2ns5 = arange(-101.25,101.26,2.5)
 bins2ns5_midden = arange(-100,100.1,2.5)
 
@@ -158,10 +149,6 @@ bins2ns5_midden = arange(-100,100.1,2.5)
 # 4 subplots to recreate the figure from Pennink 2010
 #
 grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
 
 #
 # Plot histogram for t1-t2 using event selection based on pulseheight
@@ -171,30 +158,6 @@ dt = t1 - t2
 
 # remove -1 and -999
 # select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
-grafiek11.hist(dt1, bins=bins2ns5)
-grafiek11.set_title("ph1 < 120, ph2 > 200")
-
-dt2 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH))
-grafiek12.hist(dt2, bins=bins2ns5)
-grafiek12.set_title("ph1 > 200, ph2 < 120")
-
-
-print "Figure 21\n"
-dt3 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < LOW_PH))
-plot_histogram_with_gaussfit(dt3, bins2ns5, bins2ns5_midden, grafiek21, "ph1,ph2<120")
-
-print "Figure 22\n"
-dt4 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
-plot_histogram_with_gaussfit(dt4,bins2ns5, bins2ns5_midden, grafiek22, "ph1,ph2>200")
-
-# Adjust x-axes, has to be done after plotting
-grafiek11.set_xlim([-50,50])
-grafiek12.set_xlim([-50,50])
-grafiek22.set_xlim([-50,50])
-grafiek21.set_xlim([-50,50])
-
-
-show()
-
-data.close()
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
+print "number of events", dt1.size
+hist(dt1, bins=bins2ns5)
