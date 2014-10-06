@@ -27,7 +27,7 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
-FILENAME = 'station_501_2010_fullyear.h5'
+FILENAME = 'station_501_april2010.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
