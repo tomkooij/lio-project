@@ -17,8 +17,9 @@ import sapphire.corsika
 E_LOWER_LIMIT = 0.9e14
 E_UPPER_LIMIT = 1.1e14
 N_LIMIT = 100
+THETA = radians(22.5)
 
-FILENAME_SIMUATION_OVERVIEW = 'simulation_overview.h5'
+FILENAME_SIMULATION_OVERVIEW = 'simulation_overview.h5'
 
 data = tables.open_file(FILENAME_SIMULATION_OVERVIEW,'r')
 
@@ -39,7 +40,7 @@ proton_id = sapphire.corsika.particles.particle_id('proton')
 
 
 
-selected_sims = sim_id.compress( (energy > E_LOWER_LIMIT) & (energy<E_UPPER_LIMIT) & (zenith==0) & (particle_id==proton_id) & (n_photon > LIMIT) & (n_electron > LIMIT))
+selected_sims = sim_id.compress( (energy > E_LOWER_LIMIT) & (energy<E_UPPER_LIMIT) & (zenith==THETA) & (particle_id==proton_id) & (n_photon > N_LIMIT) & (n_electron > N_LIMIT))
 
 print "E<10e14, zenith = 0"
 print "number of selected simulations (with grounparticles > LIMIT)", selected_sims.size
@@ -48,12 +49,15 @@ print "number of selected simulations (with grounparticles > LIMIT)", selected_s
 # Investigate the number of particles (photon/electron) at groundlevel in selected sims
 #
 #n_electrons = n_electron.compress((energy<10e14) & (zenith==0) & (n_electron > 0) & (particle_id==proton_id))
-n_photons =     n_photon.compress((energy > E_LOWER_LIMIT) & (energy < E_UPPER_LIMIT) & (zenith==0) & (particle_id==proton_id) )
+n_photons =     n_photon.compress((energy > E_LOWER_LIMIT) & (energy < E_UPPER_LIMIT) & (zenith==THETA) & (particle_id==proton_id) )
 #energys = energy.compress((energy< E_UPPER_LIMIT) & (zenith==0))
-n_electrons = n_electron.compress((energy > E_LOWER_LIMIT) & (energy < E_UPPER_LIMIT) & (zenith==0) & (particle_id==proton_id) )
+n_electrons = n_electron.compress((energy > E_LOWER_LIMIT) & (energy < E_UPPER_LIMIT) & (zenith==THETA) & (particle_id==proton_id) )
 
-
+#
+# Plot een histogram voor het aantal elektronen en photonen dat (per sim) de grond bereikt
+#
+#
 hist(n_photons, bins=100)
 hist(n_electrons, bins=100)
 
-data.close()
+#data.close()

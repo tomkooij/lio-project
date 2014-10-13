@@ -147,3 +147,23 @@ dt = t1 - t2
 dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
 print "number of events", dt1.size
 hist(dt1, bins=bins2ns5)
+
+"""
+CHECK angles using event reconstruction
+"""
+
+from sapphire.analysis.direction_reconstruction import DirectEventReconstruction
+from sapphire.clusters import Station
+from sapphire.clusters import SingleStation
+
+cluster = SingleStation()
+station = Station(cluster, 1, (0,0,0),0)
+
+dirrec = DirectEventReconstruction(station)
+
+zenith_list = []
+
+for event in events:
+    (zenith, azimuth) = dirrec.reconstruct_event(event)
+    if zenith > 0:
+        zenith_list.append(zenith)
