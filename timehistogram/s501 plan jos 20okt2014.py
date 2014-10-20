@@ -98,9 +98,10 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,4,8)
-FILENAME = 'station_501_1wk_april2014.h5'
-#FILENAME = 'station_501_april2010.h5'
+#FILENAME = 'station_501_1wk_april2014.h5'
+FILENAME = 'station_501_april2010.h5'
 #FILENAME = 'station_501_augustus2014.h5'
+#FILENAME = 'station_501_2010_fullyear.h5'
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
 # >200 ADC count = charged particle
@@ -130,6 +131,7 @@ def create_new_event_file(filename, stations, start, end):
 # Open existing coincidence table.
 # Only check if "/coincidences" are in table, no other checks
 def open_existing_event_file(filename):
+    print "Reading existing ESD datafile ", filename 
     data = tables.open_file(FILENAME, 'r')
     return data
 
@@ -224,6 +226,7 @@ ph4 = ph[:,3]
 #
 # for row in events:  #WAY too slow
 # 
+
 print "Selecting events"
 print "Total number of events in dataset:",event_id.size
 
@@ -254,6 +257,14 @@ selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_
 mask_34 = ((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
 print "3 4 size: ", selected_id_34.size, mask_34.sum()
 
+#
+# Create a single mask that contains all events that fit the criteria above
+#
+mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
+print "Total number of events in selection: ",mask.sum()
+
+
+
 mask_1_gamma = (ph1 <= LOW_PH)
 mask_2_gamma = (ph2 <= LOW_PH) 
 mask_3_gamma = (ph3 <= LOW_PH)
@@ -266,34 +277,37 @@ mask_2_electron = (ph2 >= HIGH_PH)
 mask_3_electron = (ph3 >= HIGH_PH)
 mask_4_electron = (ph4 >= HIGH_PH)
 
-#
-# Create a single mask that contains all events that fit the criteria above
-#
-mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
-print "Total number of events in selection: ",mask.sum()
 
 #
-# gemengd in A-A       (1-3, 1-4, 3-4) afstand 10 m
+# gemengd dus electron-gamma of gamma-electron in A-A       (1-3, 1-4, 3-4) afstand 10 m
+#
+# Nu doe ik de scheve verdeling! mix is dus eigenlijk eg
 # 
-t34_mix_AA = (t3 - t4).compress(mask & (t3 > 0) & (t4 > 0)) 
-t13_mix_AA = (t1 - t3).compress(mask & (t1 > 0) & (t3 > 0))
-t14_mix_AA = (t1 - t4).compress(mask & (t1 > 0) & (t4 > 0))
+t34_eg_AA = (t3 - t4).compress(mask_3_electron & mask_4_gamma & (t3 > 0) & (t4 > 0)) 
+#t34_eg_AA_ = (t3 - t4).compress(mask_4_electron & mask_3_gamma & (t3 > 0) & (t4 > 0)) 
+#t34_mix_AA = np.concatenate((t34_eg_AA_,t34_ge_AA_),axis=0)
+
+t13_eg_AA = (t1 - t3).compress(mask_1_electron & mask_3_gamma & (t1 > 0) & (t3 > 0))
+t14_eg_AA = (t1 - t4).compress(mask_1_electron & mask_4_gamma & (t1 > 0) & (t4 > 0))
 # gemengd in A-B 
-t12_mix_AB = (t1 - t2).compress(mask & (t1 > 0) & (t2 > 0)) 
-t23_mix_AB = (t2 - t3).compress(mask & (t2 > 0) & (t3 > 0))
-t24_mix_AB = (t2 - t4).compress(mask & (t2 > 0) & (t4 > 0))
+t12_eg_AB = (t1 - t2).compress(mask_1_electron & mask_2_gamma & (t1 > 0) & (t2 > 0)) 
+t23_eg_AB = (t2 - t3).compress(mask_2_electron & mask_3_gamma & (t2 > 0) & (t3 > 0))
+t24_eg_AB = (t2 - t4).compress(mask_2_electron & mask_4_gamma & (t2 > 0) & (t4 > 0))
 
 #
 # elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
 # 
 # electronen in A-A betekent B = gamma 
-t34_ee_AA = (t3 - t4).compress(mask_2_gamma & (t3 > 0) & (t4 > 0)) 
-t13_ee_AA = (t1 - t3).compress(mask_2_gamma & (t1 > 0) & (t3 > 0))
-t14_ee_AA = (t1 - t4).compress(mask_2_gamma & (t1 > 0) & (t4 > 0))
+t34_ee_AA = (t3 - t4).compress(mask_2_gamma & mask & (t3 > 0) & (t4 > 0)) 
+t13_ee_AA = (t1 - t3).compress(mask_2_gamma & mask & (t1 > 0) & (t3 > 0))
+t14_ee_AA = (t1 - t4).compress(mask_2_gamma & mask & (t1 > 0) & (t4 > 0))
+
+#
 # gamma's in A-A betekent B = electron
-t34_gg_AA = (t3 - t4).compress(mask_2_electron & (t3 > 0) & (t4 > 0))
-t13_gg_AA = (t1 - t3).compress(mask_2_electron & (t1 > 0) & (t3 > 0))
-t14_gg_AA = (t1 - t4).compress(mask_2_electron & (t1 > 0) & (t4 > 0))
+#
+t34_gg_AA = (t3 - t4).compress(mask_3_gamma & mask_4_gamma & mask & (t3 > 0) & (t4 > 0))
+t13_gg_AA = (t1 - t3).compress(mask_1_gamma & mask_3_gamma & mask & (t1 > 0) & (t3 > 0))
+t14_gg_AA = (t1 - t4).compress(mask_1_gamma & mask_4_gamma & mask & (t1 > 0) & (t4 > 0))
 
 #
 # electronen in A-B
@@ -338,10 +352,11 @@ def plot_ee_AA():
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_ee_AA = np.concatenate((t34_ee_AA,t13_ee_AA,t14_ee_AA),axis=0)
     plot_histogram_with_gaussfit(t34_ee_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 ee AA")
     plot_histogram_with_gaussfit(t13_ee_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 ee AA")
     plot_histogram_with_gaussfit(t14_ee_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 ee AA")
+    plot_histogram_with_gaussfit(totaal_ee_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
 def plot_gg_AA():
     grafiek = figure()
@@ -350,11 +365,14 @@ def plot_gg_AA():
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_gg_AA = np.concatenate((t34_gg_AA,t13_gg_AA,t14_gg_AA),axis=0)
     plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
     plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
     plot_histogram_with_gaussfit(t14_gg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 gg AA")
+    plot_histogram_with_gaussfit(totaal_gg_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
+
+    
 def plot_ee_AB():
     grafiek = figure()
     grafiek11 = grafiek.add_subplot(221)
@@ -362,26 +380,28 @@ def plot_ee_AB():
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_ee_AB = np.concatenate((t12_ee_AB, t23_ee_AB, t24_ee_AB), axis=0)
     plot_histogram_with_gaussfit(t12_ee_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 ee AB")
     plot_histogram_with_gaussfit(t23_ee_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 ee AB")
     plot_histogram_with_gaussfit(t24_ee_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 ee AB")
+    plot_histogram_with_gaussfit(totaal_ee_AB,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
+
 
 def plot_gg_AB():
     grafiek = figure()
+
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_gg_AB = np.concatenate((t12_gg_AB, t23_gg_AB, t24_gg_AB), axis=0)
     plot_histogram_with_gaussfit(t12_gg_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 gg AB")
     plot_histogram_with_gaussfit(t23_gg_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 gg AB")
     plot_histogram_with_gaussfit(t24_gg_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 gg AB")
+    plot_histogram_with_gaussfit(totaal_gg_AB,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
-def plot_AB():
-    plot_gg_AB()
-    plot_ee_AB()
+
 
 def plot_mix_AA():
     grafiek = figure()
@@ -390,10 +410,12 @@ def plot_mix_AA():
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_mix_AA = np.concatenate((t34_mix_AA,t13_mix_AA,t14_mix_AA),axis=0)
+
     plot_histogram_with_gaussfit(t34_mix_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 mix AA")
     plot_histogram_with_gaussfit(t13_mix_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 mix AA")
     plot_histogram_with_gaussfit(t14_mix_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 mix AA")
+    plot_histogram_with_gaussfit(totaal_mix_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
 
 def plot_mix_AB():
@@ -403,17 +425,69 @@ def plot_mix_AB():
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
     
-    
+    totaal_mix_AB = np.concatenate((t12_mix_AB, t23_mix_AB, t24_mix_AB), axis=0)
+
     plot_histogram_with_gaussfit(t12_mix_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 mix AB")
     plot_histogram_with_gaussfit(t23_mix_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 mix AB")
     plot_histogram_with_gaussfit(t24_mix_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 mix AB")
+    plot_histogram_with_gaussfit(totaal_mix_AB,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
 def plot_mix():
     plot_mix_AA()
     plot_mix_AB()
-    
-plot_mix()
 
+def plot_eg_AA():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    totaal_eg_AA = np.concatenate((t34_eg_AA,t13_eg_AA,t14_eg_AA),axis=0)
+
+    plot_histogram_with_gaussfit(t34_eg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 eg AA")
+    plot_histogram_with_gaussfit(t13_eg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 eg AA")
+    plot_histogram_with_gaussfit(t14_eg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 eg AA")
+    plot_histogram_with_gaussfit(totaal_eg_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
+
+
+def plot_eg_AB():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    totaal_eg_AB = np.concatenate((t12_eg_AB, t23_eg_AB, t24_eg_AB), axis=0)
+
+    plot_histogram_with_gaussfit(t12_eg_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 eg AB")
+    plot_histogram_with_gaussfit(t23_eg_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 eg AB")
+    plot_histogram_with_gaussfit(t24_eg_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 eg AB")
+    plot_histogram_with_gaussfit(totaal_eg_AB,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
+
+def plot_eg():
+    plot_eg_AA()
+    plot_eg_AB()
+
+def plot_ee():
+    plot_ee_AA()
+    plot_ee_AB()
+    
+def plot_gg():
+    plot_gg_AA()
+    plot_gg_AB()
+
+def plot_AB():
+    plot_gg_AB()
+    plot_ee_AB()
+
+def plot_AA():
+    plot_ee_AA()
+    plot_gg_AA()
+    
+#plot_AB()
+#plot_AA()
+plot_eg_AA()
 
 
 
