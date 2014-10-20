@@ -7,6 +7,9 @@ t1-t2 from station 501, FULL YEAR 2010
 ph1 > TRIGGER = charged particle
 ph1 < TRIGGER = gamma
 
+PAS OP !!!!!! : There a no gamma's in de datafiles!!! \
+Gamma's are not accounted for in GroundParticlesSimulation()
+
 """
 
 import tables

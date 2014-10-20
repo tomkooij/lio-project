@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct 13 17:27:40 2014
-
-@author: Tom
+Plot particles at groundlevel
+x,y in meters!
 """
 import tables
 

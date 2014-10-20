@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct 06 16:57:46 2014
 
-@author: Tom
+Throw CORSIKA results on a single 4 plate HiSPARC station
+
+Monte Carlo parameters:
+max_core_distance = maximum distance of station to the shower core (randomised each run)
+N = number of simulations
+
 """
+
+max_core_distance = 1000 	# km
+N = 100000 					# monte carlo runs
 
 import tables
 
@@ -24,5 +31,5 @@ data = tables.open_file('gp_sim_output.h5', 'w')
 # Use GroundParticlesSimulation --> randomize azimuth and core distance
 # we set max core distance to 0, only azimuth is varied
 #
-sim = GroundParticlesSimulation(FILENAME, 500, cluster, data, '/simrun', 10000)
+sim = GroundParticlesSimulation(FILENAME, max_core_distance, cluster, data, '/simrun', 10000)
 sim.run()
