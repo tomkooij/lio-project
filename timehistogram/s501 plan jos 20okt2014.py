@@ -99,7 +99,8 @@ STATIONS = [STATION]
 START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,4,8)
 FILENAME = 'station_501_1wk_april2014.h5'
-
+#FILENAME = 'station_501_april2010.h5'
+#FILENAME = 'station_501_augustus2014.h5'
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
 # >200 ADC count = charged particle
@@ -156,7 +157,7 @@ def gauss_fit_histogram(histogram_y, histogram_x):
     out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
     c = out[0]
 
-    print "A exp[-0.5((x-mu)/sigma)^2]"
+   # print "A exp[-0.5((x-mu)/sigma)^2]"
     print "Fit Coefficients:"
     print c[0],c[1],abs(c[2])
     return c
@@ -187,7 +188,8 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
     histogram_y = ydata[0]
     histogram_x = bins_middle
     c = gauss_fit_histogram(histogram_y, histogram_x)
-     
+    
+    title += str(" (s= %2.1f ns)" % abs(c[2])) # add sigma to title
     grafiek.set_title(title)
 # dit moet eigenlijk relatief en geen absolute x,y coordinaten in de grafiek zijn
 #    grafiek.text(-150,100,r'$\mu=100,\ \sigma=15$')
@@ -252,7 +254,12 @@ selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_
 mask_34 = ((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
 print "3 4 size: ", selected_id_34.size, mask_34.sum()
 
-mask_3_gamma = (ph3 <= LOW_PH)
+# middel detector (B) heeft gamma (of beter geen electron)
+mask_2_gamma = (ph2 <= LOW_PH)
+
+# middel detector (B) heeft electron
+mask_2_electron = (ph2 >= HIGH_PH)
+
 #
 # Create a single mask that contains all events that fit the criteria above
 #
@@ -263,17 +270,56 @@ print "Total number of events in selection: ",mask.sum()
 # elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
 # 
 # electronen in A-A betekent B = gamma 
-t12 = (t1 - t2).compress(mask_3_gamma)
-
-
-
+t34_ee_AA = (t3 - t4).compress(mask_2_gamma & (t3 > 0) & (t4 > 0)) 
+t13_ee_AA = (t1 - t3).compress(mask_2_gamma & (t1 > 0) & (t3 > 0))
+t14_ee_AA = (t1 - t4).compress(mask_2_gamma & (t1 > 0) & (t4 > 0))
+# gamma's in A-A betekent B = electron
+t34_gg_AA = (t3 - t4).compress(mask_2_electron & (t3 > 0) & (t4 > 0))
+t13_gg_AA = (t1 - t3).compress(mask_2_electron & (t1 > 0) & (t3 > 0))
+t14_gg_AA = (t1 - t4).compress(mask_2_electron & (t1 > 0) & (t4 > 0))
 
 #bins2ns5 = arange(-201.25,202.26,2.5)dm
 bins2ns5 = arange(-101.25,101.26,2.5)
 bins2ns5_midden = arange(-100,100.1,2.5)
 
 #
-# Plot pulseheight histogram (usefull for pulseheight limits)
+# Plot histograms
 #
-#hist(ph1, bins = 200, log=True, histtype='step')
-#figure()
+#
+# 4 subplots to recreate the figure from Pennink 2010
+#
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
+
+
+plot_histogram_with_gaussfit(t34_ee_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 ee AA")
+plot_histogram_with_gaussfit(t13_ee_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 ee AA")
+plot_histogram_with_gaussfit(t14_ee_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 ee AA")
+
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
+
+
+plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
+plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
+plot_histogram_with_gaussfit(t14_gg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 gg AA")
+
+
+
+
+"""
+figure()
+hist(t34_ee_AA, bins=bins2ns5)
+hist(t13_ee_AA, bins=bins2ns5)
+hist(t14_ee_AA, bins=bins2ns5)
+figure()
+hist(t34_gg_AA, bins=bins2ns5)
+hist(t13_gg_AA, bins=bins2ns5)
+hist(t14_gg_AA, bins=bins2ns5)
+"""
