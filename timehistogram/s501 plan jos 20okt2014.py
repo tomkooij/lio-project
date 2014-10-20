@@ -254,11 +254,17 @@ selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_
 mask_34 = ((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
 print "3 4 size: ", selected_id_34.size, mask_34.sum()
 
-# middel detector (B) heeft gamma (of beter geen electron)
-mask_2_gamma = (ph2 <= LOW_PH)
+mask_1_gamma = (ph1 <= LOW_PH)
+mask_2_gamma = (ph2 <= LOW_PH) 
+mask_3_gamma = (ph3 <= LOW_PH)
+mask_4_gamma = (ph4 <= LOW_PH)
+
 
 # middel detector (B) heeft electron
+mask_1_electron = (ph1 >= HIGH_PH)
 mask_2_electron = (ph2 >= HIGH_PH)
+mask_3_electron = (ph3 >= HIGH_PH)
+mask_4_electron = (ph4 >= HIGH_PH)
 
 #
 # Create a single mask that contains all events that fit the criteria above
@@ -295,10 +301,21 @@ t14_gg_AA = (t1 - t4).compress(mask_2_electron & (t1 > 0) & (t4 > 0))
 # mask_2_electron  = electron detected in detector 2 (B)
 # mask_12 = electron in 1 and 2 but NOT in 3 and 4
 #
-t12_ee_AB = (t1 - t2).compress(mask_2_electron & mask_12 & (t1 > 0) & (t2 > 0)) 
-t23_ee_AB = (t2 - t3).compress(mask_2_electron & mask_23 & (t2 > 0) & (t3 > 0))
-t24_ee_AB = (t2 - t4).compress(mask_2_electron & mask_24 & (t2 > 0) & (t4 > 0))
+t12_ee_AB = (t1 - t2).compress(mask_2_electron & mask_2_electron & (t1 > 0) & (t2 > 0)) 
+t23_ee_AB = (t2 - t3).compress(mask_2_electron & mask_3_electron & (t2 > 0) & (t3 > 0))
+t24_ee_AB = (t2 - t4).compress(mask_2_electron & mask_4_electron & (t2 > 0) & (t4 > 0))
 #
+#
+# gamma's in A-B
+#
+# mask_2_electron  = electron detected in detector 2 (B)
+# mask_12 = electron in 1 and 2 but NOT in 3 and 4
+#
+t12_gg_AB = (t1 - t2).compress(mask_2_gamma & mask_1_gamma & (t1 > 0) & (t2 > 0)) 
+t23_gg_AB = (t2 - t3).compress(mask_2_gamma & mask_3_gamma & (t2 > 0) & (t3 > 0))
+t24_gg_AB = (t2 - t4).compress(mask_2_gamma & mask_4_gamma & (t2 > 0) & (t4 > 0))
+#
+
 
 
 
@@ -311,66 +328,91 @@ bins2ns5_midden = arange(-100,100.1,2.5)
 #
 # Plot histograms
 #
-#
-# 4 subplots to recreate the figure from Pennink 2010
-#
-grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
+def plot_ee_AA():
+    #
+    # 4 subplots to recreate the figure from Pennink 2010
+    #
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t34_ee_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 ee AA")
+    plot_histogram_with_gaussfit(t13_ee_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 ee AA")
+    plot_histogram_with_gaussfit(t14_ee_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 ee AA")
+
+def plot_gg_AA():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
+    plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
+    plot_histogram_with_gaussfit(t14_gg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 gg AA")
+
+def plot_ee_AB():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t12_ee_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 ee AB")
+    plot_histogram_with_gaussfit(t23_ee_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 ee AB")
+    plot_histogram_with_gaussfit(t24_ee_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 ee AB")
+
+def plot_gg_AB():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t12_gg_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 gg AB")
+    plot_histogram_with_gaussfit(t23_gg_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 gg AB")
+    plot_histogram_with_gaussfit(t24_gg_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 gg AB")
+
+def plot_AB():
+    plot_gg_AB()
+    plot_ee_AB()
+
+def plot_mix_AA():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t34_mix_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 mix AA")
+    plot_histogram_with_gaussfit(t13_mix_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 mix AA")
+    plot_histogram_with_gaussfit(t14_mix_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 mix AA")
 
 
-plot_histogram_with_gaussfit(t34_ee_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 ee AA")
-plot_histogram_with_gaussfit(t13_ee_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 ee AA")
-plot_histogram_with_gaussfit(t14_ee_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 ee AA")
+def plot_mix_AB():
+    grafiek = figure()
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    
+    plot_histogram_with_gaussfit(t12_mix_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 mix AB")
+    plot_histogram_with_gaussfit(t23_mix_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 mix AB")
+    plot_histogram_with_gaussfit(t24_mix_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 mix AB")
 
-grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
-
-
-plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
-plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
-plot_histogram_with_gaussfit(t14_gg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 gg AA")
-
-grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
-
-
-plot_histogram_with_gaussfit(t12_ee_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 ee AB")
-plot_histogram_with_gaussfit(t23_ee_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 ee AB")
-plot_histogram_with_gaussfit(t24_ee_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 ee AB")
-
-
-grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
-
-
-plot_histogram_with_gaussfit(t34_mix_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 mix AA")
-plot_histogram_with_gaussfit(t13_mix_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 mix AA")
-plot_histogram_with_gaussfit(t14_mix_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 mix AA")
-
-
-
-grafiek = figure()
-grafiek11 = grafiek.add_subplot(221)
-grafiek12 = grafiek.add_subplot(222)
-grafiek21 = grafiek.add_subplot(223)
-grafiek22 = grafiek.add_subplot(224)
-
-
-plot_histogram_with_gaussfit(t12_mix_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 mix AB")
-plot_histogram_with_gaussfit(t23_mix_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 mix AB")
-plot_histogram_with_gaussfit(t24_mix_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 mix AB")
+def plot_mix():
+    plot_mix_AA()
+    plot_mix_AB()
+    
+plot_mix()
 
 
 
