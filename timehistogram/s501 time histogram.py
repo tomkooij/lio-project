@@ -1,5 +1,5 @@
 """
-Read data from GroundParticleSim and plot t1-t2 histogram
+Read data from station 501 and plot t1-t2 histogram
 
 Goal: recreate graphs form D.Pennink 2010
 t1-t2 from station 501, FULL YEAR 2010
@@ -17,8 +17,11 @@ from scipy.optimize import leastsq
 
 
 
-
-FILENAME = 'gp_sim_output_1000km_100000.h5'
+STATION = 501
+STATIONS = [STATION]
+START = datetime.datetime(2010,4,1)
+END = datetime.datetime(2010,5,1)
+FILENAME = 'station_501_2010_fullyear.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -33,11 +36,23 @@ LOW_PH = 120
 # Read event data from the ESD
 #  store in table `/sSTATION' for example: /s501
 #
+def create_new_event_file(filename, stations, start, end):
+
+    print   "creating file: ",filename
+    data = tables.open_file(filename,'w')
+
+    print "reading from the ESD"
+    for station in stations:
+        print "Now reading station %d" % station
+        sapphire.esd.download_data(data, '/s%d' % station, station, START, END)
+
+    return data
+
 #
 # Open existing coincidence table.
 # Only check if "/coincidences" are in table, no other checks
 def open_existing_event_file(filename):
-    data = tables.open_file(FILENAME, 'r')
+    data = tables.open_file(FILENAME, 'a')
     return data
 
 #
@@ -105,12 +120,11 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 
 
 
-
 #data = create_new_event_file(FILENAME, STATIONS, START, END)
 #data.close()
 data = open_existing_event_file(FILENAME)
 
-events = data.root.simrun.cluster_simulations.station_0.events
+events = data.root.s501.events
 
 t1 = events.col('t1')
 t2 = events.col('t2')
@@ -144,26 +158,6 @@ dt = t1 - t2
 
 # remove -1 and -999
 # select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0))
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
 print "number of events", dt1.size
 hist(dt1, bins=bins2ns5)
-
-"""
-CHECK angles using event reconstruction
-"""
-
-from sapphire.analysis.direction_reconstruction import DirectEventReconstruction
-from sapphire.clusters import Station
-from sapphire.clusters import SingleStation
-
-cluster = SingleStation()
-station = Station(cluster, 1, (0,0,0),0)
-
-dirrec = DirectEventReconstruction(station)
-
-zenith_list = []
-
-for event in events:
-    (zenith, azimuth) = dirrec.reconstruct_event(event)
-    if zenith > 0:
-        zenith_list.append(zenith)
