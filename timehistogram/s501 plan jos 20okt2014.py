@@ -224,7 +224,13 @@ ph4 = ph[:,3]
 # 
 print "Selecting events"
 print "Total number of events in dataset:",event_id.size
+
+# selected_id_12 is a list of event_id that fit the criteria
+# mask_id is a list "True, False, True, True" (mask) that is the same length as event_id.size
+#  the mask is useful for compress() in a later stage
 selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+mask_12 = ((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+
 print "1 2 size: ", selected_id_12.size
 selected_id_13 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
 print "1 3 size: ", selected_id_13.size
