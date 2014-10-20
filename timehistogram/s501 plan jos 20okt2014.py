@@ -267,6 +267,17 @@ mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
 print "Total number of events in selection: ",mask.sum()
 
 #
+# gemengd in A-A       (1-3, 1-4, 3-4) afstand 10 m
+# 
+t34_mix_AA = (t3 - t4).compress(mask & (t3 > 0) & (t4 > 0)) 
+t13_mix_AA = (t1 - t3).compress(mask & (t1 > 0) & (t3 > 0))
+t14_mix_AA = (t1 - t4).compress(mask & (t1 > 0) & (t4 > 0))
+# gemengd in A-B 
+t12_mix_AB = (t1 - t2).compress(mask & (t1 > 0) & (t2 > 0)) 
+t23_mix_AB = (t2 - t3).compress(mask & (t2 > 0) & (t3 > 0))
+t24_mix_AB = (t2 - t4).compress(mask & (t2 > 0) & (t4 > 0))
+
+#
 # elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
 # 
 # electronen in A-A betekent B = gamma 
@@ -277,6 +288,21 @@ t14_ee_AA = (t1 - t4).compress(mask_2_gamma & (t1 > 0) & (t4 > 0))
 t34_gg_AA = (t3 - t4).compress(mask_2_electron & (t3 > 0) & (t4 > 0))
 t13_gg_AA = (t1 - t3).compress(mask_2_electron & (t1 > 0) & (t3 > 0))
 t14_gg_AA = (t1 - t4).compress(mask_2_electron & (t1 > 0) & (t4 > 0))
+
+#
+# electronen in A-B
+#
+# mask_2_electron  = electron detected in detector 2 (B)
+# mask_12 = electron in 1 and 2 but NOT in 3 and 4
+#
+t12_ee_AB = (t1 - t2).compress(mask_2_electron & mask_12 & (t1 > 0) & (t2 > 0)) 
+t23_ee_AB = (t2 - t3).compress(mask_2_electron & mask_23 & (t2 > 0) & (t3 > 0))
+t24_ee_AB = (t2 - t4).compress(mask_2_electron & mask_24 & (t2 > 0) & (t4 > 0))
+#
+
+
+
+
 
 #bins2ns5 = arange(-201.25,202.26,2.5)dm
 bins2ns5 = arange(-101.25,101.26,2.5)
@@ -309,6 +335,43 @@ grafiek22 = grafiek.add_subplot(224)
 plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
 plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
 plot_histogram_with_gaussfit(t14_gg_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 gg AA")
+
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
+
+
+plot_histogram_with_gaussfit(t12_ee_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 ee AB")
+plot_histogram_with_gaussfit(t23_ee_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 ee AB")
+plot_histogram_with_gaussfit(t24_ee_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 ee AB")
+
+
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
+
+
+plot_histogram_with_gaussfit(t34_mix_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 mix AA")
+plot_histogram_with_gaussfit(t13_mix_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 mix AA")
+plot_histogram_with_gaussfit(t14_mix_AA,bins2ns5, bins2ns5_midden, grafiek12, "1-4 mix AA")
+
+
+
+grafiek = figure()
+grafiek11 = grafiek.add_subplot(221)
+grafiek12 = grafiek.add_subplot(222)
+grafiek21 = grafiek.add_subplot(223)
+grafiek22 = grafiek.add_subplot(224)
+
+
+plot_histogram_with_gaussfit(t12_mix_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 mix AB")
+plot_histogram_with_gaussfit(t23_mix_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 mix AB")
+plot_histogram_with_gaussfit(t24_mix_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 mix AB")
+
 
 
 
