@@ -98,7 +98,7 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
-FILENAME = 'station_501_2010_april.h5'
+FILENAME = 'station_501_april2010.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -129,7 +129,7 @@ def create_new_event_file(filename, stations, start, end):
 # Open existing coincidence table.
 # Only check if "/coincidences" are in table, no other checks
 def open_existing_event_file(filename):
-    data = tables.open_file(FILENAME, 'a')
+    data = tables.open_file(FILENAME, 'r')
     return data
 
 #
@@ -205,12 +205,38 @@ t1 = events.col('t1')
 t2 = events.col('t2')
 t3 = events.col('t3')
 t4 = events.col('t4')
+
 ph = events.col('pulseheights')
+
+event_id = events.col('event_id')
 
 ph1 = ph[:,0]
 ph2 = ph[:,1]
 ph3 = ph[:,2]
 ph4 = ph[:,3]
+
+
+#
+# Create a lookup table for events that fit our primary selection criterium:
+#    Two e's and two gamma's. Two pulseheight > 200 AND two pulseheights < 120
+#
+# for row in events:  #WAY too slow
+# 
+print "Selecting events"
+print "Total number of events in dataset:",event_id.size
+selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+print "1 2 size: ", selected_id_12.size
+selected_id_13 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
+print "1 3 size: ", selected_id_13.size
+selected_id_14 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
+print "1 4 size: ", selected_id_14.size
+selected_id_23 = event_id.compress((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
+print "2 3 size: ", selected_id_23.size
+selected_id_24 = event_id.compress((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
+print "2 4 size: ", selected_id_24.size
+selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
+print "2 4 size: ", selected_id_24.size
+  
 
 
 #bins2ns5 = arange(-201.25,202.26,2.5)dm
@@ -222,20 +248,3 @@ bins2ns5_midden = arange(-100,100.1,2.5)
 #
 #hist(ph1, bins = 200, log=True, histtype='step')
 #figure()
-
-#
-# 4 subplots to recreate the figure from Pennink 2010
-#
-grafiek = figure()
-
-#
-# Plot histogram for t1-t2 using event selection based on pulseheight
-# 
-#
-dt = t1 - t2
-
-# remove -1 and -999
-# select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
-print "number of events", dt1.size
-hist(dt1, bins=bins2ns5)
