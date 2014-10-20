@@ -96,9 +96,9 @@ from scipy.optimize import leastsq
 
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2010,4,1)
-END = datetime.datetime(2010,5,1)
-FILENAME = 'station_501_april2010.h5'
+START = datetime.datetime(2014,4,1)
+END = datetime.datetime(2014,4,8)
+FILENAME = 'station_501_1wk_april2014.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -167,7 +167,7 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 # Usage:
 #
 # import matplotlib.pyplot as plt
-# grafiek = plt.figure()
+# grafiek = pl((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))t.figure()
 # dt_data = [ ... datapoints ...]
 # bins = arrange( )
 # bins_middle = arrange() 
@@ -230,19 +230,42 @@ print "Total number of events in dataset:",event_id.size
 #  the mask is useful for compress() in a later stage
 selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
 mask_12 = ((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+print "1 2 size: ", selected_id_12.size, mask_12.sum()
 
-print "1 2 size: ", selected_id_12.size
 selected_id_13 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
-print "1 3 size: ", selected_id_13.size
+mask_13 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
+print "1 3 size: ", selected_id_13.size, mask_13.sum()
+
 selected_id_14 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
-print "1 4 size: ", selected_id_14.size
+mask_14 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
+print "1 4 size: ", selected_id_14.size, mask_14.sum()
+
 selected_id_23 = event_id.compress((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
-print "2 3 size: ", selected_id_23.size
+mask_23 = ((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
+print "2 3 size: ", selected_id_23.size, mask_23.sum()
+
 selected_id_24 = event_id.compress((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
-print "2 4 size: ", selected_id_24.size
+mask_24 = ((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
+print "2 4 size: ", selected_id_24.size, mask_24.sum()
+
 selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
-print "2 4 size: ", selected_id_24.size
-  
+mask_34 = ((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
+print "3 4 size: ", selected_id_34.size, mask_34.sum()
+
+mask_3_gamma = (ph3 <= LOW_PH)
+#
+# Create a single mask that contains all events that fit the criteria above
+#
+mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
+print "Total number of events in selection: ",mask.sum()
+
+#
+# elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
+# 
+# electronen in A-A betekent B = gamma 
+t12 = (t1 - t2).compress(mask_3_gamma)
+
+
 
 
 #bins2ns5 = arange(-201.25,202.26,2.5)dm
