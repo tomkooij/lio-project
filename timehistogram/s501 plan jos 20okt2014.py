@@ -227,22 +227,51 @@ ph4 = ph[:,3]
 # for row in events:  #WAY too slow
 # 
 
+
+_1_g = ((ph1 <= LOW_PH) & (ph1 > 0))
+_2_g = ((ph2 <= LOW_PH) & (ph1 > 0))
+_3_g = ((ph3 <= LOW_PH) & (ph1 > 0))
+_4_g = ((ph4 <= LOW_PH) & (ph1 > 0))
+
+mask_1_gamma = _1_g
+mask_2_gamma = _2_g
+mask_3_gamma = _3_g
+mask_4_gamma = _4_g
+
+_1_e = (ph1 >= HIGH_PH)
+_2_e = (ph2 >= HIGH_PH)
+_3_e = (ph3 >= HIGH_PH)
+_4_e = (ph4 >= HIGH_PH)
+
+mask_1_electron = _1_e
+mask_2_electron = _2_e
+mask_3_electron = _3_e
+mask_4_electron = _4_e
+
+mask_12 = _1_e & _2_e & _3_g & _4_g
+mask_13 = _1_e & _2_g & _3_e & _4_g
+mask_14 = _1_e & _2_g & _3_g & _4_e
+mask_23 = _1_g & _2_e & _3_e & _4_g
+mask_24 = _1_g & _2_e & _3_g & _4_e
+mask_34 = _1_g & _2_g & _3_e & _4_e
+
+"""
 print "Selecting events"
 print "Total number of events in dataset:",event_id.size
 
 # selected_id_12 is a list of event_id that fit the criteria
 # mask_id is a list "True, False, True, True" (mask) that is the same length as event_id.size
 #  the mask is useful for compress() in a later stage
-#selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
-mask_12 = ((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
-#print "1 2 size: ", selected_id_12.size, mask_12.sum()
+selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+#mask_12 = ((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+print "1 2 size: ", selected_id_12.size, mask_12.sum()
 
 selected_id_13 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
-mask_13 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
+#mask_13 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
 print "1 3 size: ", selected_id_13.size, mask_13.sum()
 
 selected_id_14 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
-mask_14 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
+#mask_14 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))
 print "1 4 size: ", selected_id_14.size, mask_14.sum()
 
 selected_id_23 = event_id.compress((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
@@ -256,6 +285,7 @@ print "2 4 size: ", selected_id_24.size, mask_24.sum()
 selected_id_34 = event_id.compress((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
 mask_34 = ((ph1<=LOW_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 >= HIGH_PH))
 print "3 4 size: ", selected_id_34.size, mask_34.sum()
+"""
 
 #
 # Create a single mask that contains all events that fit the criteria above
@@ -265,17 +295,11 @@ print "Total number of events in selection: ",mask.sum()
 
 
 
-mask_1_gamma = ((ph1 <= LOW_PH) & (ph1 > 0))
-mask_2_gamma = ((ph2 <= LOW_PH) & (ph1 > 0))
-mask_3_gamma = ((ph3 <= LOW_PH) & (ph1 > 0))
-mask_4_gamma = ((ph4 <= LOW_PH) & (ph1 > 0))
+
 
 
 # middel detector (B) heeft electron
-mask_1_electron = (ph1 >= HIGH_PH)
-mask_2_electron = (ph2 >= HIGH_PH)
-mask_3_electron = (ph3 >= HIGH_PH)
-mask_4_electron = (ph4 >= HIGH_PH)
+
 
 
 #
@@ -283,31 +307,28 @@ mask_4_electron = (ph4 >= HIGH_PH)
 #
 # Nu doe ik de scheve verdeling! mix is dus eigenlijk eg
 # 
-t34_eg_AA = (t3 - t4).compress(mask_3_electron & mask_4_gamma & (t3 > 0) & (t4 > 0)) 
-#t34_eg_AA_ = (t3 - t4).compress(mask_4_electron & mask_3_gamma & (t3 > 0) & (t4 > 0)) 
-#t34_mix_AA = np.concatenate((t34_eg_AA_,t34_ge_AA_),axis=0)
-
-t13_eg_AA = (t1 - t3).compress(mask_1_electron & mask_3_gamma & (t1 > 0) & (t3 > 0))
-t14_eg_AA = (t1 - t4).compress(mask_1_electron & mask_4_gamma & (t1 > 0) & (t4 > 0))
+t34_eg_AA = (t3 - t4).compress(mask_3_electron & mask_4_gamma & mask) 
+t13_eg_AA = (t1 - t3).compress(mask_1_electron & mask_3_gamma & mask)
+t14_eg_AA = (t1 - t4).compress(mask_1_electron & mask_4_gamma & mask)
 # gemengd in A-B 
-t12_eg_AB = (t1 - t2).compress(mask_1_electron & mask_2_gamma & (t1 > 0) & (t2 > 0)) 
-t23_eg_AB = (t2 - t3).compress(mask_2_electron & mask_3_gamma & (t2 > 0) & (t3 > 0))
-t24_eg_AB = (t2 - t4).compress(mask_2_electron & mask_4_gamma & (t2 > 0) & (t4 > 0))
+t12_eg_AB = (t1 - t2).compress(mask_1_electron & mask_2_gamma & mask) 
+t23_eg_AB = (t2 - t3).compress(mask_2_electron & mask_3_gamma & mask)
+t24_eg_AB = (t2 - t4).compress(mask_2_electron & mask_4_gamma & mask)
 
 #
 # elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
 # 
 # electronen in A-A betekent B = gamma 
-t34_ee_AA = (t3 - t4).compress(mask_2_gamma & mask & (t3 > 0) & (t4 > 0)) 
-t13_ee_AA = (t1 - t3).compress(mask_2_gamma & mask & (t1 > 0) & (t3 > 0))
-t14_ee_AA = (t1 - t4).compress(mask_2_gamma & mask & (t1 > 0) & (t4 > 0))
+t34_ee_AA = (t3 - t4).compress(mask_2_gamma & mask) 
+t13_ee_AA = (t1 - t3).compress(mask_2_gamma & mask)
+t14_ee_AA = (t1 - t4).compress(mask_2_gamma & mask)
 
 #
 # gamma's in A-A betekent B = electron
 #
-t34_gg_AA = (t3 - t4).compress(mask_3_gamma & mask_4_gamma & mask & (t3 > 0) & (t4 > 0))
-t13_gg_AA = (t1 - t3).compress(mask_1_gamma & mask_3_gamma & mask & (t1 > 0) & (t3 > 0))
-t14_gg_AA = (t1 - t4).compress(mask_1_gamma & mask_4_gamma & mask & (t1 > 0) & (t4 > 0))
+t34_gg_AA = (t3 - t4).compress(mask_3_gamma & mask_4_gamma & mask)
+t13_gg_AA = (t1 - t3).compress(mask_1_gamma & mask_3_gamma & mask)
+t14_gg_AA = (t1 - t4).compress(mask_1_gamma & mask_4_gamma & mask)
 
 #
 # electronen in A-B
@@ -510,10 +531,10 @@ def plot_AA():
     
 #plot_AB()
 #plot_AA()
-#plot_eg_AA()
+plot_ee_AA()
 
 
-plot_4(t12_eg_AB, t23_eg_AB, t24_eg_AB, "eg AB")
+#plot_4(t12_eg_AB, t23_eg_AB, t24_eg_AB, "eg AB")
 
 
 """
