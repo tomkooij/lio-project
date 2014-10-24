@@ -233,9 +233,9 @@ print "Total number of events in dataset:",event_id.size
 # selected_id_12 is a list of event_id that fit the criteria
 # mask_id is a list "True, False, True, True" (mask) that is the same length as event_id.size
 #  the mask is useful for compress() in a later stage
-selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
+#selected_id_12 = event_id.compress((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
 mask_12 = ((ph1>=HIGH_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 <= LOW_PH))
-print "1 2 size: ", selected_id_12.size, mask_12.sum()
+#print "1 2 size: ", selected_id_12.size, mask_12.sum()
 
 selected_id_13 = event_id.compress((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
 mask_13 = ((ph1>=HIGH_PH) & (ph2<=LOW_PH) & (ph3 >= HIGH_PH) & (ph4 <= LOW_PH))
@@ -265,10 +265,10 @@ print "Total number of events in selection: ",mask.sum()
 
 
 
-mask_1_gamma = (ph1 <= LOW_PH)
-mask_2_gamma = (ph2 <= LOW_PH) 
-mask_3_gamma = (ph3 <= LOW_PH)
-mask_4_gamma = (ph4 <= LOW_PH)
+mask_1_gamma = ((ph1 <= LOW_PH) & (ph1 > 0))
+mask_2_gamma = ((ph2 <= LOW_PH) & (ph1 > 0))
+mask_3_gamma = ((ph3 <= LOW_PH) & (ph1 > 0))
+mask_4_gamma = ((ph4 <= LOW_PH) & (ph1 > 0))
 
 
 # middel detector (B) heeft electron
@@ -465,6 +465,29 @@ def plot_eg_AB():
     plot_histogram_with_gaussfit(t24_eg_AB,bins2ns5, bins2ns5_midden, grafiek12, "2-4 eg AB")
     plot_histogram_with_gaussfit(totaal_eg_AB,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
+#
+# Maak een grafiek met 4 subplots
+#
+# serie1, serie2, serie3 zijn lijsten met tijdsverschillen
+#  de vierde plot is het totaal van de drie
+#
+def plot_4(serie1, serie2, serie3, titel):
+
+    grafiek = figure()
+    
+    
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+    
+    totaal = np.concatenate((serie1, serie2, serie3), axis=0)
+
+    plot_histogram_with_gaussfit(serie1,bins2ns5, bins2ns5_midden, grafiek11, titel)
+    plot_histogram_with_gaussfit(serie2,bins2ns5, bins2ns5_midden, grafiek21, titel)
+    plot_histogram_with_gaussfit(serie3,bins2ns5, bins2ns5_midden, grafiek12, titel)
+    plot_histogram_with_gaussfit(totaal,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
+   
 def plot_eg():
     plot_eg_AA()
     plot_eg_AB()
@@ -487,9 +510,10 @@ def plot_AA():
     
 #plot_AB()
 #plot_AA()
-plot_eg_AA()
+#plot_eg_AA()
 
 
+plot_4(t12_eg_AB, t23_eg_AB, t24_eg_AB, "eg AB")
 
 
 """
