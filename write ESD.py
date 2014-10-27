@@ -25,7 +25,7 @@ START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,5,1)
 #FILENAME = 'station_501_1wk_april2014.h5'
 FILENAME = 'timehistogram\station_501_april2010.h5'
-OUT = "s501filtered2010.h5"
+OUT = "s501filtered.h5"
 #FILENAME = 'station_501_augustus2014.h5'
 #FILENAME = 'station_501_2010_fullyear.h5'
 
@@ -36,7 +36,7 @@ OUT = "s501filtered2010.h5"
 #
 HIGH_PH = 200
 LOW_PH = 120
-CUT_OFF_PH = 50
+CUT_OFF_PH = 0
 
 #
 # Read event data from the ESD
@@ -71,8 +71,8 @@ def open_existing_event_file(filename):
 # Open (existing) h5 file for output
 #
 def open_new_h5(filename):
-    print "Appending filtered data to ", filename
-    data = tables.open_file(filename, 'a')
+    print "WRITING (not appending) filtered data to ", filename
+    data = tables.open_file(filename, 'w')
     return data
 
 #
@@ -103,8 +103,8 @@ def append_event(event, out_event_table):
 # Open data files
 #
     
-#data = open_existing_event_file('test.h5')   
-data = create_new_event_file('tempmagweg.h5', STATIONS, START, END)
+data = open_existing_event_file('tempmagweg.h5')   
+#data = create_new_event_file('tempmagweg.h5', STATIONS, START, END)
 #data = open_existing_event_file('test.h5')
 out, outevents = setup_h5_file(OUT)
 
@@ -129,9 +129,9 @@ ph3 = ph[:,2]
 ph4 = ph[:,3]
 
 _1_g = ((ph1 <= LOW_PH) & (ph1 > CUT_OFF_PH))
-_2_g = ((ph2 <= LOW_PH) & (ph1 > CUT_OFF_PH))
-_3_g = ((ph3 <= LOW_PH) & (ph1 > CUT_OFF_PH))
-_4_g = ((ph4 <= LOW_PH) & (ph1 > CUT_OFF_PH))
+_2_g = ((ph2 <= LOW_PH) & (ph2 > CUT_OFF_PH))
+_3_g = ((ph3 <= LOW_PH) & (ph3 > CUT_OFF_PH))
+_4_g = ((ph4 <= LOW_PH) & (ph4 > CUT_OFF_PH))
 
 mask_1_gamma = _1_g
 mask_2_gamma = _2_g
@@ -155,7 +155,9 @@ mask_23 = _1_g & _2_e & _3_e & _4_g
 mask_24 = _1_g & _2_e & _3_g & _4_e
 mask_34 = _1_g & _2_g & _3_e & _4_e
 
-mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
+above_noise_threshold = ((t1 != -999.) & (t2 != -999.) & (t3 != -999.) & (t4 != -999.))
+
+mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34 | above_noise_threshold
 
 #
 # This is a list of events that fit above criteria
@@ -190,4 +192,4 @@ for row in progress(events):
         append_event(row, outevents)    
         
 data.close()
-#outevents.close()
+outevents.close()

@@ -85,7 +85,6 @@ ph1 > TRIGGER = charged particle
 ph1 < TRIGGER = gamma
 
 """
-
 import tables
 import sapphire.esd
 import scipy.stats
@@ -98,8 +97,8 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,4,8)
-#FILENAME = 'station_501_1wk_april2014.h5'
-FILENAME = 's501filtered2010.h5'
+FILENAME = 'station_501_1wk_april2014.h5'
+#FILENAME = 's501filtered.h5'
 #FILENAME = 'station_501_augustus2014.h5'
 #FILENAME = 'station_501_2010_fullyear.h5'
 #
@@ -203,7 +202,7 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 #data.close()
 data = open_existing_event_file(FILENAME)
 
-events = data.root.events
+events = data.root.s501.events
 
 t1 = events.col('t1')
 t2 = events.col('t2')
@@ -226,8 +225,6 @@ ph4 = ph[:,3]
 #
 # for row in events:  #WAY too slow
 # 
-
-
 _1_g = ((ph1 <= LOW_PH) & (ph1 > 0))
 _2_g = ((ph2 <= LOW_PH) & (ph2 > 0))
 _3_g = ((ph3 <= LOW_PH) & (ph3 > 0))
@@ -290,7 +287,10 @@ print "3 4 size: ", selected_id_34.size, mask_34.sum()
 #
 # Create a single mask that contains all events that fit the criteria above
 #
-mask = mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34
+above_noise_threshold = ((t1 != -999.) & (t2 != -999.) & (t3 != -999.) & (t4 != -999.))
+
+mask = (mask_12 | mask_13 | mask_14 | mask_23 | mask_24 | mask_34) & above_noise_threshold
+
 print "Total number of events in selection: ",mask.sum()
 
 
