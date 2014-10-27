@@ -55,6 +55,11 @@ def create_new_event_file(filename, stations, start, end):
     print "reading from the ESD"
     for station in stations:
         print "Now reading station %d" % station
+
+        #
+        # Flush output of print to screen
+        #
+        sys.stdout.flush()
         
         sapphire.esd.download_data(data, '/s%d' % station, station, START, END)
 
