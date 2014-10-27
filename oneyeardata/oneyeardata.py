@@ -20,10 +20,13 @@ import sapphire
 from progressbar import ProgressBar, ETA, Bar, Percentage
 import sys
 
+# below data.root.s501 is hardcoded! Search and edit.
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2014,4,1)
-END = datetime.datetime(2014,5,1)
+
+# not used
+#START = datetime.datetime(2014,4,1)
+#END = datetime.datetime(2014,5,1)
 
 #FILENAME = 's501_april.h5'
 OUT = "s501_filtered_2014.h5"
@@ -108,7 +111,7 @@ def open_event_file(filename, stations, start, end):
         print "reading from the ESD"
         for station in stations:
             print "Now reading station %d" % station, start, end
-            sapphire.esd.download_data(data, '/s%d' % station, station, START, END)
+            sapphire.esd.download_data(data, '/s%d' % station, station, start, end)
 
     return data
 
@@ -221,7 +224,16 @@ for month in range(1,13):
 
     filename = "s501_2014_"+str(month)+".h5"
     
+    #
+    # Flush output of print to screen
+    #
+    sys.stdout.flush()
+
     data = open_event_file(filename, STATIONS, startdatum, einddatum)
+    #
+    # Flush output of print to screen
+    #
+    sys.stdout.flush()
     
     select_and_write_events()
 
