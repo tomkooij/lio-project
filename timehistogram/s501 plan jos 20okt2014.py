@@ -99,7 +99,7 @@ STATIONS = [STATION]
 START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,4,8)
 #FILENAME = 'station_501_1wk_april2014.h5'
-FILENAME = 'station_501_april2010.h5'
+FILENAME = 's501filtered2010.h5'
 #FILENAME = 'station_501_augustus2014.h5'
 #FILENAME = 'station_501_2010_fullyear.h5'
 #
@@ -203,7 +203,7 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 #data.close()
 data = open_existing_event_file(FILENAME)
 
-events = data.root.s501.events
+events = data.root.events
 
 t1 = events.col('t1')
 t2 = events.col('t2')
@@ -229,9 +229,9 @@ ph4 = ph[:,3]
 
 
 _1_g = ((ph1 <= LOW_PH) & (ph1 > 0))
-_2_g = ((ph2 <= LOW_PH) & (ph1 > 0))
-_3_g = ((ph3 <= LOW_PH) & (ph1 > 0))
-_4_g = ((ph4 <= LOW_PH) & (ph1 > 0))
+_2_g = ((ph2 <= LOW_PH) & (ph2 > 0))
+_3_g = ((ph3 <= LOW_PH) & (ph3 > 0))
+_4_g = ((ph4 <= LOW_PH) & (ph4 > 0))
 
 mask_1_gamma = _1_g
 mask_2_gamma = _2_g

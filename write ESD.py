@@ -103,7 +103,7 @@ def append_event(event, out_event_table):
 # Open data files
 #
     
-#data = open_existing_event_file(FILENAME)   
+#data = open_existing_event_file('test.h5')   
 data = create_new_event_file('tempmagweg.h5', STATIONS, START, END)
 #data = open_existing_event_file('test.h5')
 out, outevents = setup_h5_file(OUT)
@@ -190,4 +190,4 @@ for row in progress(events):
         append_event(row, outevents)    
         
 data.close()
-outevents.close()
+#outevents.close()
