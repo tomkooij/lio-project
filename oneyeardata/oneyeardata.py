@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+DIT IS VOOR STATION 508 (aparte branch)
+
 Create datafile with SELECTED events for a full year.
 Read data from ESD and write filtered data to new "ESD-like" table
 
@@ -21,7 +23,7 @@ from progressbar import ProgressBar, ETA, Bar, Percentage
 import sys
 
 # below data.root.s501 is hardcoded! Search and edit.
-STATION = 501
+STATION = 508
 STATIONS = [STATION]
 
 # not used
@@ -29,7 +31,7 @@ STATIONS = [STATION]
 #END = datetime.datetime(2014,5,1)
 
 #FILENAME = 's501_april.h5'
-OUT = "s501_filtered_2014.h5"
+OUT = "s508_filtered_2014.h5"
 
 #FILENAME = 'station_501_augustus2014.h5'
 #FILENAME = 'station_501_2010_fullyear.h5'
@@ -125,7 +127,7 @@ def select_and_write_events():
     #
     # Setup selection
     #
-    events = data.root.s501.events
+    events = data.root.s508.events
     
     t1 = events.col('t1')
     t2 = events.col('t2')
@@ -227,7 +229,7 @@ for month in range(1,13):
     else:
         einddatum = datetime.datetime(2015,1,1)
 
-    filename = "s501_2014_"+str(month)+".h5"
+    filename = "s508_2014_"+str(month)+".h5"
     
     #
     # Flush output of print to screen
