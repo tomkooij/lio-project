@@ -51,35 +51,44 @@ def plot_compton_cs_versus_E():
     plt.plot(E,cs)
     plt.xscale('log')
     plt.yscale('log')
+    plt.ylabel('Compton scattering cross section [barn]')
+    plt.xlabel('photon energy (MeV)')
+    plt.title('Klein-Nisihina cross section for compton scattering')
+    plt.savefig('kn_cross_sec.png')
 
 def plot_compton_mean_free_path_versus_E():
 
     E = np.logspace(-3, 3, 1000)
 
 
-    # number of atoms per unit volume (cm3)
-    # rho = 1.0e-3 # kg/cm3
-    # N_a = 6.0e23 # avogadro
-    # M = 6. # molecular weight
-    # n = rho * N_a / M
+    N_a = 6.022e23 # avogadro
+    # vinyltoluene = CH2=CHC6H4CH3 (C9H10)
+    rho = 1.032 # g/cm3
+    M = 9 * 12. + 10 * 1.
 
-    n = 33.e27 # [m-3] water
-    Z = 10 # water (nou ja...)
+    # number of atoms per unit volume (cm3)
+    n = rho * N_a / M
 
     # electron rest mass 0.5 MeV
     # cross section in [m2]
     # n = number of atoms per unit volume
     # Z = atom number
+    Z = 9 * 6. + 10 * 1. # C9H10
+
+    l = [1/(n*Z*KN_cross_section(energy / .5)*1e4) for energy in E] # in [cm]
 
 
-    l = [1/(n*Z*KN_cross_section(energy / .5)) for energy in E]
-
+    plt.figure()
     plt.plot(E,l)
     plt.xscale('log')
     plt.yscale('log')
+    plt.ylabel('mean free path [cm]')
+    plt.xlabel('photon energy (MeV)')
+    plt.title('Photon mean free path in vinyltoluene scintilator')
+    plt.savefig('freepath.png')
 
 if __name__=='__main__':
-#    plot_compton_cs_versus_E()
+    plot_compton_cs_versus_E()
     plot_compton_mean_free_path_versus_E()
 
 # def some_other_things():
