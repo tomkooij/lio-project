@@ -12,4 +12,6 @@ Tom Kooij
 
 * oneyeardata - create dataset for a single (4 detector) station for one year
 				with selected events: 2 detectors > 1 MIP, 2 detectors <0.6 MIP (but with t1..t4 != -999.)
-				
+
+* minimontecarlo - MC simulation of interactions of gamma photons with scintilator plate.
+ 					Recreated work by Jos and Dorrith
