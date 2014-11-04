@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 
 E_MAX = 1000.e6 # 1000 MeV
 E_MIN = 500.e3 # 500 keV
+electron_rest_mass = .5109989e6 # .5 MeV
 
 #number of simulations
 N = 10
@@ -38,7 +39,6 @@ def KN_cross_section(gamma):
                                    (ln_1_2g/2./gamma) - (_1_3g/(_1_2g)**2)))
 
 
-electron_rest_mass = .5e6 # .5 MeV
 
 def plot_compton_cs_versus_E():
 
@@ -54,7 +54,7 @@ def plot_compton_cs_versus_E():
     plt.ylabel('Compton scattering cross section [barn]')
     plt.xlabel('photon energy (MeV)')
     plt.title('Klein-Nisihina cross section for compton scattering')
-    plt.savefig('kn_cross_sec.png')
+#    plt.savefig('kn_cross_sec.png')
 
 def plot_compton_mean_free_path_versus_E():
 
@@ -85,7 +85,7 @@ def plot_compton_mean_free_path_versus_E():
     plt.ylabel('mean free path [cm]')
     plt.xlabel('photon energy (MeV)')
     plt.title('Photon mean free path in vinyltoluene scintilator')
-    plt.savefig('freepath.png')
+#    plt.savefig('freepath.png')
 
 if __name__=='__main__':
     plot_compton_cs_versus_E()
