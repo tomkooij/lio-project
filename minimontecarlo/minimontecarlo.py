@@ -56,6 +56,30 @@ def plot_compton_cs_versus_E():
     plt.title('Klein-Nisihina cross section for compton scattering')
 #    plt.savefig('kn_cross_sec.png')
 
+#
+# Calculate mean free path for photon in Vinyltoluene scintillator
+#   energy = photon energy in [MeV]
+#   returns mean free path in [cm]
+#
+def compton_mean_free_path(energy):
+
+    N_a = 6.022e23 # avogadro
+    # vinyltoluene = CH2=CHC6H4CH3 (C9H10)
+    rho = 1.032 # g/cm3
+    M = 9 * 12. + 10 * 1.
+
+    # number of atoms per unit volume (cm3)
+    n = rho * N_a / M
+
+    # Z = atom number
+    Z = 9 * 6. + 10 * 1. # C9H10
+
+    # electron rest mass 0.5109989 MeV
+    # cross section in [m2]
+    # n = number of atoms per unit volume
+
+    return 1/(n*Z*KN_cross_section(energy / .5)*1e4) # in [cm]
+        
 def plot_compton_mean_free_path_versus_E():
 
     E = np.logspace(-3, 3, 1000)
@@ -87,18 +111,32 @@ def plot_compton_mean_free_path_versus_E():
     plt.title('Photon mean free path in vinyltoluene scintilator')
 #    plt.savefig('freepath.png')
 
+def test_reciprocal_distribution():
+    #
+    # gamma photon energy is distributed as 1/E
+    #  (reciprocal distribution)
+    #
+    from scipy.stats import reciprocal
+
+    # get "size" random numbers from the reciprocal distribution
+    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
+
+    # plot histogram to check generated numbers
+    plt.figure()
+    plt.hist(Espectrum,bins=50,histtype='step')
+
+
 if __name__=='__main__':
-    plot_compton_cs_versus_E()
-    plot_compton_mean_free_path_versus_E()
+#    plot_compton_cs_versus_E()
+#    plot_compton_mean_free_path_versus_E()
+     test_reciprocal_distribution()
 
 # def some_other_things():
 #     #
 #     # Trek een energie uit de verdeling 1/E
 #     #
-#     #
-#     # 1/E heb ik nog niet onder de knie dus eerst maars een uniform:
-#     #
-#     Espectrum = numpy.random.uniform(low=100.e3, high=1000.e6, size=10000)
+#
+#    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
 #
 #     cs_list = []
 #
