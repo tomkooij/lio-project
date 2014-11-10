@@ -13,7 +13,10 @@ from matplotlib import pyplot as plt
 
 E_MAX = 1000.e6 # 1000 MeV
 E_MIN = 500.e3 # 500 keV
-electron_rest_mass = .5109989e6 # .5 MeV
+electron_rest_mass_MeV = .5109989 # MeV
+electron_rest_mass = electron_rest_mass_MeV * 1e6 # eV
+
+THICKNESS = 2.0 # [cm] scintillator thickness
 
 #number of simulations
 N = 10
@@ -46,7 +49,7 @@ def plot_compton_cs_versus_E():
 
     # electron rest mass 0.5 MeV
     # cs in barn
-    cs = [KN_cross_section(energy / .5) / 1e-28 for energy in E]
+    cs = [KN_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
 
     plt.plot(E,cs)
     plt.xscale('log')
@@ -78,30 +81,49 @@ def compton_mean_free_path(energy):
     # cross section in [m2]
     # n = number of atoms per unit volume
 
-    return 1/(n*Z*KN_cross_section(energy / .5)*1e4) # in [cm]
-        
-def plot_compton_mean_free_path_versus_E():
+    return 1/(n*Z*KN_cross_section(energy / electron_rest_mass_MeV)*1e4) # in [cm]
 
+#
+# Calculate MAXIMUM energy loss for Compton scattering
+#
+def compton_max_energy_transfer(energy):
+
+    return (energy * (2. * energy / (electron_rest_mass_MeV+2.*energy) ) )
+#
+# Calculate energy loss for Compton scattering for scattering angle theta
+#
+def compton_energy_transfer(energy, theta):
+
+    return (energy * (2. * energy / (electron_rest_mass_MeV+2.*energy) ) )
+
+
+def plot_MAX_energy_transfer():
+
+    # log input [MeV]
     E = np.logspace(-3, 3, 1000)
 
+    # maak een lijst met T per energie
+    T = [compton_max_energy_transfer(energy) for energy in E] # in [cm]
 
-    N_a = 6.022e23 # avogadro
-    # vinyltoluene = CH2=CHC6H4CH3 (C9H10)
-    rho = 1.032 # g/cm3
-    M = 9 * 12. + 10 * 1.
+    # maak plotje
+    plt.figure()
+    plt.plot(E,T)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.ylabel('T [MeV]')
+    plt.xlabel('photon energy (MeV)')
+    plt.title('Photon max energy loss for Compton scattering')
+    #plt.savefig('T.png')
 
-    # number of atoms per unit volume (cm3)
-    n = rho * N_a / M
+def plot_compton_mean_free_path_versus_E():
 
-    # electron rest mass 0.5 MeV
-    # cross section in [m2]
-    # n = number of atoms per unit volume
-    # Z = atom number
-    Z = 9 * 6. + 10 * 1. # C9H10
+    # log input [MeV]
+    E = np.logspace(-3, 3, 1000)
 
-    l = [1/(n*Z*KN_cross_section(energy / .5)*1e4) for energy in E] # in [cm]
+    # maak een lijst met vrije weglengtes per energie
+    l = [compton_mean_free_path(energy) for energy in E] # in [cm]
 
-
+    # maak plotje
     plt.figure()
     plt.plot(E,l)
     plt.xscale('log')
@@ -126,24 +148,43 @@ def test_reciprocal_distribution():
     plt.hist(Espectrum,bins=50,histtype='step')
 
 
-if __name__=='__main__':
-#    plot_compton_cs_versus_E()
-#    plot_compton_mean_free_path_versus_E()
-     test_reciprocal_distribution()
 
-# def some_other_things():
-#     #
-#     # Trek een energie uit de verdeling 1/E
-#     #
-#
-#    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
-#
-#     cs_list = []
-#
-#     for Egamma in Espectrum:
-#         gamma = Egamma/electron_rest_mass
-#         print "energy, gamma ",Egamma, gamma
-#
-#         cs = KN_cross_section(gamma) / 1e-28 # barn
-#
-#         cs_list.append(cs)
+def montecarlo():
+    #
+    # Trek een energie uit de verdeling 1/E
+    #
+    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
+
+
+    for Egamma in Espectrum:
+
+        x = 0  # coordinate
+        #
+        # Nog in de scintilator?
+        #
+        while (x < THICKNESS):
+
+            #
+            # Bereken vrije weglengte (per interactie type)
+            #
+            compton_mfp = compton_mean_free_path(Egamma)
+
+            #
+            # Selecteer kleinste weglengte  = plaats van volgende interactie
+            #
+            x = compton_mfp
+
+            #
+            # Bereken energie verlies voor deze interactie
+            #
+
+
+
+
+
+
+if __name__=='__main__':
+    plot_compton_cs_versus_E()
+    plot_compton_mean_free_path_versus_E()
+    test_reciprocal_distribution()
+    plot_MAX_energy_transfer()
