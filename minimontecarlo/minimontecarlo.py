@@ -22,10 +22,16 @@ THICKNESS = 2.0 # [cm] scintillator thickness
 N = 10
 
 #
-# calculate the Klein-Nisihina cross section
+# Compton scattering
+# Klein-Nisihina cross section
+#    for electrons
+#
+# W.R. Leo, Techniques for Nuclear and Particles Physics Expermiments,
+#     Springer (1987)
 #
 # gamma = photon energie / rest mass electron
-
+# returns cross section (1/m^2)
+#
 def KN_cross_section(gamma):
 
     r_e = 2.82e-15 # classical electron radius [m]
@@ -35,8 +41,7 @@ def KN_cross_section(gamma):
     _1_3g = 1 + 3 * gamma
     ln_1_2g = math.log(1 + 2*gamma)
 
-    # Bron: Am J Phys, 71 p38-45
-    # Gecontroleerd 3nov2014
+    # Gecontroleerd 3nov2014 (Tweede bron: Am J Phys, 71 p38-45)
     return (2.*math.pi*(r_e**2) * ((_1_g/gamma**2) *
                                    ((2.*_1_g/_1_2g) - (ln_1_2g/gamma)) +
                                    (ln_1_2g/2./gamma) - (_1_3g/(_1_2g)**2)))
