@@ -1,10 +1,11 @@
 """
-mini monte carlo
+Photons door scintilator
 
 simulatie van detector response op foton
  "nagedaan" werk van Dorrith/Jos in April 2010
 
-Gebaseerd op Am J Phys 71, p38-45
+Formules uit W.R. Leo, "Techniques for Nucl and Part Ph experiments", Springer (1987)
+
 """
 
 import math
