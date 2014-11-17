@@ -71,6 +71,9 @@ def Eloss_histogram():
     plt.title('Photon energy loss histogram')
     plt.xlabel('Eloss [Mev]')
 
+#
+# Plot the fraction of energy loss per foton
+#
 def plot_T():
     Egamma = event_array[:,0].astype(np.float32)
     Eloss = event_array[:,3].astype(np.float32)
@@ -80,7 +83,7 @@ def plot_T():
     plt.figure()
     plt.scatter(Egamma, T)
     plt.title('T vs Egamma')
-    plt.ylabel('fration of primary photon energy')
+    plt.ylabel('fraction of primary photon energy')
     plt.xlabel('Egamma [Mev]')
 #    plt.xscale('log')
 
