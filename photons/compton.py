@@ -100,35 +100,7 @@ def interaction_probability(energy):
     # P(x) = 1 - exp^(-1/l*x)  (W.R. Leo, 1987, p 20)
     return ( 1. - math.exp(-1./l*THICKNESS) )
 
-# exponentiele functie voor curve_fit
-def exp_func(x, a, c, d):
-    return a*np.exp(-c*x)+d
-#
-# Plot interaction probability for Compton scattering
-#
-def plot_P_compton_and_fit():
 
-
-    E = np.logspace(-1, 1, 1000)
-
-    kans = [interaction_probability(energy) for energy in E]
-
-    # maak plotje
-    plt.figure()
-    plt.plot(E,kans)
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.ylabel('Interaction probability')
-    plt.xlabel('photon energy (MeV)')
-    plt.title('Interaction probability in 2cm VinylToluene scinitilator for Compton scattering')
-    #plt.savefig('P_Compton-log.png')
-
-    popt, pcov = curve_fit(exp_func, E, kans, p0=(1, 1, 1))
-
-    fit = exp_func(E, popt[0], popt[1], popt[2])
-    plt.plot(E, fit)
-
-    print popt
 #
 # Calculate MAXIMUM energy loss for Compton scattering
 #
@@ -173,25 +145,7 @@ def plot_compton_mean_free_path_versus_E():
     plt.title('Photon mean free path in vinyltoluene scintilator')
 #    plt.savefig('freepath.png')
 
-def test_reciprocal_distribution():
-    #
-    # gamma photon energy is distributed as 1/E
-    #  (reciprocal distribution)
-    #
-    from scipy.stats import reciprocal
-
-    # get "size" random numbers from the reciprocal distribution
-    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
-
-    # plot histogram to check generated numbers
-    plt.figure()
-    plt.hist(Espectrum,bins=50,histtype='step')
-
-
 
 if __name__=='__main__':
-    #plot_compton_cs_versus_E()
-    #plot_compton_mean_free_path_versus_E()
-    #test_reciprocal_distribution()
-    #plot_MAX_energy_transfer()
-    print "kom maar op!\n"
+
+    print "This is compton.py!\n"
