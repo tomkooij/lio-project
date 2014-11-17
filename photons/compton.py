@@ -50,6 +50,23 @@ def KN_cross_section(gamma):
 
 
 
+# W.R. Leo (1987) p 54
+#
+# E photon energy [MeV]
+# T electron recoil energy [MeV]
+
+def dsigma_dT(E,T):
+
+    r_e = 2.82e-15 # classical electron radius [m]
+
+    gamma = E / electron_rest_mass_MeV
+
+    s = T / E
+
+    return (math.pi*(r_e**2) / (electron_rest_mass_MeV * gamma**2) *
+                    (2 + (s**2 / ((gamma**2)*(1 - s)**2)) +
+                                (s/(1 - s))*(s - 2/gamma)))
+
 def plot_compton_cs_versus_E():
 
     E = np.logspace(-3, 3, 1000)
@@ -144,6 +161,7 @@ def plot_compton_mean_free_path_versus_E():
     plt.xlabel('photon energy (MeV)')
     plt.title('Photon mean free path in vinyltoluene scintilator')
 #    plt.savefig('freepath.png')
+
 
 
 if __name__=='__main__':
