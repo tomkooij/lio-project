@@ -61,7 +61,7 @@ def plot_output():
 
 # recreate figure 8 Josst june 2010
 
-def Eloss_histrogram():
+def Eloss_histogram():
     Egamma = event_array[:,0].astype(np.float32)
     Eloss = event_array[:,3].astype(np.float32)
 
