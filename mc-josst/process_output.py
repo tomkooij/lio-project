@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #FILENAME = 'output_10k_photons.txt' # 10k photons 1/E distributed
+#FILENAME = 'output_100k_ZONDER_FE.txt' # no photo electric effect
 FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
 #FILENAME = 'output_1M_photons.txt' # 500MEGS! 1M photons 1/E distributed
 
@@ -70,6 +71,18 @@ def Eloss_histogram():
     plt.title('Photon energy loss histogram')
     plt.xlabel('Eloss [Mev]')
 
+def plot_T():
+    Egamma = event_array[:,0].astype(np.float32)
+    Eloss = event_array[:,3].astype(np.float32)
+
+    T = Eloss/Egamma
+
+    plt.figure()
+    plt.scatter(Egamma, T)
+    plt.title('T vs Egamma')
+    plt.ylabel('fration of primary photon energy')
+    plt.xlabel('Egamma [Mev]')
+#    plt.xscale('log')
 
 def E_histogram(Energy):
 
