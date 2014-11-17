@@ -136,12 +136,6 @@ def compton_max_energy_transfer(energy):
 
     return (energy * (2. * energy / (electron_rest_mass_MeV+2.*energy) ) )
 #
-# Calculate energy loss for Compton scattering for scattering angle theta
-#
-def compton_energy_transfer(energy, theta):
-
-    return (energy * (2. * energy / (electron_rest_mass_MeV+2.*energy) ) )
-
 
 def plot_MAX_energy_transfer():
 
@@ -192,40 +186,6 @@ def test_reciprocal_distribution():
     # plot histogram to check generated numbers
     plt.figure()
     plt.hist(Espectrum,bins=50,histtype='step')
-
-
-
-def montecarlo():
-    #
-    # Trek een energie uit de verdeling 1/E
-    #
-    Espectrum = reciprocal.rvs(E_MIN, E_MAX, size=10000)
-
-
-    for Egamma in Espectrum:
-
-        x = 0  # coordinate
-        #
-        # Nog in de scintilator?
-        #
-        while (x < THICKNESS):
-
-            #
-            # Bereken vrije weglengte (per interactie type)
-            #
-            compton_mfp = compton_mean_free_path(Egamma)
-
-            #
-            # Selecteer kleinste weglengte  = plaats van volgende interactie
-            #
-            x = compton_mfp
-
-            #
-            # Bereken energie verlies voor deze interactie
-            #
-
-
-
 
 
 
