@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #FILENAME = 'output_10k_photons.txt' # 10k photons 1/E distributed
-FILENAME = 'output_100k_ZONDER_FE.txt' # 100k photons 1/E distributed
+FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
 #FILENAME = 'output_1M_photons.txt' # 500MEGS! 1M photons 1/E distributed
 
 def plot_Eloss_vs_Eprim(input_list):
@@ -71,7 +71,7 @@ def Eloss_histrogram():
     plt.xlabel('Eloss [Mev]')
 
 
-def E_histrogram(Energy):
+def E_histogram(Energy):
 
     kolom4 = Energy[:,3]
 
