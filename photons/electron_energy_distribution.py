@@ -70,7 +70,7 @@ def cumulative_energy_distribution(Egamma):
 #
 def plot_series_cum_distr():
 
-    E = np.logspace(-1,1,5)
+    E = np.logspace(-1,1,15)
 
     plt.figure()
     y = np.linspace(0,1000,10)
@@ -83,6 +83,16 @@ def plot_series_cum_distr():
     plt.ylabel('normalised cum energy => electron energy fraction')
     plt.xlabel('bin')
 
+# normalize x-value from 0..1
+# distribution is a list [] with y-values
+def y_value(x, distribution):
+
+    steps = len(distribution)
+
+    counter = int(x*(steps-1))
+
+    return distribution[counter]
+
 
 
 if __name__=='__main__':
@@ -93,4 +103,29 @@ if __name__=='__main__':
 #    for Energy in E:
 #        plot_energy_distribution(Energy)
 
-    plot_series_cum_distr()
+#    plot_series_cum_distr()
+
+    E = np.logspace(-1,1,20)
+    x = np.linspace(0.,1.,1000)
+    z_list = []
+
+    # als E een grote lijst is dan is een progressbar nodig!!!!
+    for energy in E:
+        dist = cumulative_energy_distribution(energy)   # create x,y pairs
+        y = [y_value(xx, dist) for xx in x]
+        z = np.polyfit(x,y,2)               # fit order 2 polynomial
+        print "polyfit z:", energy, z
+        p = np.poly1d(z)
+        z_list.append([energy, z[0], z[1], z[2]])
+
+    z = np.array(z_list)
+    z_kwadraat_term = z[:,1]
+    z_lin_term = z[:,2]
+    z_constante = z[:,3]
+
+    # these can be fitted!!!!!
+    plt.figure()
+    plt.plot(E,z_kwadraat_term)
+    plt.plot(E,z_lin_term)
+    plt.figure()
+    plt.plot(E,z_constante)
