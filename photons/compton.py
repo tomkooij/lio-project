@@ -27,14 +27,15 @@ N = 10
 # Compton scattering
 # Klein-Nisihina cross section
 #    for electrons
+#  "Total probabilty per electron for a Compton scattering to occur"
 #
 # W.R. Leo, Techniques for Nuclear and Particles Physics Expermiments,
 #     Springer (1987)
 #
 # gamma = photon energie / rest mass electron
-# returns cross section (1/m^2)
+# returns cross section (1/m^2 per electron)
 #
-def KN_cross_section(gamma):
+def KN_total_cross_section(gamma):
 
     r_e = 2.82e-15 # classical electron radius [m]
 
@@ -48,6 +49,37 @@ def KN_cross_section(gamma):
                                    ((2.*_1_g/_1_2g) - (ln_1_2g/gamma)) +
                                    (ln_1_2g/2./gamma) - (_1_3g/(_1_2g)**2)))
 
+
+
+#
+# Compton scattering
+# Klein-Nisihina absorption cross section
+#
+#  "absorption cross section is the average fraction of the total energy for the scattered photon"
+#
+# W.R. Leo, Techniques for Nuclear and Particles Physics Expermiments,
+#     Springer (1987)
+#
+# gamma = photon energie / rest mass electron
+# returns cross section (1/m^2 per electron)
+#
+def KN_scattering_cross_section(gamma):
+
+    r_e = 2.82e-15 # classical electron radius [m]
+
+    _1_g = 1 + gamma
+    _1_2g = 1 + 2 * gamma
+    ln_1_2g = math.log(1 + 2*gamma)
+
+    return (math.pi*(r_e**2) * ( (1/gamma**3 * ln_1_2g) +
+                                        (2*(_1_g*(2*gamma**2-2*gamma-1))/(gamma**2*_1_2g**2)) +
+                                        (8*gamma**2/(3 * (_1_2g)**3)) ) )
+
+
+# The absorption cross section is just total - scattering.
+def KN_absorption_cross_section(gamma):
+
+    return KN_total_cross_section(gamma) - KN_scattering_cross_section(gamma)
 
 
 # W.R. Leo (1987) p 54
@@ -64,7 +96,7 @@ def dsigma_dT(E,T):
     s = T / E
 
     return (math.pi*(r_e**2) / (electron_rest_mass_MeV * gamma**2) *
-                    (2 + (s**2 / ((gamma**2)*(1 - s)**2)) +
+                    (2 + (s**2 / ((gamma**2) * ((1 - s)**2)) ) +
                                 (s/(1 - s))*(s - 2/gamma)))
 
 # W.R. Leo (1987) p 54
@@ -82,7 +114,7 @@ def plot_compton_cs_versus_E():
 
     # electron rest mass 0.5 MeV
     # cs in barn
-    cs = [KN_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+    cs = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
 
     plt.plot(E,cs)
     plt.xscale('log')
@@ -114,7 +146,7 @@ def compton_mean_free_path(energy):
     # cross section in [m2]
     # n = number of atoms per unit volume
 
-    return 1/(n*Z*KN_cross_section(energy / electron_rest_mass_MeV)*1e4) # in [cm]
+    return 1/(n*Z*KN_total_cross_section(energy / electron_rest_mass_MeV)*1e4) # in [cm]
 
 #
 # Calculate the probablity of compton scattering in 2cm vinyltoluene scintilator
@@ -171,7 +203,27 @@ def plot_compton_mean_free_path_versus_E():
     plt.title('Photon mean free path in vinyltoluene scintilator')
 #    plt.savefig('freepath.png')
 
+def plot_compton_full_versus_E():
 
+    #E = np.logspace(-2, 3, 1000)  # figure 2.23 Leo, p 53
+    E = np.logspace(-1,1,1000)   # HiSPARC relevant energy spectrum
+
+    # electron rest mass 0.5 MeV
+    # cs in barn
+    cs_total = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+    cs_scattering = [KN_scattering_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+    cs_absorption = [KN_absorption_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+
+    plt.plot(E,cs_total,label='total cs')
+    plt.plot(E,cs_scattering, label='scattering')
+    plt.plot(E,cs_absorption, label='absorption')
+    plt.legend()
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.ylabel('cross section [barn]')
+    plt.xlabel('photon energy (MeV)')
+    plt.title('Klein-Nisihina cross sections for Compton scattering')
+#    plt.savefig('kn_cross_sec.png')
 
 if __name__=='__main__':
 
