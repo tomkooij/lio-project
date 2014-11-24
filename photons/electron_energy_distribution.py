@@ -10,6 +10,7 @@ electron_rest_mass_MeV = .5109989 # MeV
 import math
 from matplotlib import pyplot as plt
 import numpy as np
+from scipy.optimize import leastsq
 from compton import KN_total_cross_section, KN_scattering_cross_section, dsigma_dT, compton_edge
 
 def calc_AVERAGE_fraction(Egamma):
@@ -93,7 +94,19 @@ def y_value(x, distribution):
 
     return distribution[counter]
 
+# least squares fit of polynomial of order 2 with c[2] = 0
+# y = c[0] * x**2 + c[1] * x  + 0
+#
+fitfunc  = lambda p, x: p[0]*x**2+p[1]*x
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 
+def leastsq_fit_polynomial(x_values, y_values):
+
+    init  = [0.5, 0.5, 0.]
+
+    out   = leastsq( errfunc, init, args=(x_values, y_values))
+
+    return out[0]
 
 if __name__=='__main__':
 
@@ -115,8 +128,9 @@ if __name__=='__main__':
         y = [y_value(xx, dist) for xx in x]
         z = np.polyfit(x,y,2)               # fit order 2 polynomial
         print "polyfit z:", energy, z
-        p = np.poly1d(z)
-        z_list.append([energy, z[0], z[1], z[2]])
+        z2 = leastsq_fit_polynomial(x, y)  # own fit to set z[0]==0
+
+        z_list.append([energy, z[0], z[1], z[2], z2[0], z2[1], z2[2]])
 
     z = np.array(z_list)
     z_kwadraat_term = z[:,1]
