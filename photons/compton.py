@@ -67,6 +67,15 @@ def dsigma_dT(E,T):
                     (2 + (s**2 / ((gamma**2)*(1 - s)**2)) +
                                 (s/(1 - s))*(s - 2/gamma)))
 
+# W.R. Leo (1987) p 54
+# E photon energy [MeV]
+# return compton edge [MeV]
+def edge(E):
+
+    gamma = E / electron_rest_mass_MeV
+
+    return (E * 2 * gamma / (1 + 2*gamma) )
+
 def plot_compton_cs_versus_E():
 
     E = np.logspace(-3, 3, 1000)
