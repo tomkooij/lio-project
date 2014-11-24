@@ -10,7 +10,7 @@ electron_rest_mass_MeV = .5109989 # MeV
 import math
 from matplotlib import pyplot as plt
 import numpy as np
-from compton import KN_total_cross_section, KN_scattering_cross_section, dsigma_dT, edge
+from compton import KN_total_cross_section, KN_scattering_cross_section, dsigma_dT, compton_edge
 
 def calc_AVERAGE_fraction(Egamma):
 
@@ -34,7 +34,7 @@ def plot_T_vs_E():
 
 def plot_energy_distribution(Egamma):
 
-    E = np.linspace(0, edge(Egamma),1000)
+    E = np.linspace(0, compton_edge(Egamma),1000)
 
     T = [dsigma_dT(Egamma, EE)/1e-28 for EE in E]
 
@@ -43,10 +43,54 @@ def plot_energy_distribution(Egamma):
     plt.xlabel('Electron energy [MeV]')
     plt.title('electron energy distribution')
 
+#
+# calculates a normalised, cumulative energy distribution for energy Egamma
+#  returns a list of size STEPS
+#
+def cumulative_energy_distribution(Egamma):
+
+    edge = compton_edge(Egamma)
+
+    cumul = []
+    STEPS = 1000
+
+    T = np.linspace(0, edge, STEPS)
+
+    # electron energy distribution
+    electron_energy = [dsigma_dT(Egamma, EE) for EE in T]
+
+    cumulative_energy = np.cumsum(electron_energy)
+
+    normalised_energy_distribution = cumulative_energy / cumulative_energy[-1] # divide by last item in list
+
+    return normalised_energy_distribution
+
+#
+# Plot a series of cumulative energy distributions to investigate difference
+#
+def plot_series_cum_distr():
+
+    E = np.logspace(-1,1,5)
+
+    plt.figure()
+    y = np.linspace(0,1000,10)
+    plt.plot(y,y/1000)  # ploy y = x (normalised)
+    for Energy in E:
+        n = cumulative_energy_distribution(Energy)
+        plt.plot(n)
+
+    plt.title('cum energy distr for compton scattering')
+    plt.ylabel('normalised cum energy => electron energy fraction')
+    plt.xlabel('bin')
+
+
+
 if __name__=='__main__':
 
     print "This is calc_T_from_cross_section.py!\n"
-    E = [0.511, 1.0, 2.5]
-    plt.figure()
-    for Energy in E:
-        plot_energy_distribution(Energy)
+#    E = [0.511, 1.0, 2.5]
+#    plt.figure()
+#    for Energy in E:
+#        plot_energy_distribution(Energy)
+
+    plot_series_cum_distr()

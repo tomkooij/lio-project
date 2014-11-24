@@ -102,7 +102,7 @@ def dsigma_dT(E,T):
 # W.R. Leo (1987) p 54
 # E photon energy [MeV]
 # return compton edge [MeV]
-def edge(E):
+def compton_edge(E):
 
     gamma = E / electron_rest_mass_MeV
 
