@@ -8,8 +8,10 @@ import numpy as np
 
 #FILENAME = 'output_10k_photons.txt' # 10k photons 1/E distributed
 #FILENAME = 'output_100k_ZONDER_FE.txt' # no photo electric effect
-FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
+#FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
 #FILENAME = 'output_1M_photons.txt' # 500MEGS! 1M photons 1/E distributed
+#FILENAME = 'output_10k_1MeV.txt' # 10k electronen met extra nfo zie process_electron.c
+FILENAME = 'output_10k_electron_info.txt' # 10k electronen 1/E distr met extra nfo van process_electron.c
 
 def plot_Eloss_vs_Eprim(input_list):
     # maak een x,y scatter plot
@@ -102,7 +104,9 @@ if __name__ == '__main__':
     events = []     # array of events
                     # single event = (Eprime, mechanism, x, Eloss)
     global do_compton_output
+    global electron_output
     do_compton_output = [] # TK output of do_compton()
+    electron_output = [] # T output of process_electron()
 
     # lees de hele file. Verwijder \n en splits op spaties
     lines = [line.strip().split(' ') for line in open(FILENAME)]
@@ -112,10 +116,13 @@ if __name__ == '__main__':
         if (line[0][0:2] == "TK"):
             do_compton_output.append(line)
 
+        elif (line[0][0] == 'T'):
+            electron_output.append(line[1:4]) # mechanisme, x*LOSS, T
+
         # selecteer de regels zonder + of #
         # (dan zijn de resultaten per primair foton over)
         # sla die op in events lijst
-        elif ((line[0][0] != "+") & (line[0][0] != '#')): # first char not + of #
+        elif ((line[0][0] != "+") & (line[0][0] != '#') & (line[0][0] != 'T')): # datalne
             events.append(line)# selecteer op mechanisme
 
     event_array = np.array(events).astype(np.float32)
@@ -127,3 +134,5 @@ if __name__ == '__main__':
     E_1MeV_2MeV = event_array.compress(((Egamma > 1.) & (Egamma < 2.)),axis=0)
     E_2MeV_5MeV = event_array.compress(((Egamma > 2.) & (Egamma < 5.)),axis=0)
     E_5MeV_10MeV = event_array.compress(((Egamma > 5.) & (Egamma < 10.)),axis=0)
+
+    print 'ga je gang!\n'
