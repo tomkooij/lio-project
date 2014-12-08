@@ -1,5 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 \usepackage[authoryear]{natbib}
+\usepackage{graphicx}
 
 % define the title
 \author{T. Kooij}
@@ -23,7 +24,7 @@ In een pulsehoogtehistogram van een HiSPARC detector station zijn bijdragen van 
 \section{Theorie}
 In de HiSPARC scintilator platen word fotonen (gamma's) gedetecteerd met een energie tussen 100 keV en 10 MeV \citep*{Steijger2010-gammas}. Er zijn drie mechanismen waarmee dergelijke gamma's energieverliezen in een scintilatorplaat: Het foto-elektrisch effect, compton verstrooiing en paarvorming. Door deze interacties wordt energie van de invallende fotonen ovegedragen aan elektronen in de detector. Deze elektronen worden dan gedetecteerd zoals invallende elektronen uit EAS.
 
-De werkzame doorsnede voor het foto-elektrisch effect is bij lage energie groot. Maar de interactie levert elektronen met lage energie. De pulshoogte in de PMT is kleiner dan het ruisniveau. Citation-needed. Het foto-elektrisch effect kan buiten beschouwing gelaten worden.
+De werkzame doorsnede voor het foto-elektrisch effect is alleen bij lage energie voldoende groot. Voor foton met energie rond 1 MeV is de werkzame doorsnede zo klein dat de interactie kans vrijwel nul is. Er zijn alleen FE interacties die elektronen met lage energie vrijmaken. De pulshoogte in de PMT is kleiner dan het ruisniveau. Citation-needed. Het foto-elektrisch effect kan buiten beschouwing gelaten worden.
 
 Compton verstrooiing is de domineerende interactie. De elektronen die door deze interactie worden vrijegemaakt leveren pulshoogten tussen ruis-niveau en 1.x MIP. Compton verstrooiing moet worden gesimuleerd in de detector response voor fotonen.
 
@@ -32,14 +33,40 @@ Paar-vorming kan alleen optreden bij foton energie groter dan 1.022 MeV (de rust
 
 \section{Monte carlo simulatie van fotonen door een scintilatorplaat}
 
-\subsection{Beschrijving van de MC code}
-Voor het analyseren van de response van HiSPARC detectoren op fotonen is een monte carlo simulatie programma geschreven door J. Steijger \citep*{Steijger2010-gammas}.
+\subsection{Beschrijving van de montecarlo analyse}
+Voor het analyseren van de response van HiSPARC detectoren op fotonen is een monte carlo simulatie programma geschreven door J. Steijger \citep*{Steijger2010-gammas}. De analyse wordt door de auteur \textit{mini montecarlo} genoemd.
 
-De simulatie, geschreven in C, is gecompileerd met gcc-4.8.1 via cygwin64 op Windows 7. De uitvoer van de simulatie is of meerdere regels tekst per vrijgemaakt elektron. Deze tekst regels worden ingelezen door enkele python-2.7 scripts die analyse van de uitvoer mogelijk maken. De C en python code zijn beschikbaar via Github. citation needed.
+De simulatie, geschreven in C, is gecompileerd met gcc-4.8.1 via cygwin64 op Windows 7. De uitvoer van de simulatie is of meerdere regels tekst per vrijgemaakt elektron. De opbouw van de tekstregels van de programmauitvoer is gedocumenteerd VERWIJS Github. De uitvoer wordt ingelezen een python-2.7 script waarmee de tabellen en figuren uit dit pamflet zijn gemaakt. De C en python broncode zijn beschikbaar via Github.
 
-Aangenomen wordt dat de gammastraling loodrecht invalt op de detector en dat alle deeltje in dezelfde richting door de detector verplaatsen. De detector kan zo gemodelleerd worden als eendimensionaal met een lengte van 2,0 cm. De code simuleert een groot aantal fotonen waarvan de energie willekeurig getrokken wordt uit een 1/E verdeling tussen 100keV en 10MeV. Per foton wordt de werkzame doorsnede van de drie interacties bepaald en daaruit de vrije weglengte van het foton. De kleinste vrije wegelengte bepaalt het interactietype en een willekeurig getal bepaalt de interactieplaats. De aan de elektronen overgedragen energie wordt bepaald en daaruit wordt de aan de scintilatorplaat afgegeven energie berekend volgens de \textit{continuous slowing down approach} met dE/dx = 1.75 g/cm. Hierbij wordt zoals eerder genoemd aangenomen dat de elektronen ook loodrecht op scintilator plaat verder bewegen. DEZE AANNAME IS GOED, ZIE ALLE ENERGIE WORDT AFGEGEVEN. VERWIJZEN?
+Aangenomen wordt dat de gammastraling loodrecht invalt op de detector en dat alle deeltje in dezelfde richting door de detector verplaatsen. De detector kan zo gemodelleerd worden als eendimensionaal met een lengte van 2,0 cm. De code simuleert een groot aantal fotonen waarvan de energie willekeurig getrokken wordt uit een 1/E verdeling tussen 100keV en 10MeV. Per foton wordt de werkzame doorsnede van de drie interacties bepaald en daaruit de vrije weglengte van het foton. De kleinste vrije wegelengte bepaalt het interactietype en een willekeurig getal bepaalt de interactieplaats. De aan de elektronen overgedragen energie wordt bepaald en daaruit wordt de aan de scintilatorplaat afgegeven energie berekend volgens de \textit{continuous slowing down approach} met dE/dx = 1.75 g/cm. Hierbij wordt zoals eerder genoemd aangenomen dat de elektronen ook loodrecht op scintilator plaat verder bewegen. Deze aanname is juist VERWIJZEN.
 
-Typische plaatje van output van minimontecarlo code.
+\subsection{Resultaten mini montecarlo}
+De resultaten zijn allereerst uitgesplits per mechanisme, zie \ref{table:mmc-mechanisme}.
+\begin{table}[ht]
+\caption{Resultaten mini montecarlo}
+\centering
+\begin{tabular}{l c c c} % centered columns
+\hline\hline
+Omschrijving & aantal & percentage \\ [0.5ex] % header
+\hline % inserts single horizontal line
+Aantal primaire fotonen & 651075 & 100\% & - \\ % inserting body of the table
+Fotonen met interactie & 100000 & 15.4\% & 100\% \\
+waarvan foto-elektrischeffect & 293 & & 0.29\% \\
+waarvan Compton verstrooing & 90596 & & 91\% \\
+waarvan Paar vorming & 9111 & & 9.1\% \\ [1ex] % [1ex] adds vertical space
+\hline %inserts single line
+\end{tabular}
+\label{table:mmc-mechanisme} % is used to refer this table in the text
+\end{table}
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics{figure1.pdf}
+    \caption{\label{fig:Eloss-hist} Photon energy loss histogram.}
+  \end{center}
+\end{figure}
+
+
 
 \subsection{analyse van FE-effect}
 Uit de theorie wordt veronderstelt dat het FE-effect geen invloed heeft op de detectie van fotonen in HiSPARC, omdat PMT pulsen binnen het ruisniveau vallen.
