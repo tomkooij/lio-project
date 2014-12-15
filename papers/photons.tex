@@ -1,5 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 \usepackage{natbib}
+\usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -142,21 +143,83 @@ Conclusie: Compton verstrooiing levert grote detectorrespons die onderscheidbaar
 
 
 
+\subsection{Absorptie van electronen in detector}
+In de montecarlo simulatie worden elektronen gegeneerd. Vervolgens wordt aangenomen dat alle energie van de elektronen opgenomen wordt in de detector. Deze aanname is alleen geldig als er het elektron nog voldoende afstand kan afleggen in de detector. Als het elektron meer energie krijgt dan \textit{stopping power * dikte} dan verlaat het elektron de detector met energie.
+
+In de simulatie van 10.000 events waarbij een electron wordt vrijgemaakt zijn 12034 elektronen vrijgemaakt. (Paarvorming levert 2 of 3 electronen op). Hiervan zijn 9989 totaal geabsorbeerd in de detector, dat is 83\%. Slechts 17\% van de electronen verlaat de detector met energie. Dit zijn voornamelijk elektronen met grote energie die vrijgemaakt zijn door paarvorming.
+
+In\ref{fig:notabsorbed-hist} is een histogram weergegevan van de energie van gesimuleerde elektronen als ze de detector verlaten. De helft (8\% van het totaal) heeft een energie in het gebied dat interessant is (0 - 2 MeV).
+
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{notabsorbed.png}
+    \caption{\label{fig:notabsorbed-hist} Histrogram van energie van elektronen bij het verlaten van de detector.}
+  \end{center}
+\end{figure}
+
+De aanname dat alle energie van een door compton verstrooiing vrijgemaakt elektron wordt opgenomen door de detector is juist.
 
 
 
-
-\section{Compton verstrooiing}
+\section{Parametrisatie van Compton verstrooiing}
 Uitleg compton verstrooing
 
 Deze paragraaf vullen naar behoefte vanuit tekst hieronder
 \subsection{Detectiekans}
-Werkzamedoorsnede
+
+De kans op compton verstrooiing van een electron in de scintilator door een invallend foton is kan berekend worden door:
+\begin{equation}
+P(d) = 1 - \exp(- \frac{1}{l \cdot d})
+\end{equation}
+waarin:\\
+l = vrije weglengte voor compton verstrooiing voor een foton met gegeven energie \\
+d = dikte scintilator \\
+De vrije weglengte wordt bepaald door:
+\begin{equation}
+l = \frac{1}{n \cdot Z \cdot \sigma}
+\end{equation}
+waarin:\\
+$\sigma $ = totale werkzame doorsnede voor compton scattering (Klein-Nisihina) \cite{Leo1987}\\
+Z = atoommassa (64. voor vinyltoluene) \\
+n = aantal atomen per m3 \\
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{P_fit.png}
+    \caption{\label{fig:P_fit} Detectiekans van fotonen door compton scattering. Gestippelde lijn is een parametrisatie d.m.v. een e-macht. Zie tekst.}
+  \end{center}
+\end{figure}
+
+Figuur \ref{fig:P_fit}  laat de detectiekans zien voor het spectrum 100keV-10MeV.
+Deze kans kan geparametriseerd worden door (gestippelde lijn):
+\begin{equation}
+P(E) = 0.134198 \exp(-0.392389 \cdot E) + 0.034156
+\end{equation}
+
 \subsection{Afgegeven energie aan het electron}
 
-\section{Parametrisatie}
-\subsection{Detectiekans}
-\subsection{Afgegeven energie}
+Als er een interactie plaatsvind dan wordt de energie van het electron (T) bepaald door de impuls van het foton en de (onbekende) verstrooiingshoeken $\theta$ en $\phi$.  De energieverdeling van de electronen wordt bepaald door de $\frac{d\sigma}{dT}$. \cite{Leo1987} en {Evans1955}. De energieverdeling is weergegeven in figuur \ref{fig:compton_edge} voor verschillende energieen. 
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{compton_edge.png}
+    \caption{\label{fig:compton_edge} Energieverdeling van vrijgemaakte elektronen door Compton verstrooiing voor verschillende foton energie. De zwarte lijn is de \textit{compton edge}}
+  \end{center}
+\end{figure}
+
+
+De overgedragen energie T heeft een kinematisch maximum, de zogenaamde \textit{compton edge}. Dit is het geval waarin het foton 180 graden wordt terugverstrooid. Dit maximum is goed zichtbaar in de energieverdeling.
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{cum-energy.png}
+    \caption{\label{fig:cum-energy} Cumulatieve energie verdeling voor Compton Scattering. Op de horizontale as staat de energie van 0.1 MeV tot de \textit{compton edge} in 1000 bins. De verticale as is genormaliseerd.}
+  \end{center}
+\end{figure}
+
+Als we deze verdeling integreren over T dan krijgen we een cumulatieve energieverdeling. In figuur \ref{fig:cum-energy} is deze verdeling weergegeven. Op de horizontale as staat de Energie van 0.1 MeV tot de \textit{compton edge} onderverdeeld in 1000 bins. De verticale as is genormaliseerd. Als we een willekeurig getal trekken en tussen 0 en 1 en het daarbij horende \textit{bin} opzoeken in figuur \ref{fig:cum-energy} dan kan daaruit de energie die is overgedragen aan het elektron T bepaald worden.
+
 
 \section{Sapphire algorithme}
 Flowchart?
