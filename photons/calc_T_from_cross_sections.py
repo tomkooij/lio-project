@@ -10,7 +10,7 @@ electron_rest_mass_MeV = .5109989 # MeV
 import math
 from matplotlib import pyplot as plt
 import numpy as np
-from compton import KN_total_cross_section, KN_scattering_cross_section, dsigma_dT, edge
+from compton import KN_total_cross_section, KN_scattering_cross_section, dsigma_dT, compton_edge
 
 def calc_AVERAGE_fraction(Egamma):
 
@@ -22,7 +22,7 @@ def plot_T_vs_E():
 
     E = np.logspace(-1,2,100)
 
-    T = [calc_AVERGE_fraction(Egamma) for Egamma in E]
+    T = [calc_AVERAGE_fraction(Egamma) for Egamma in E]
 
     plt.figure()
     plt.plot(E,T)
@@ -34,14 +34,16 @@ def plot_T_vs_E():
 
 def plot_energy_distribution(Egamma):
 
-    E = np.linspace(0, edge(Egamma),1000)
+    E = np.linspace(0, compton_edge(Egamma),1000)
 
     T = [dsigma_dT(Egamma, EE)/1e-28 for EE in E]
 
     plt.plot(E,T)
+    plt.plot([E[-1],E[-1]], [0.,T[-1]],'k-') # plot the edge
     plt.ylabel('cross section [barn]')
     plt.xlabel('Electron energy [MeV]')
     plt.title('electron energy distribution')
+
 
 if __name__=='__main__':
 
@@ -50,3 +52,5 @@ if __name__=='__main__':
     plt.figure()
     for Energy in E:
         plot_energy_distribution(Energy)
+    plt.legend(['0.511 MeV','1.0 MeV','2.5 MeV'])
+    plt.savefig('compton_edge.png', dpi=200)
