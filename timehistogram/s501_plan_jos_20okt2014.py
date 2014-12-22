@@ -1,5 +1,5 @@
 """
-Plan van Jos Steiger: 
+Plan van Jos Steiger:
 
 
 
@@ -97,8 +97,8 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,4,8)
-FILENAME = 'station_501_1wk_april2014.h5'
-#FILENAME = 's501filtered.h5'
+#FILENAME = 'station_501_1wk_april2014.h5'
+FILENAME = 's501_filtered_2014.h5'
 #FILENAME = 'station_501_augustus2014.h5'
 #FILENAME = 'station_501_2010_fullyear.h5'
 #
@@ -130,7 +130,7 @@ def create_new_event_file(filename, stations, start, end):
 # Open existing coincidence table.
 # Only check if "/coincidences" are in table, no other checks
 def open_existing_event_file(filename):
-    print "Reading existing ESD datafile ", filename 
+    print "Reading existing ESD datafile ", filename
     data = tables.open_file(FILENAME, 'r')
     return data
 
@@ -138,7 +138,7 @@ def open_existing_event_file(filename):
 #
 # Least squares fit of histogram data to guassian distribution
 #   Includes y-scale factor, ignores y-offset
-# 
+#
 # Source: http://stackoverflow.com/a/15521359
 #
 # histogram_y = array of y data
@@ -151,10 +151,10 @@ fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
 errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 
 def gauss_fit_histogram(histogram_y, histogram_x):
-    
-    
+
+
     init  = [1.0, 0.5, 0.5]
-    
+
     out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
     c = out[0]
 
@@ -172,16 +172,16 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 # grafiek = pl((ph1<=LOW_PH) & (ph2>=HIGH_PH) & (ph3 <= LOW_PH) & (ph4 >= HIGH_PH))t.figure()
 # dt_data = [ ... datapoints ...]
 # bins = arrange( )
-# bins_middle = arrange() 
+# bins_middle = arrange()
 # title = "Data histogram"
 # plot_histogram_with_gaussfit(dt_data, bins, bins_middle, grafiek, title)
-# plt.show() 
+# plt.show()
 
 def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, title):
 
-    print "Number of datapoints (events): %d" % dt_data.size    
+    print "Number of datapoints (events): %d" % dt_data.size
     grafiek.hist(dt_data, bins=bins_edges)
-        
+
     #
     # Create histogram array
     #
@@ -189,7 +189,7 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
     histogram_y = ydata[0]
     histogram_x = bins_middle
     c = gauss_fit_histogram(histogram_y, histogram_x)
-    
+
     title += str(" (s= %2.1f ns)" % abs(c[2])) # add sigma to title
     grafiek.set_title(title)
 # dit moet eigenlijk relatief en geen absolute x,y coordinaten in de grafiek zijn
@@ -224,7 +224,7 @@ ph4 = ph[:,3]
 #    Two e's and two gamma's. Two pulseheight > 200 AND two pulseheights < 120
 #
 # for row in events:  #WAY too slow
-# 
+#
 _1_g = ((ph1 <= LOW_PH) & (ph1 > 0))
 _2_g = ((ph2 <= LOW_PH) & (ph2 > 0))
 _3_g = ((ph3 <= LOW_PH) & (ph3 > 0))
@@ -306,20 +306,20 @@ print "Total number of events in selection: ",mask.sum()
 # gemengd dus electron-gamma of gamma-electron in A-A       (1-3, 1-4, 3-4) afstand 10 m
 #
 # Nu doe ik de scheve verdeling! mix is dus eigenlijk eg
-# 
-t34_eg_AA = (t3 - t4).compress(mask_3_electron & mask_4_gamma & mask) 
+#
+t34_eg_AA = (t3 - t4).compress(mask_3_electron & mask_4_gamma & mask)
 t13_eg_AA = (t1 - t3).compress(mask_1_electron & mask_3_gamma & mask)
 t14_eg_AA = (t1 - t4).compress(mask_1_electron & mask_4_gamma & mask)
-# gemengd in A-B 
-t12_eg_AB = (t1 - t2).compress(mask_1_electron & mask_2_gamma & mask) 
+# gemengd in A-B
+t12_eg_AB = (t1 - t2).compress(mask_1_electron & mask_2_gamma & mask)
 t23_eg_AB = (t2 - t3).compress(mask_2_electron & mask_3_gamma & mask)
 t24_eg_AB = (t2 - t4).compress(mask_2_electron & mask_4_gamma & mask)
 
 #
 # elektronen in A-A       (1-3, 1-4, 3-4) afstand 10 m
-# 
-# electronen in A-A betekent B = gamma 
-t34_ee_AA = (t3 - t4).compress(mask_2_gamma & mask) 
+#
+# electronen in A-A betekent B = gamma
+t34_ee_AA = (t3 - t4).compress(mask_2_gamma & mask)
 t13_ee_AA = (t1 - t3).compress(mask_2_gamma & mask)
 t14_ee_AA = (t1 - t4).compress(mask_2_gamma & mask)
 
@@ -336,7 +336,7 @@ t14_gg_AA = (t1 - t4).compress(mask_1_gamma & mask_4_gamma & mask)
 # mask_2_electron  = electron detected in detector 2 (B)
 # mask_12 = electron in 1 and 2 but NOT in 3 and 4
 #
-t12_ee_AB = (t1 - t2).compress(mask_2_electron & mask_2_electron & (t1 > 0) & (t2 > 0)) 
+t12_ee_AB = (t1 - t2).compress(mask_2_electron & mask_2_electron & (t1 > 0) & (t2 > 0))
 t23_ee_AB = (t2 - t3).compress(mask_2_electron & mask_3_electron & (t2 > 0) & (t3 > 0))
 t24_ee_AB = (t2 - t4).compress(mask_2_electron & mask_4_electron & (t2 > 0) & (t4 > 0))
 #
@@ -346,7 +346,7 @@ t24_ee_AB = (t2 - t4).compress(mask_2_electron & mask_4_electron & (t2 > 0) & (t
 # mask_2_electron  = electron detected in detector 2 (B)
 # mask_12 = electron in 1 and 2 but NOT in 3 and 4
 #
-t12_gg_AB = (t1 - t2).compress(mask_2_gamma & mask_1_gamma & (t1 > 0) & (t2 > 0)) 
+t12_gg_AB = (t1 - t2).compress(mask_2_gamma & mask_1_gamma & (t1 > 0) & (t2 > 0))
 t23_gg_AB = (t2 - t3).compress(mask_2_gamma & mask_3_gamma & (t2 > 0) & (t3 > 0))
 t24_gg_AB = (t2 - t4).compress(mask_2_gamma & mask_4_gamma & (t2 > 0) & (t4 > 0))
 #
@@ -372,7 +372,7 @@ def plot_ee_AA():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_ee_AA = np.concatenate((t34_ee_AA,t13_ee_AA,t14_ee_AA),axis=0)
     plot_histogram_with_gaussfit(t34_ee_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 ee AA")
     plot_histogram_with_gaussfit(t13_ee_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 ee AA")
@@ -385,7 +385,7 @@ def plot_gg_AA():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_gg_AA = np.concatenate((t34_gg_AA,t13_gg_AA,t14_gg_AA),axis=0)
     plot_histogram_with_gaussfit(t34_gg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 gg AA")
     plot_histogram_with_gaussfit(t13_gg_AA,bins2ns5, bins2ns5_midden, grafiek21, "1-3 gg AA")
@@ -393,14 +393,14 @@ def plot_gg_AA():
     plot_histogram_with_gaussfit(totaal_gg_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
 
-    
+
 def plot_ee_AB():
     grafiek = figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_ee_AB = np.concatenate((t12_ee_AB, t23_ee_AB, t24_ee_AB), axis=0)
     plot_histogram_with_gaussfit(t12_ee_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 ee AB")
     plot_histogram_with_gaussfit(t23_ee_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 ee AB")
@@ -415,7 +415,7 @@ def plot_gg_AB():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_gg_AB = np.concatenate((t12_gg_AB, t23_gg_AB, t24_gg_AB), axis=0)
     plot_histogram_with_gaussfit(t12_gg_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 gg AB")
     plot_histogram_with_gaussfit(t23_gg_AB,bins2ns5, bins2ns5_midden, grafiek21, "2-3 gg AB")
@@ -430,7 +430,7 @@ def plot_mix_AA():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_mix_AA = np.concatenate((t34_mix_AA,t13_mix_AA,t14_mix_AA),axis=0)
 
     plot_histogram_with_gaussfit(t34_mix_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 mix AA")
@@ -445,7 +445,7 @@ def plot_mix_AB():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_mix_AB = np.concatenate((t12_mix_AB, t23_mix_AB, t24_mix_AB), axis=0)
 
     plot_histogram_with_gaussfit(t12_mix_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 mix AB")
@@ -463,7 +463,7 @@ def plot_eg_AA():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_eg_AA = np.concatenate((t34_eg_AA,t13_eg_AA,t14_eg_AA),axis=0)
 
     plot_histogram_with_gaussfit(t34_eg_AA,bins2ns5, bins2ns5_midden, grafiek11, "3-4 eg AA")
@@ -478,7 +478,7 @@ def plot_eg_AB():
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal_eg_AB = np.concatenate((t12_eg_AB, t23_eg_AB, t24_eg_AB), axis=0)
 
     plot_histogram_with_gaussfit(t12_eg_AB,bins2ns5, bins2ns5_midden, grafiek11, "1-2 eg AB")
@@ -495,20 +495,20 @@ def plot_eg_AB():
 def plot_4(serie1, serie2, serie3, titel):
 
     grafiek = figure()
-    
-    
+
+
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
     grafiek22 = grafiek.add_subplot(224)
-    
+
     totaal = np.concatenate((serie1, serie2, serie3), axis=0)
 
     plot_histogram_with_gaussfit(serie1,bins2ns5, bins2ns5_midden, grafiek11, titel)
     plot_histogram_with_gaussfit(serie2,bins2ns5, bins2ns5_midden, grafiek21, titel)
     plot_histogram_with_gaussfit(serie3,bins2ns5, bins2ns5_midden, grafiek12, titel)
     plot_histogram_with_gaussfit(totaal,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
-   
+
 def plot_eg():
     plot_eg_AA()
     plot_eg_AB()
@@ -516,7 +516,7 @@ def plot_eg():
 def plot_ee():
     plot_ee_AA()
     plot_ee_AB()
-    
+
 def plot_gg():
     plot_gg_AA()
     plot_gg_AB()
@@ -528,7 +528,7 @@ def plot_AB():
 def plot_AA():
     plot_ee_AA()
     plot_gg_AA()
-    
+
 #plot_AB()
 #plot_AA()
 plot_ee_AA()
