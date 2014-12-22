@@ -160,7 +160,9 @@ dt = t1 - t2
 
 # remove -1 and -999
 # select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH) ) # old
+dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH) & (ph2 >0) & (ph1>0)) # new 
+
 print "number of events", dt1.size
 plt.hist(dt1, bins=bins2ns5)
 plt.show()

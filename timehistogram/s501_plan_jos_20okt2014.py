@@ -88,7 +88,12 @@ ph1 < TRIGGER = gamma
 import tables
 import sapphire.esd
 import scipy.stats
+import datetime
 
+from numpy import *
+import numpy as np
+
+import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 
@@ -202,7 +207,7 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 #data.close()
 data = open_existing_event_file(FILENAME)
 
-events = data.root.s501.events
+events = data.root.events
 
 t1 = events.col('t1')
 t2 = events.col('t2')
@@ -367,7 +372,7 @@ def plot_ee_AA():
     #
     # 4 subplots to recreate the figure from Pennink 2010
     #
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -380,7 +385,7 @@ def plot_ee_AA():
     plot_histogram_with_gaussfit(totaal_ee_AA,bins2ns5, bins2ns5_midden, grafiek22, "totaal")
 
 def plot_gg_AA():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -395,7 +400,7 @@ def plot_gg_AA():
 
 
 def plot_ee_AB():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -409,7 +414,7 @@ def plot_ee_AB():
 
 
 def plot_gg_AB():
-    grafiek = figure()
+    grafiek = plt.figure()
 
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
@@ -425,7 +430,7 @@ def plot_gg_AB():
 
 
 def plot_mix_AA():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -440,7 +445,7 @@ def plot_mix_AA():
 
 
 def plot_mix_AB():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -458,7 +463,7 @@ def plot_mix():
     plot_mix_AB()
 
 def plot_eg_AA():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -473,7 +478,7 @@ def plot_eg_AA():
 
 
 def plot_eg_AB():
-    grafiek = figure()
+    grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
     grafiek21 = grafiek.add_subplot(223)
@@ -494,7 +499,7 @@ def plot_eg_AB():
 #
 def plot_4(serie1, serie2, serie3, titel):
 
-    grafiek = figure()
+    grafiek = plt.figure()
 
 
     grafiek11 = grafiek.add_subplot(221)
@@ -538,11 +543,11 @@ plot_ee_AA()
 
 
 """
-figure()
+plt.figure()
 hist(t34_ee_AA, bins=bins2ns5)
 hist(t13_ee_AA, bins=bins2ns5)
 hist(t14_ee_AA, bins=bins2ns5)
-figure()
+plt.figure()
 hist(t34_gg_AA, bins=bins2ns5)
 hist(t13_gg_AA, bins=bins2ns5)
 hist(t14_gg_AA, bins=bins2ns5)
