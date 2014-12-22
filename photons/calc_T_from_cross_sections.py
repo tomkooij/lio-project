@@ -38,8 +38,12 @@ def plot_energy_distribution(Egamma):
 
     T = [dsigma_dT(Egamma, EE)/1e-28 for EE in E]
 
-    plt.plot(E,T)
-    plt.plot([E[-1],E[-1]], [0.,T[-1]],'k-') # plot the edge
+    # add "the edge"
+    T.append(0)
+    EE = list(E) # np.array() heeft geen .append
+    EE.append(EE[-1]) # voeg het laatste item nogmaals toe
+
+    plt.plot(EE,T)
     plt.ylabel('cross section [barn]')
     plt.xlabel('Electron energy [MeV]')
     plt.title('electron energy distribution')

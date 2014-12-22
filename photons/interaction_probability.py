@@ -20,18 +20,20 @@ def plot_P_compton_and_fit():
     # maak plotje
     plt.figure()
     plt.plot(E,kans)
-#    plt.xscale('log')
+    plt.xscale('log')
 #    plt.yscale('log')
     plt.ylabel('Interaction probability')
     plt.xlabel('photon energy (MeV)')
-    plt.title('Interaction probability in 2cm VinylToluene scinitilator for Compton scattering')
-    #plt.savefig('P_Compton-log.png')
+    #plt.title('Interaction probability in 2cm VinylToluene scinitilator for Compton scattering')
+    plt.legend(['Klein-Nisihina','fit'])
+    plt.savefig('P_Compton.png',dpi=200)
 
     popt, pcov = curve_fit(exp_func, E, kans, p0=(1, 1, 1))
 
     fit = exp_func(E, popt[0], popt[1], popt[2])
     plt.plot(E, fit, label="Line 1", linestyle='--')
-    #plt.savefig('fit.png')
+    plt.legend(['Klein-Nisihina','fit'])
+    plt.savefig('P_fit.png',dpi=200)
 
     return popt
 

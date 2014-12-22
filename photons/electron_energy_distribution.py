@@ -23,7 +23,7 @@ def plot_T_vs_E():
 
     E = np.logspace(-1,2,100)
 
-    T = [calc_AVERGE_fraction(Egamma) for Egamma in E]
+    T = [calc_AVERAGE_fraction(Egamma) for Egamma in E]
 
     plt.figure()
     plt.plot(E,T)
@@ -71,18 +71,20 @@ def cumulative_energy_distribution(Egamma):
 #
 def plot_series_cum_distr():
 
-    E = np.logspace(-1,1,15)
+    E = [0.1, 0.3, 1., 3. ,10. ]
 
     plt.figure()
     y = np.linspace(0,1000,10)
-    plt.plot(y,y/1000)  # ploy y = x (normalised)
+    #plt.plot(y,y/1000)  # ploy y = x (normalised)
     for Energy in E:
         n = cumulative_energy_distribution(Energy)
         plt.plot(n)
 
-    plt.title('cum energy distr for compton scattering')
+#    plt.title('cum energy distr for compton scattering')
     plt.ylabel('normalised cum energy => electron energy fraction')
     plt.xlabel('bin')
+    plt.legend(['.10 MeV', '.30 MeV', '1.0 MeV', '3.0 MeV', '10. MeV'], loc=2)
+    plt.savefig('cum-energy.png', dpi=200)
 
 # normalize x-value from 0..1
 # distribution is a list [] with y-values
@@ -110,13 +112,13 @@ def leastsq_fit_polynomial(x_values, y_values):
 
 if __name__=='__main__':
 
-    print "This is calc_T_from_cross_section.py!\n"
+    print "This is electron_energy_distribution.py!\n"
 #    E = [0.511, 1.0, 2.5]
 #    plt.figure()
 #    for Energy in E:
 #        plot_energy_distribution(Energy)
 
-#    plot_series_cum_distr()
+    plot_series_cum_distr()
 
     E = np.logspace(-1,1,20)
     x = np.linspace(0.,1.,1000)
