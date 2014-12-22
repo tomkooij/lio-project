@@ -9,10 +9,12 @@ ph1 < TRIGGER = gamma
 
 """
 
+import datetime
 import tables
 import sapphire.esd
 import scipy.stats
-
+from numpy import *
+import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 
@@ -21,7 +23,7 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010,4,1)
 END = datetime.datetime(2010,5,1)
-FILENAME = 'station_501_2010_fullyear.h5'
+FILENAME = 'station_501_april2010.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -59,7 +61,7 @@ def open_existing_event_file(filename):
 #
 # Least squares fit of histogram data to guassian distribution
 #   Includes y-scale factor, ignores y-offset
-# 
+#
 # Source: http://stackoverflow.com/a/15521359
 #
 # histogram_y = array of y data
@@ -72,10 +74,10 @@ fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
 errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 
 def gauss_fit_histogram(histogram_y, histogram_x):
-    
-    
+
+
     init  = [1.0, 0.5, 0.5]
-    
+
     out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
     c = out[0]
 
@@ -93,16 +95,16 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 # grafiek = plt.figure()
 # dt_data = [ ... datapoints ...]
 # bins = arrange( )
-# bins_middle = arrange() 
+# bins_middle = arrange()
 # title = "Data histogram"
 # plot_histogram_with_gaussfit(dt_data, bins, bins_middle, grafiek, title)
-# plt.show() 
+# plt.show()
 
 def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, title):
 
-    print "Number of datapoints (events): %d" % dt_data.size    
+    print "Number of datapoints (events): %d" % dt_data.size
     grafiek.hist(dt_data, bins=bins_edges)
-        
+
     #
     # Create histogram array
     #
@@ -110,7 +112,7 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
     histogram_y = ydata[0]
     histogram_x = bins_middle
     c = gauss_fit_histogram(histogram_y, histogram_x)
-     
+
     grafiek.set_title(title)
 # dit moet eigenlijk relatief en geen absolute x,y coordinaten in de grafiek zijn
 #    grafiek.text(-150,100,r'$\mu=100,\ \sigma=15$')
@@ -148,11 +150,11 @@ bins2ns5_midden = arange(-100,100.1,2.5)
 #
 # 4 subplots to recreate the figure from Pennink 2010
 #
-grafiek = figure()
+grafiek = plt.figure()
 
 #
 # Plot histogram for t1-t2 using event selection based on pulseheight
-# 
+#
 #
 dt = t1 - t2
 
@@ -160,4 +162,5 @@ dt = t1 - t2
 # select events based on pulseheight
 dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH))
 print "number of events", dt1.size
-hist(dt1, bins=bins2ns5)
+plt.hist(dt1, bins=bins2ns5)
+plt.show()
