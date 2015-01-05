@@ -8,12 +8,14 @@ from matplotlib.colors import LogNorm
 import numpy as np
 import latexify
 
+from artist import Plot, MultiPlot
+
 #FILENAME = 'output_10k_photons.txt' # 10k photons 1/E distributed
 #FILENAME = 'output_100k_ZONDER_FE.txt' # no photo electric effect
-FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
+#FILENAME = 'output_100k_photons.txt' # 100k photons 1/E distributed
 #FILENAME = 'output_1M_photons.txt' # 500MEGS! 1M photons 1/E distributed
 #FILENAME = 'output_10k_1MeV.txt' # 10k electronen met extra nfo zie process_electron.c
-#FILENAME = 'output_10k_electron_info.txt' # 10k electronen 1/E distr met extra nfo van process_electron.c
+FILENAME = 'output_10k_electron_info.txt' # 10k electronen 1/E distr met extra nfo van process_electron.c
 
 
 def percentage(part, whole):
@@ -52,7 +54,7 @@ def plot_Eloss_vs_Eprim(input_list, figtitle, figname):
     plt.xlabel('Photon energy [Mev]')
     plt.xscale('log')
     plt.ylabel('Energy transferd to detector [MeV]')
-    plt.savefig(figname)
+    plt.savefig(figname, dpi=200)
 
 #
 # 2D histogram voor Eloss *per interactie type*
@@ -68,7 +70,14 @@ def hist2d_Eloss_vs_Eprim(input_list, figtitle, figname):
     plt.xlabel('Photon energy [Mev]')
     plt.ylabel('Energy transferd to detector [MeV]')
     plt.colorbar()
-    plt.savefig(figname, rasterized=True)
+    plt.savefig(figname, rasterized=True, dpi=200)
+
+    # maak een mooi? plotje met artist
+    plot = Plot()
+    n, xbins, ybins = np.histogram2d(x, y, bins=np.logspace(0.1, 1.0, 30), range=None)
+    plot.histogram2d(n, xbins, ybins, type='reverse_bw', bitmap=True)
+
+    plot.save('histogram2d-'+figname)
 
 
 #
@@ -89,14 +98,14 @@ def plots_per_mechanism():
     print "Ik maak grafieken (duurt even..)"
 
     # FE-effect
-    plot_Eloss_vs_Eprim(FE_events, 'FE', 'fig-fe-scatter.pdf')
-    hist2d_Eloss_vs_Eprim(FE_events, 'FE', 'fig-fe-hist2d.pdf')
+    plot_Eloss_vs_Eprim(FE_events, 'FE', 'fig-fe-scatter.png')
+    hist2d_Eloss_vs_Eprim(FE_events, 'FE', 'fig-fe-hist2d.png')
     #compton
-    plot_Eloss_vs_Eprim(compton_events, 'Compton', 'fig-compton-scatter.jpg') # jpg wegens te langzaam en groot als vector object
-    hist2d_Eloss_vs_Eprim(compton_events, 'Compton', 'fig-compton-hist2d.pdf')
+    plot_Eloss_vs_Eprim(compton_events, 'Compton', 'fig-compton-scatter.png')
+    hist2d_Eloss_vs_Eprim(compton_events, 'Compton', 'fig-compton-hist2d.png')
     #paarvormign
-    plot_Eloss_vs_Eprim(pair_events, 'Paarvorming', 'fig-pair-scatter.jpg') # jpg wegens te groot als vector object
-    hist2d_Eloss_vs_Eprim(pair_events, 'Paarvorming', 'fig-pair-hist2d.pdf')
+    plot_Eloss_vs_Eprim(pair_events, 'Paarvorming', 'fig-pair-scatter.png')
+    hist2d_Eloss_vs_Eprim(pair_events, 'Paarvorming', 'fig-pair-hist2d.png')
 
 
 
@@ -177,14 +186,41 @@ def Eloss_in_detector_histrogram():
     plt.hist(Eloss, bins=np.linspace(0.,10.,21), log=True, histtype='step')
     plt.title('Photon energy loss in detector histogram')
     plt.xlabel('Energy lost [MeV]')
-    plt.savefig('../papers/fig-Eloss-hist.pdf')
+    plt.savefig('fig-Eloss-hist.pdf')
+
+
+# in process_electron.c is extra info toegevoegd: (een extra data line)
+# daarmee kan x*LOSS en T vergeleken worden. Anders gezegd daarmee
+# kan onderzocht worden welk deel van electron energie in de detector wordt
+# opgenomen. (Het andere deel is bewegingsenergie vh electron als het electron
+#  de detector verlaat
+def read_electron_output():
+    totaal = len(electron_output)
+    print "aantal events (0=verkeerde datafile):", totaal
+
+    eo = np.array(electron_output)
+
+    # de eerste kolom '1' betekent electron geabsorbeerd. '0' = energie over bij verlaten
+    eo0 = eo[:,0] # eerste kolom
+    aantal_absorpties = (eo0=='1').sum() # tel het aantal '1' in de kolom
+
+    print "Totaal %d van %d geabsorbeerd %f procent" % (aantal_absorpties, totaal, percentage(aantal_absorpties, totaal) )
+
+    eo = np.array(electron_output).astype(float)
+    T = eo[:,2] # energie van het electron
+    tekort =  T - eo[:,1]
+
+    plt.hist(tekort.compress(eo0=='0'), bins=20, histtype='step') # energie van niet geabsorbeerde elektronen
+    #plt.hist(T.compress(eo0=='1'), histtype='step') # energie van geabsorbeerde elektronen
+    plt.xlabel('Energy [MeV]')
+    plt.savefig('fig-energy-notabsorbed.png', dpi=200)
+
 
 #
 # Lees input file
 #
 # lelijke code met veel globals...
 #
-
 def read_input():
     global events
     events = []     # array of events
@@ -210,28 +246,19 @@ def read_input():
         # selecteer de regels zonder + of #
         # (dan zijn de resultaten per primair foton over)
         # sla die op in events lijst
-        elif ((line[0][0] != "+") & (line[0][0] != '#') & (line[0][0] != 'T')): # datalne
+        elif ((line[0][0] != "+") & (line[0][0] != '#') & (line[0][0] != 'T')): # dataline
             events.append(line)# selecteer op mechanisme
 
     event_array = np.array(events).astype(np.float32)
 
 def genereer_alle_data_voor_paper():
-    foton_percentages()
     Eloss_in_detector_histrogram()
+    foton_percentages()
+    plots_per_mechanism()
 
 if __name__ == '__main__':
 
     print 'reading:', FILENAME
     read_input()
-
-    #mechanism = event_array[:,1] # tweede kolom = mechanisme
-
-    #Egamma = event_array[:,0]
-
-    #E_100k_1MeV = event_array.compress(((Egamma > .1) & (Egamma < 1.)),axis=0)
-    #E_1MeV_2MeV = event_array.compress(((Egamma > 1.) & (Egamma < 2.)),axis=0)
-    #E_2MeV_5MeV = event_array.compress(((Egamma > 2.) & (Egamma < 5.)),axis=0)
-    #E_5MeV_10MeV = event_array.compress(((Egamma > 5.) & (Egamma < 10.)),axis=0)
-
     print 'ga je gang!\n'
 #    genereer_alle_data_voor_paper()
