@@ -115,11 +115,13 @@ if __name__ == '__main__':
 
     print "number of events", selected_dt.size
 
-    # maak datafile voor Josst (5 jan 2014)
+    #maak datafile voor Josst (5 jan 2014)
+    np.savetxt('events_voor_jos_s501_janfeb2014.txt', (selected_dt, selected_ph1, selected_ph2), delimiter=',')
     #with open('events_voor_jos.csv', 'w') as csvfile:
     #    lijst = csv.writer(csvfile, dialect='excel')
     #    for k in range(len(selected_dt)):
     #        lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
+
 
     plt.figure()
     plt.hist(selected_dt, bins=bins2ns5)
