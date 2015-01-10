@@ -9,20 +9,16 @@ import csv
 import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm
-import matplotlib.mlab as mlab
+from scipy.optimize import leastsq
 
-from math import exp
-
-from matplotlib.colors import LogNorm
 
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2014,11,1)
-END = datetime.datetime(2014,12,1)
+START = datetime.datetime(2014,1,1)
+END = datetime.datetime(2014,3,1)
 #FILENAME = 'station_501_april2010.h5'
 #FILENAME = 's501_filtered_2014.h5'
-FILENAME = 's501_oktober_214.h5'
+FILENAME = 's501_jan_feb.h5'
 
 
 
@@ -50,6 +46,39 @@ def create_new_event_file(filename, stations, start, end):
         sapphire.esd.download_data(data, '/s%d' % station, station, start, end)
 
     return data
+
+#
+#
+# Least squares fit of histogram data to guassian distribution
+#   Includes y-scale factor, ignores y-offset
+#
+# Source: http://stackoverflow.com/a/15521359
+#
+# histogram_y = array of y data
+# histogram_x = array of middle of bins
+#
+#
+# least squares fit of gaussian distribution
+#
+#
+# De normale (gauss) verdeling voor scipy.optimize.leastsq
+#
+fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+
+
+def gauss_fit_histogram(histogram_y, histogram_x):
+    # Least squares fit:
+    init  = [50.0, -5., 10.]
+
+    out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
+    c = out[0]
+
+    print "A exp[-0.5((x-mu)/sigma)^2]"
+    print "Fit Coefficients:"
+    print c[0],c[1],abs(c[2])
+    return c
+
 
 
 if __name__ == '__main__':
@@ -96,15 +125,6 @@ if __name__ == '__main__':
     plt.hist(selected_dt, bins=bins2ns5)
     plt.show()
 
-    #plt.figure()
-    #plt.hist2d(selected_dt, selected_ph2,bins=30, norm=LogNorm())
-    #plt.title('Walk: Delta-t between HIGH (plate 1) and LOW (plate 2)')
-    #plt.xlabel('delta-t (ns)')
-    #plt.ylabel('pulseheight plate 2')
-    #plt.colorbar()
-    #plt.savefig('correlatie ph en delta-t.png',dpi=200)
-    #plt.show()
-
 
     # uit de mail van josst 7jan2015
     """at ik heb gedaan:
@@ -133,29 +153,38 @@ breedte ervan.
     mu_list = []
     sigma_list = []
 
+
     for r in selection:
       t_ph = selected_dt.compress((selected_ph2 > r[0]) & (selected_ph2 <= r[1]) & (selected_dt >= -40.) & (selected_dt <= 20.) )
       plt.figure()
-      n, bins, troep = plt.hist(t_ph,bins=bins_edges, histtype='step', normed=True)
-      plt.title(str(r[0])+' < ph <= '+str(r[1]))
+      n, bins, troep = plt.hist(t_ph,bins=bins_edges, histtype='step')
       plt.xlabel('delta-t [ns]')
 
+      # fit a gaussian (see lio_project/gauss_fit_histogram/)
+      c = gauss_fit_histogram(n, bins_middle)
+      mu = c[1]
+      sigma = c[2]
 
-      (mu, sigma) = norm.fit(t_ph)
-
-      mu_list.append(mu) # save fitted mu, sigma
+      # stor fitted mu, sigma
+      mu_list.append(mu)
       sigma_list.append(sigma)
 
-      y = mlab.normpdf( bins, mu, sigma)
-      plt.plot(bins, y, 'r--', linewidth=2)
+      # plot the fit
+      plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
+
+      # state the ph selection and fitted mu, sigma in title
+      plt.title(r'%d < ph <= %d $\ \mu = %2.2f\ \sigma = %2.1f$' % (int(r[0]),int(r[1]),mu, sigma))
 
       plt.show()
 
 
-    print mu_list
+    print "list of averages: \n",mu_list
 
     plt.figure()
-    plt.plot(middle_of_selection, mu_list, 'o')
+    plt.plot(middle_of_selection, mu_list, 'ro')
+    plt.grid(b=True, which='major', color='b', linestyle='-')
+    plt.xlabel('Pulseheight (binned) [ADC]')
+    plt.ylabel(r' < $\Delta t$ > [ns]')
     plt.show()
 
     #data.close()
