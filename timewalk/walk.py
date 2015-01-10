@@ -14,11 +14,11 @@ from scipy.optimize import leastsq
 
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2014,1,1)
-END = datetime.datetime(2014,3,1)
+START = datetime.datetime(2014,4,1)
+END = datetime.datetime(2014,6,1)
 #FILENAME = 'station_501_april2010.h5'
 #FILENAME = 's501_filtered_2014.h5'
-FILENAME = 's501_jan_feb.h5'
+FILENAME = 's501_apr_mei.h5'
 
 
 
@@ -116,11 +116,10 @@ if __name__ == '__main__':
     print "number of events", selected_dt.size
 
     #maak datafile voor Josst (5 jan 2014)
-    np.savetxt('events_voor_jos_s501_janfeb2014.txt', (selected_dt, selected_ph1, selected_ph2), delimiter=',')
-    #with open('events_voor_jos.csv', 'w') as csvfile:
-    #    lijst = csv.writer(csvfile, dialect='excel')
-    #    for k in range(len(selected_dt)):
-    #        lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
+    with open('dt_s501_aprmei_2014.csv', 'w') as csvfile:
+        lijst = csv.writer(csvfile, dialect='excel')
+        for k in range(len(selected_dt)):
+            lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
 
 
     plt.figure()
@@ -129,7 +128,7 @@ if __name__ == '__main__':
 
 
     # uit de mail van josst 7jan2015
-    """at ik heb gedaan:
+    """wat ik heb gedaan:
 
 ik heb jouw file met dt, ph(low), en ph(high) data gebruikt, en plots
 gemaakt van de t2-t1 verdeling met ph(low) in de volgende elf gebieden
