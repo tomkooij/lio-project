@@ -81,46 +81,65 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 
 
 
+"""
+if 'data' not in globals():
+    data = tables.open_file(FILENAME, 'a')
+
+if '/s501/events' not in data:
+    data.close()
+    create_new_event_file(FILENAME, STATIONS, START, END)
+
+events = data.root.s501.events
+
+t1 = events.col('t1')
+t2 = events.col('t2')
+t3 = events.col('t3')
+t4 = events.col('t4')
+ph = events.col('pulseheights')
+
+ph1 = ph[:,0]
+ph2 = ph[:,1]
+ph3 = ph[:,2]
+ph4 = ph[:,3]
+
+bins2ns5 = np.arange(-101.25,101.26,2.5)
+bins2ns5_midden = np.arange(-100,100.1,2.5)
+
+dt = t1 - t2
+
+# remove -1 and -999
+# select events based on pulseheight t1 HIGH t2 LOW
+selected_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20) & (abs(t1-t2) < 100))
+selected_ph1 = ph1.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
+selected_ph2 = ph2.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH)& (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
+
+print "number of events", selected_dt.size
+
+#maak datafile voor Josst (5 jan 2014)
+with open('dt_s501_aprmei_2014.csv', 'w') as csvfile:
+    lijst = csv.writer(csvfile, dialect='excel')
+    for k in range(len(selected_dt)):
+        lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
+"""
+
 if __name__ == '__main__':
-    if 'data' not in globals():
-        data = tables.open_file(FILENAME, 'a')
 
-    if '/s501/events' not in data:
-		data.close()
-		create_new_event_file(FILENAME, STATIONS, START, END)
+    read_dt = []
+    read_ph2 = []
+    # lees csv
+    with open('dt_s501_jan_mei_2014.csv', 'r') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',')
+        for row in csvreader:
+            read_dt.append(float(row[0]))
+            read_ph2.append(float(row[2]))
 
-    events = data.root.s501.events
-
-    t1 = events.col('t1')
-    t2 = events.col('t2')
-    t3 = events.col('t3')
-    t4 = events.col('t4')
-    ph = events.col('pulseheights')
-
-    ph1 = ph[:,0]
-    ph2 = ph[:,1]
-    ph3 = ph[:,2]
-    ph4 = ph[:,3]
+    print "number of events: ", len(read_dt)
+    # convert to numpy
+    selected_dt = np.array(read_dt)
+    selected_ph2 = np.array(read_ph2)
 
     bins2ns5 = np.arange(-101.25,101.26,2.5)
     bins2ns5_midden = np.arange(-100,100.1,2.5)
-
-    dt = t1 - t2
-
-    # remove -1 and -999
-    # select events based on pulseheight t1 HIGH t2 LOW
-    selected_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20) & (abs(t1-t2) < 100))
-    selected_ph1 = ph1.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
-    selected_ph2 = ph2.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH)& (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
-
-    print "number of events", selected_dt.size
-
-    #maak datafile voor Josst (5 jan 2014)
-    with open('dt_s501_aprmei_2014.csv', 'w') as csvfile:
-        lijst = csv.writer(csvfile, dialect='excel')
-        for k in range(len(selected_dt)):
-            lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
-
 
     plt.figure()
     plt.hist(selected_dt, bins=bins2ns5)
