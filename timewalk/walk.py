@@ -1,7 +1,25 @@
-# walk.py
+# walk.py - time-walk
 #
-# Plan Jos 5 januari 2015
-# onderzoek correlatie tussen delta-t van cp versus gamma tegen pulshoogte
+# Plan Jos 5 en 7 januari 2015
+# onderzoek correlatie tussen delta-t tegen pulshoogte
+#
+# zie /mailjos/ voor de mail en plaatjes van Jos
+#
+# Deze file maakt csv-files met "t1-t2, ph1, ph2" voor events waarbij plaat 1 = HOOG (>200 ADC) en plaat 2 = LAAG (<120 ADC)
+# Ik heb van Oktober 2014 (station 501) een datafiles gemaakt "events_voor_jos.csv" waar de plaatjes van Josst uit de mail
+# mee gemaakt zijn.
+# Deze file kan die plaatjes namaken.
+#
+# Van Jan-Mei zijn de events van s501 gedownload en in een CSV (dt_s501_jan_mei_2014.csv) opgeslagen
+# deze file leest de CSV en maakt:
+#   in bins (20-25, 25-30, 30-40, 40-50 enzo) histogrammen van delta-t
+#   fit een normale verdeling voor elke histogram
+#   maakt een plot van de gemiddelde dt versus pulshoogte
+#   TODO: fit w1 + w2/sqrt(pulshoogte)
+#   TODO: De "piek" (tr*tf*log(tr/tf)/(tr-tf) uit de mail van josst is 13.8, is w1 gelijk aan -13.8 toeval?!?!?)
+
+
+
 import tables
 import sapphire
 
@@ -201,10 +219,26 @@ breedte ervan.
     print "list of averages: \n",mu_list
 
     plt.figure()
-    plt.plot(middle_of_selection, mu_list, 'ro')
+    plt.plot(middle_of_selection, mu_list, 'bo')
     plt.grid(b=True, which='major', color='b', linestyle='-')
     plt.xlabel('Pulseheight (binned) [ADC]')
     plt.ylabel(r' < $\Delta t$ > [ns]')
+
+    # time-walk correction function
+    # fit w1 + w2/sqrt(x-w3)
+    fitfunc1  = lambda p, x: p[0]+p[1]/np.sqrt(x-p[2])
+    errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
+
+    # leastsquares fit
+    init = [1.,1.,-20.]
+    out = leastsq(errfunc1, init, args=(middle_of_selection, mu_list))
+    print "fit: ",out
+
+    # plot fit
+    fit = out[0]
+    plt.plot(middle_of_selection, fitfunc1(fit, middle_of_selection),'r--', linewidth=3)
+    plt.title('Time walk correlation, s501 t1-t2, jan-mei 2014 (77k events)\n fit = $ %2.2f + %2.2f / \sqrt{ x - %2.2f }$'% (fit[0], fit[1], fit[2]) )
+    plt.savefig('time_walk.png',dpi=200)
     plt.show()
 
     #data.close()
