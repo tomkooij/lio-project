@@ -100,6 +100,7 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 
 
 """
+#Dit is code om data uit de ESD te lezen. OUD
 if 'data' not in globals():
     data = tables.open_file(FILENAME, 'a')
 
