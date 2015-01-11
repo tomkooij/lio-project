@@ -180,65 +180,92 @@ spreiding van 0.3563. Plaatje 1 showt de positie van de piek,plaatje 2 de
 breedte ervan.
 """
 
-    selection = [ [20,25], [25,30], [30,40], [40,50], [50,60], [60,70],
-                    [70,80], [80,90], [90,100], [100,110], [110,120]]
+    #selection = [ [20,25], [25,30], [30,40], [40,50], [50,60], [60,70],[70,80], [80,90], [90,100], [100,110], [110,120]]
+
+    left_bin = np.arange(20.,120, 2.5)
+    selection = [ [k,k+2.5] for k in left_bin]
 
     middle_of_selection = [(s[0]+s[1])/2. for s in selection]
 
     # Jos: -40 tot -20, rekeninghoudende met stapgrootte 2.5ns
     bins_edges = np.arange(-41.25,21.25,2.5)
     bins_middle = np.arange(-40,20,2.5)
-    mu_list = []
-    sigma_list = []
 
+    # sla de analyse over als de data al in geheugen staat.
+    if 1: #'mu_list' not in globals():
+        print "First run. Doing analysis."
+        # bepaal de gemiddelde t_walk per bin
+        mu_list = []
+        sigma_list = []
 
-    for r in selection:
-      t_ph = selected_dt.compress((selected_ph2 > r[0]) & (selected_ph2 <= r[1]) & (selected_dt >= -40.) & (selected_dt <= 20.) )
-      plt.figure()
-      n, bins, troep = plt.hist(t_ph,bins=bins_edges, histtype='step')
-      plt.xlabel('delta-t [ns]')
+        for r in selection:
+          t_ph = selected_dt.compress((selected_ph2 > r[0]) & (selected_ph2 <= r[1]) & (selected_dt >= -40.) & (selected_dt <= 20.) )
+          plt.figure()
+          n, bins, troep = plt.hist(t_ph,bins=bins_edges, histtype='step')
+          plt.xlabel('delta-t [ns]')
 
-      # fit a gaussian (see lio_project/gauss_fit_histogram/)
-      c = gauss_fit_histogram(n, bins_middle)
-      mu = c[1]
-      sigma = c[2]
+          # fit a gaussian (see lio_project/gauss_fit_histogram/)
+          c = gauss_fit_histogram(n, bins_middle)
+          mu = c[1]
+          sigma = c[2]
 
-      # stor fitted mu, sigma
-      mu_list.append(mu)
-      sigma_list.append(sigma)
+          # stor fitted mu, sigma
+          mu_list.append(mu)
+          sigma_list.append(sigma)
 
-      # plot the fit
-      plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
+          # plot the fit
+          plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
 
-      # state the ph selection and fitted mu, sigma in title
-      plt.title(r'%d < ph <= %d $\ \mu = %2.2f\ \sigma = %2.1f$' % (int(r[0]),int(r[1]),mu, sigma))
+          # state the ph selection and fitted mu, sigma in title
+          plt.title(r'%d < ph <= %d fit: $\ \mu = %2.2f\ \sigma = %2.1f$' % (int(r[0]),int(r[1]),mu, sigma))
 
-      plt.show()
+          plt.show()
 
 
     print "list of averages: \n",mu_list
+    print "std deviations avg: ", np.mean(sigma_list), np.std(sigma_list)
 
-    plt.figure()
-    plt.plot(middle_of_selection, mu_list, 'bo')
-    plt.grid(b=True, which='major', color='b', linestyle='-')
-    plt.xlabel('Pulseheight (binned) [ADC]')
-    plt.ylabel(r' < $\Delta t$ > [ns]')
 
     # time-walk correction function
-    # fit w1 + w2/sqrt(x-w3)
-    fitfunc1  = lambda p, x: p[0]+p[1]/np.sqrt(x-p[2])
+    # fit c/sqrt(x)
+    #  c een constante is per PMT verschillend
+    #   x is eigenlijk de lading van de PMT (q, Q) hier nemen we pulshoogte
+    # Ref: Brown et al, Nucl.Instrum.Meth. A221 (1984) 503
+    #
+    # De fit is matig. Beter is:
+    # w1+w2/sqrt(x)
+    # Ref: Smith, Nasseripour, Systematic Study of time walk corrections for the TOF counters, CLAS NOTE 2002-007.
+    # t = 0 at 20 ADC counts -> fit = w1 + w2 / sqrt(x-20)
+    fitfunc1  = lambda p, x: p[0]+p[1]/np.sqrt(x - 20.)
     errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
 
+    fitfunc2  = lambda p, x: p[0]+p[1]/np.sqrt(x - 20.)
+    errfunc2  = lambda p, x, y: (y - fitfunc1(p, x))
+    #
+    # calculate middle of bins for fitting and plotting
+    #
+    fit_bins = np.array([(s[0]+s[1])/2. for s in selection])
+
     # leastsquares fit
-    init = [1.,1.,-20.]
-    out = leastsq(errfunc1, init, args=(middle_of_selection, mu_list))
+    init = [1.,-1.]
+    out = leastsq(errfunc1, init, args=(fit_bins, mu_list))
     print "fit: ",out
 
-    # plot fit
+    # plot and plot fit
+
+    plt.figure()
+    plt.plot(fit_bins, mu_list, 'bo')
+#    plt.errorbar(fit_bins,  mu_list, yerr=sigma_list, fmt='bo')
+    plt.grid(b=True, which='major', color='b', linestyle='-')
+    plt.xlabel('Pulseheight [ADC]')
+    plt.ylabel(r' < $\Delta t$ > [ns]')
+
     fit = out[0]
-    plt.plot(middle_of_selection, fitfunc1(fit, middle_of_selection),'r--', linewidth=3)
-    plt.title('Time walk correlation, s501 t1-t2, jan-mei 2014 (77k events)\n fit = $ %2.2f + %2.2f / \sqrt{ x - %2.2f }$'% (fit[0], fit[1], fit[2]) )
+    plt.plot(np.arange(20,120,1), fitfunc1(fit, np.arange(20,120,1)),'r--', linewidth=2)
+    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
+    plt.legend(['binned averages','fit = %2.2f %2.2f /  $ \sqrt{ x - 20 }$' % (fit[0], fit[1])], loc=4)
     plt.savefig('time_walk.png',dpi=200)
     plt.show()
+
 
     #data.close()
