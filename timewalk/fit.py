@@ -35,7 +35,9 @@ if __name__=='__main__':
     # w1+w2/sqrt(x)
     # Ref: Smith, Nasseripour, Systematic Study of time walk corrections for the TOF counters, CLAS NOTE 2002-007.
     # t = 0 at 20 ADC counts -> fit = w1 + w2 / sqrt(x-20)
-    fitfunc1  = lambda p, x: p[0]*(p[1])**(x - 20.)+p[2]
+    #fitfunc1  = lambda p, x: p[0]*(p[1])**(x - 20.)+p[2]
+    fitfunc1  = lambda p, x: p[0]*np.exp(-1.*p[1]*(x - 20.))+p[2]
+
     errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
 
     #
@@ -66,6 +68,6 @@ if __name__=='__main__':
     print "fit: ", fit
     plt.plot(np.arange(20,120,1), fitfunc1(fit, np.arange(20,120,1)),'r--', linewidth=2)
     plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
-    plt.legend(['binned averages','fit = %3.3f * ( %3.3f ) ^ (x-20) + %3.3f' % (fit[0], fit[1], fit[2]) ])
+    plt.legend(['binned averages','fit = %2.2f * exp(- %1.5f (x-20)) + %3.2f' % (fit[0], fit[1], fit[2]) ])
     plt.savefig('time_walk.png',dpi=200)
     plt.show()
