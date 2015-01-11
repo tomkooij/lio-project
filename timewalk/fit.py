@@ -35,7 +35,9 @@ if __name__=='__main__':
     # w1+w2/sqrt(x)
     # Ref: Smith, Nasseripour, Systematic Study of time walk corrections for the TOF counters, CLAS NOTE 2002-007.
     # t = 0 at 20 ADC counts -> fit = w1 + w2 / sqrt(x-20)
-    #fitfunc1  = lambda p, x: p[0]*(p[1])**(x - 20.)+p[2]
+    #
+    # op logschaal punten niet op een rechte! Het is geen pure exponentiele functie.
+    # daarom gefit met exponent EN verschuiving. Is dat het lineaire deel uit CLAS NOTE 2002-007?
     fitfunc1  = lambda p, x: p[0]*np.exp(-1.*p[1]*(x - 20.))+p[2]
 
     errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
