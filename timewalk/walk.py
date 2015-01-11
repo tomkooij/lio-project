@@ -192,9 +192,10 @@ breedte ervan.
     bins_middle = np.arange(-40,20,2.5)
 
     # sla de analyse over als de data al in geheugen staat.
-    if 1: #'mu_list' not in globals():
+    if 'mu_list' not in globals():
         print "First run. Doing analysis."
         # bepaal de gemiddelde t_walk per bin
+        global mu_list
         mu_list = []
         sigma_list = []
 
@@ -225,47 +226,6 @@ breedte ervan.
     print "list of averages: \n",mu_list
     print "std deviations avg: ", np.mean(sigma_list), np.std(sigma_list)
 
-
-    # time-walk correction function
-    # fit c/sqrt(x)
-    #  c een constante is per PMT verschillend
-    #   x is eigenlijk de lading van de PMT (q, Q) hier nemen we pulshoogte
-    # Ref: Brown et al, Nucl.Instrum.Meth. A221 (1984) 503
-    #
-    # De fit is matig. Beter is:
-    # w1+w2/sqrt(x)
-    # Ref: Smith, Nasseripour, Systematic Study of time walk corrections for the TOF counters, CLAS NOTE 2002-007.
-    # t = 0 at 20 ADC counts -> fit = w1 + w2 / sqrt(x-20)
-    fitfunc1  = lambda p, x: p[0]+p[1]/np.sqrt(x - 20.)
-    errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
-
-    fitfunc2  = lambda p, x: p[0]+p[1]/np.sqrt(x - 20.)
-    errfunc2  = lambda p, x, y: (y - fitfunc1(p, x))
-    #
-    # calculate middle of bins for fitting and plotting
-    #
-    fit_bins = np.array([(s[0]+s[1])/2. for s in selection])
-
-    # leastsquares fit
-    init = [1.,-1.]
-    out = leastsq(errfunc1, init, args=(fit_bins, mu_list))
-    print "fit: ",out
-
-    # plot and plot fit
-
-    plt.figure()
-    plt.plot(fit_bins, mu_list, 'bo')
-#    plt.errorbar(fit_bins,  mu_list, yerr=sigma_list, fmt='bo')
-    plt.grid(b=True, which='major', color='b', linestyle='-')
-    plt.xlabel('Pulseheight [ADC]')
-    plt.ylabel(r' < $\Delta t$ > [ns]')
-
-    fit = out[0]
-    plt.plot(np.arange(20,120,1), fitfunc1(fit, np.arange(20,120,1)),'r--', linewidth=2)
-    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
-    plt.legend(['binned averages','fit = %2.2f %2.2f /  $ \sqrt{ x - 20 }$' % (fit[0], fit[1])], loc=4)
-    plt.savefig('time_walk.png',dpi=200)
-    plt.show()
-
-
+    # save data.txt for analysis
+    np.savetxt('data.txt',[fit_bins, mu_list])
     #data.close()
