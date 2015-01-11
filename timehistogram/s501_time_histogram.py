@@ -9,15 +9,19 @@ ph1 < TRIGGER = gamma
 
 """
 
+
 import datetime
 import tables
 import sapphire.esd
 import scipy.stats
-from numpy import *
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
 
 
+# time walk correction function
+#t_walk = lambda x: 8.36 * np.exp(-0.06702*(x-20.)) + 5.22 # fit from walk.py
+t_walk = lambda x: -3.97 - 13.11 / np.sqrt(x - 20.)
 
 STATION = 501
 STATIONS = [STATION]
@@ -32,7 +36,7 @@ FILENAME = 'station_501_april2010.h5'
 # These values are consistent with a pulseheight histogram
 #
 HIGH_PH = 200
-LOW_PH = 120
+LOW_PH = 50
 
 #
 # Read event data from the ESD
@@ -120,49 +124,49 @@ def plot_histogram_with_gaussfit(dt_data, bins_edges, bins_middle, grafiek, titl
 
 
 
+if __name__=='__main__':
 
+    #data = create_new_event_file(FILENAME, STATIONS, START, END)
+    #data.close()
+    if 'data' not in globals():
+        data = open_existing_event_file(FILENAME)
 
-#data = create_new_event_file(FILENAME, STATIONS, START, END)
-#data.close()
-data = open_existing_event_file(FILENAME)
+    events = data.root.s501.events
 
-events = data.root.s501.events
+    t1 = events.col('t1')
+    t2 = events.col('t2')
 
-t1 = events.col('t1')
-t2 = events.col('t2')
+    ph = events.col('pulseheights')
 
-ph = events.col('pulseheights')
+    ph1 = ph[:,0]
+    ph2 = ph[:,1]
+    ph3 = ph[:,2]
+    ph4 = ph[:,3]
 
-ph1 = ph[:,0]
-ph2 = ph[:,1]
+    #bins2ns5 = arange(-201.25,202.26,2.5)
+    bins2ns5 = np.arange(-101.25,101.26,2.5)
+    bins2ns5_midden = np.arange(-100,100.1,2.5)
 
+    #
+    # TODO: 4 subplots to recreate the figure from Pennink 2010
+    #
+    grafiek = plt.figure()
 
-#bins2ns5 = arange(-201.25,202.26,2.5)dm
-bins2ns5 = arange(-101.25,101.26,2.5)
-bins2ns5_midden = arange(-100,100.1,2.5)
+    # time walk correction
+    t1_corr = t1 + t_walk(ph1)
+    t2_corr = t2 + t_walk(ph2)
+    #
+    # Plot histogram for t1-t2 using event selection based on pulseheight
+    dt = t1 - t2
+    dt_corr = t1_corr - t2_corr
 
-#
-# Plot pulseheight histogram (usefull for pulseheight limits)
-#
-#hist(ph1, bins = 200, log=True, histtype='step')
-#figure()
+    # remove -1 and -999
+    # select events based on pulseheight
+    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH) & (ph2 >0) & (ph1>0))
+    dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH) & (ph2 >0) & (ph1>0))
 
-#
-# 4 subplots to recreate the figure from Pennink 2010
-#
-grafiek = plt.figure()
-
-#
-# Plot histogram for t1-t2 using event selection based on pulseheight
-#
-#
-dt = t1 - t2
-
-# remove -1 and -999
-# select events based on pulseheight
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH) ) # old
-dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 < HIGH_PH) & (ph2 >0) & (ph1>0)) # new 
-
-print "number of events", dt1.size
-plt.hist(dt1, bins=bins2ns5)
-plt.show()
+    print "number of events", dt1.size
+    plt.hist(dt1, bins=bins2ns5, histtype='step')
+    plt.hist(dt1_corr, bins=bins2ns5, histtype='step')
+    plt.title('s501, april 2010, delta PMT 1 - PMT 2')
+    plt.show()
