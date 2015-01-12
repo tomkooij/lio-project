@@ -20,8 +20,8 @@ from scipy.optimize import leastsq
 
 
 # time walk correction function
-#t_walk = lambda x: 8.36 * np.exp(-0.06702*(x-20.)) + 5.22 # fit from walk.py
-t_walk = lambda x: -3.97 - 13.11 / np.sqrt(x - 20.)
+t_walk = lambda x: 8.36 * np.exp(-0.06702*(x-20.)) + 5.22 # fit from walk.py
+
 
 STATION = 501
 STATIONS = [STATION]
@@ -36,7 +36,7 @@ FILENAME = 'station_501_april2010.h5'
 # These values are consistent with a pulseheight histogram
 #
 HIGH_PH = 200
-LOW_PH = 50
+LOW_PH = 120
 
 #
 # Read event data from the ESD
@@ -74,11 +74,10 @@ def open_existing_event_file(filename):
 #
 # least squares fit of gaussian distribution
 #
-fitfunc  = lambda p, x: p[0]*exp(-0.5*((x-p[1])/p[2])**2)
+fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
 errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 
 def gauss_fit_histogram(histogram_y, histogram_x):
-
 
     init  = [1.0, 0.5, 0.5]
 
@@ -135,17 +134,18 @@ if __name__=='__main__':
 
     t1 = events.col('t1')
     t2 = events.col('t2')
+    t3 = events.col('t3')
+    t4 = events.col('t4')
 
     ph = events.col('pulseheights')
-
     ph1 = ph[:,0]
     ph2 = ph[:,1]
     ph3 = ph[:,2]
     ph4 = ph[:,3]
 
     #bins2ns5 = arange(-201.25,202.26,2.5)
-    bins2ns5 = np.arange(-101.25,101.26,2.5)
-    bins2ns5_midden = np.arange(-100,100.1,2.5)
+    bins2ns5 = np.arange(-51.25,51.26,2.5)
+    bins2ns5_midden = np.arange(-50,50.1,2.5)
 
     #
     # TODO: 4 subplots to recreate the figure from Pennink 2010
@@ -153,20 +153,25 @@ if __name__=='__main__':
     grafiek = plt.figure()
 
     # time walk correction
-    t1_corr = t1 + t_walk(ph1)
-    t2_corr = t2 + t_walk(ph2)
+    t1_corr = t1 - t_walk(ph1)
+    t2_corr = t2 - t_walk(ph2)
     #
     # Plot histogram for t1-t2 using event selection based on pulseheight
     dt = t1 - t2
     dt_corr = t1_corr - t2_corr
 
+    # gemiddelden van de gaussianfit
+    OFFSET1 = 0
+    OFFSET2 = -2.5
+
     # remove -1 and -999
     # select events based on pulseheight
-    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH) & (ph2 >0) & (ph1>0))
-    dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH) & (ph2 >0) & (ph1>0))
+    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
+    dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
 
     print "number of events", dt1.size
-    plt.hist(dt1, bins=bins2ns5, histtype='step')
-    plt.hist(dt1_corr, bins=bins2ns5, histtype='step')
+    n1, bins1, blaat1 = plt.hist(dt1-OFFSET1, bins=bins2ns5, histtype='step')
+    n2, bins2, blaat2 = plt.hist(dt1_corr-OFFSET2, bins=bins2ns5, histtype='step')
     plt.title('s501, april 2010, delta PMT 1 - PMT 2')
+    plt.legend(['t1-t2','-walk'], loc=1)
     plt.show()
