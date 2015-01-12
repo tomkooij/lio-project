@@ -151,5 +151,5 @@ breedte ervan.
     print "std deviations avg: ", np.mean(sigma_list), np.std(sigma_list)
 
     # save data.txt for analysis
-    np.savetxt('data.txt',[fit_bins, mu_list])
+    np.savetxt('data.txt',[middle_of_selection, mu_list])
     #data.close()
