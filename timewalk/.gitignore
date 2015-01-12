@@ -1,0 +1,4 @@
+# ignore .txt .csv and .png
+*.txt
+*.csv
+*.png
