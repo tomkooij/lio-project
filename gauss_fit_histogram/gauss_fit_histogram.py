@@ -18,54 +18,44 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import leastsq
 
+if __name__=='__main__':
+    #
+    # De normale (gauss) verdeling voor scipy.optimize.leastsq
+    #
+    fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
+    errfunc  = lambda p, x, y: (y - fitfunc(p, x))
 
-#
-# De normale (gauss) verdeling voor scipy.optimize.leastsq
-#
-fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
-errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+    # random data
+    mu, sigma = 5., 10. # mean and standard deviation
+    dataset = np.random.normal(mu, sigma, 5000)
 
-#
-# In deze file staan "delta-t", "ph_hoog", "ph_laag"
-filename = "events_voor_jos.csv"
-data     = np.loadtxt(filename,skiprows=1,delimiter=',')
-delta_t  = data[:,0]
-ph_low   = data[:,2]
+    #
+    # Bins die passen bij de 2.5ns timing van HiSPARC kastjes
+    #
+    bins_edges = np.arange(-41.25,41.25,2.5)
 
-#
-# Selecteer data
-#
-PH_MIN = 40.
-PH_MAX = 50.
-selected_delta_t = delta_t.compress((ph_low > PH_MIN) & (ph_low <= PH_MAX) & (delta_t > -40.) & (delta_t < 20.))
+    # Maak een histogram
+    #  n is nu een lijst met "counts"
+    #  bins zijn de bin "randen"
+    plt.figure()
+    n,bins,patches = plt.hist(dataset,bins=bins_edges,histtype='step')
 
-#
-# Bins die passen bij de 2.5ns timing van HiSPARC kastjes
-#
-bins_edges = np.arange(-41.25,21.25,2.5)
+    #
+    # Middens van de bins:
+    #
+    middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
-# Maak een histogram
-#  n is nu een lijst met "counts"
-#  bins zijn de bin "randen"
-plt.figure()
-n,bins,patches = plt.hist(selected_delta_t,bins=bins_edges,histtype='step')
+    # Least squares fit:
+    init  = [50.0, -10., 10.]
 
-#
-# Middens van de bins:
-#
-middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
+    c, message   = leastsq( errfunc, init, args=(middle, n))
 
-# Least squares fit:
-init  = [50.0, -10., 10.]
+    print "exp[-0.5((x-mu)/sigma)^2]"
+    print "Fit Coefficients:"
+    print c[0],c[1],abs(c[2])
 
-out   = leastsq( errfunc, init, args=(middle, n))
-c = out[0]
-
-print "exp[-0.5((x-mu)/sigma)^2]"
-print "Fit Coefficients:"
-print c[0],c[1],abs(c[2])
-
-plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
-plt.title(r'$ PH = %3.f - %3.f \ \mu = %.3f\  \sigma = %.3f\ $' %(PH_MIN,PH_MAX,c[1],abs(c[2])));
-plt.xlabel('pulseheight [ADC]')
-plt.show()
+    plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
+    plt.title('gauss_fit_histogram.py');
+    plt.xlabel('pulseheight [ADC]')
+    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(c[1],abs(c[2])), 'random data' ], loc = 3)
+    plt.show()
