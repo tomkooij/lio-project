@@ -53,16 +53,22 @@ if __name__=='__main__':
     print "Co-variance matrix:"
     print cov
 
+
     plt.plot(bins, fit_func(bins, c[0], c[1], abs(c[2])),'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
     plt.xlabel('pulseheight [ADC]')
     plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(c[1],abs(c[2])), 'random data' ], loc = 3)
     plt.show()
 
+    expected = fit_func(middle,c[0], c[1], abs(c[2]))
+
     # cov[0][0] is de spreiding^2 op de eerste fit parameter.
     # In dit geval is dat de spreiding op de schaal/normalisatie faktor
-    # dat is de juiste!
-    fit_sigma = np.sqrt(cov[0][0])
+    # is dat is de juiste?
+    fit_sigma2 = cov[0][0]
 
-    chi2 = sum(np.power((n - fit_func(middle,c[0], c[1], abs(c[2])))/fit_sigma,2)) / (len(n) - len(c))
+    chi2 = sum(np.power((n - expected)/fit_sigma2,2) / (len(n) - len(c)))
     print "Reduced Chi-squared: ", chi2
+
+    pearsson = sum(np.power((n - expected)/expected,2) / (len(n) - len(c)))
+    print 'Reduced Pearsons Chi-squared: ', pearsson
