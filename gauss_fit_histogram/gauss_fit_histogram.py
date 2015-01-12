@@ -16,14 +16,13 @@
 #
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import leastsq
+from scipy.optimize import curve_fit
 
 if __name__=='__main__':
     #
-    # De normale (gauss) verdeling voor scipy.optimize.leastsq
+    # De normale (gauss) verdeling voor scipy.optimize.curve_fit
     #
-    fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
-    errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+    fit_func  = lambda x,a,b,c: a*np.exp(-0.5*((x-b)/c)**2)
 
     # random data
     mu, sigma = 5., 10. # mean and standard deviation
@@ -45,17 +44,25 @@ if __name__=='__main__':
     #
     middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
-    # Least squares fit:
-    init  = [50.0, -10., 10.]
-
-    c, message   = leastsq( errfunc, init, args=(middle, n))
+    # Least squares: scipy.optimize.curve_fit:
+    c, cov = curve_fit(fit_func, middle, n)
 
     print "exp[-0.5((x-mu)/sigma)^2]"
     print "Fit Coefficients:"
     print c[0],c[1],abs(c[2])
+    print "Co-variance matrix:"
+    print cov
 
-    plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
+    plt.plot(bins, fit_func(bins, c[0], c[1], abs(c[2])),'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
     plt.xlabel('pulseheight [ADC]')
     plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(c[1],abs(c[2])), 'random data' ], loc = 3)
     plt.show()
+
+    # cov[0][0] is de spreiding^2 op de eerste fit parameter.
+    # In dit geval is dat de spreiding op de schaal/normalisatie faktor
+    # dat is de juiste!
+    fit_sigma = np.sqrt(cov[0][0])
+
+    chi2 = sum(np.power((n - fit_func(middle,c[0], c[1], abs(c[2])))/fit_sigma,2)) / (len(n) - len(c))
+    print "Reduced Chi-squared: ", chi2
