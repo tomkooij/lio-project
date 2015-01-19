@@ -77,8 +77,8 @@ if __name__=='__main__':
     # is dat is de juiste?
 
 
-    chi2 = sum(np.power((n - expected)/sigma_list,2) / (len(n) - len(c)))
+    chi2 = sum(np.power((n - expected)/sigma_list,2)) / (len(n) - len(c))
     print "Reduced Chi-squared: ", chi2
 
-    pearsson = sum(np.power((n - expected)/expected,2) / (len(n) - len(c)))
+    pearsson = sum(np.power((n - expected)/expected,2)) / (len(n) - len(c))
     print 'Reduced Pearsons Chi-squared: ', pearsson
