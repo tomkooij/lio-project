@@ -40,12 +40,21 @@ if __name__=='__main__':
     n,bins,patches = plt.hist(dataset,bins=bins_edges,histtype='step')
 
     #
+    # sigma
+    #
+    sigma_list = np.sqrt(n)
+    # sigma == 0 --> empty bin
+    # in gaussfit's empty bins should NOT contribute to the fit
+    # we give such bins the largest sigma --> lowest contribution
+    sigma_list[sigma_list == 0] = max(sigma_list)
+
+    #
     # Middens van de bins:
     #
     middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
     # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, n)
+    c, cov = curve_fit(fit_func, middle, n, sigma=sigma_list, absolute_sigma=True)
 
     print "exp[-0.5((x-mu)/sigma)^2]"
     print "Fit Coefficients:"
@@ -65,7 +74,8 @@ if __name__=='__main__':
     # cov[0][0] is de spreiding^2 op de eerste fit parameter.
     # In dit geval is dat de spreiding op de schaal/normalisatie faktor
     # is dat is de juiste?
-    fit_sigma2 = cov[0][0]
+    #fit_sigma2 = cov[0][0]
+    fit_sigma2 = sigma_list
 
     chi2 = sum(np.power((n - expected)/fit_sigma2,2) / (len(n) - len(c)))
     print "Reduced Chi-squared: ", chi2
