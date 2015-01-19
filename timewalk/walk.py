@@ -27,9 +27,11 @@ import csv
 import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import leastsq
+from scipy.optimize import curve_fit
+from scipy.stats import chisquare
 
-INPUTFILE = 'dt_s501_test.csv'
+#INPUTFILE = 'events_voor_jos.csv'
+INPUTFILE = 'dt_s501_jan_mei_2014.csv'
 #
 #
 # Least squares fit of histogram data to guassian distribution
@@ -46,21 +48,31 @@ INPUTFILE = 'dt_s501_test.csv'
 #
 # De normale (gauss) verdeling voor scipy.optimize.leastsq
 #
-fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)
-errfunc  = lambda p, x, y: (y - fitfunc(p, x))
-
+fit_func  = lambda x,a,b,c: a*np.exp(-0.5*((x-b)/c)**2)
 
 def gauss_fit_histogram(histogram_y, histogram_x):
     # Least squares fit:
     init  = [50.0, -5., 10.]
 
-    out   = leastsq( errfunc, init, args=(histogram_x, histogram_y))
-    c = out[0]
+    #sigma_list = np.sqrt(histogram_y) # sqrt(n) = sigma
+    sigma_list = np.sqrt(histogram_y)
+    sigma_list[sigma_list == 0] = max(sigma_list)
+    print "sigma_list", sigma_list
+
+    c, cov = curve_fit(fit_func, histogram_x, histogram_y, sigma=sigma_list, absolute_sigma=True)
 
     print "A exp[-0.5((x-mu)/sigma)^2]"
     print "Fit Coefficients:"
     print c[0],c[1],abs(c[2])
-    return c
+
+    expected = fit_func(histogram_x, c[0], c[1], abs(c[2]))
+    chi2 = sum(np.power((histogram_y - expected)/sigma_list, 2)) / (len(histogram_y) - len(c))
+    print "Reduced Chi-squared: ", chi2
+
+    pearsson = sum(np.power((histogram_y - expected)/expected,2)) / (len(histogram_y) - len(c))
+    print 'Reduced Pearsons Chi-squared: ', pearsson
+
+    return c, chi2
 
 
 
@@ -104,17 +116,18 @@ normaal verdeling. In alle elf gevallen wordt in hetzelfde gebied (-40 tot 20 ns
 spreiding van 0.3563. Plaatje 1 showt de positie van de piek,plaatje 2 de
 breedte ervan.
 """
+    # bins van jos
+    selection = [ [20,25], [25,30], [30,40], [40,50], [50,60], [60,70],[70,80], [80,90], [90,100], [100,110], [110,120]]
 
-    #selection = [ [20,25], [25,30], [30,40], [40,50], [50,60], [60,70],[70,80], [80,90], [90,100], [100,110], [110,120]]
-
-    left_bin = np.arange(20.,120, 2.5)
-    selection = [ [k,k+2.5] for k in left_bin]
+#left_bin = np.arange(20.,120, 2.5)
+#    selection = [ [k,k+2.5] for k in left_bin]
 
     middle_of_selection = [(s[0]+s[1])/2. for s in selection]
 
     # Jos: -40 tot -20, rekeninghoudende met stapgrootte 2.5ns
     bins_edges = np.arange(-41.25,21.25,2.5)
     bins_middle = np.arange(-40,20,2.5)
+    chi2_list = []
 
     # sla de analyse over als de data al in geheugen staat.
     if 'mu_list' not in globals():
@@ -131,7 +144,9 @@ breedte ervan.
           plt.xlabel('delta-t [ns]')
 
           # fit a gaussian (see lio_project/gauss_fit_histogram/)
-          c = gauss_fit_histogram(n, bins_middle)
+          c, chi2 = gauss_fit_histogram(n, bins_middle)
+          chi2_list.append(chi2)
+
           mu = c[1]
           sigma = c[2]
 
@@ -140,17 +155,18 @@ breedte ervan.
           sigma_list.append(sigma)
 
           # plot the fit
-          plt.plot(bins, fitfunc(c, bins),'r--', linewidth=3)
+          plt.plot(bins, fit_func(bins, c[0], mu, sigma),'r--', linewidth=3)
 
           # state the ph selection and fitted mu, sigma in title
-          plt.title(r'%d < ph <= %d fit: $\ \mu = %2.2f\ \sigma = %2.1f$' % (int(r[0]),int(r[1]),mu, sigma))
+          plt.title(r'%2.1f < ph <= %2.1f fit: $\ \mu = %2.2f\ \sigma = %2.1f$' % (r[0],r[1],mu, sigma))
 
           plt.show()
 
 
     print "list of averages: \n",mu_list
     print "std deviations avg: ", np.mean(sigma_list), np.std(sigma_list)
-
+    print "chi2:", chi2_list
+    print "chi2-mean:", np.mean(chi2_list), np.std(chi2_list)
     # save data.txt for analysis
     np.savetxt('data.txt',[middle_of_selection, mu_list])
     #data.close()
