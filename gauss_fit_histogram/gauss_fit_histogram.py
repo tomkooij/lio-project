@@ -31,7 +31,7 @@ if __name__=='__main__':
     #
     # Bins die passen bij de 2.5ns timing van HiSPARC kastjes
     #
-    bins_edges = np.arange(-41.25,41.25,2.5)
+    bins_edges = np.arange(-21.25,21.25,1)
 
     # Maak een histogram
     #  n is nu een lijst met "counts"
@@ -43,6 +43,7 @@ if __name__=='__main__':
     # sigma
     #
     sigma_list = np.sqrt(n)
+
     # sigma == 0 --> empty bin
     # in gaussfit's empty bins should NOT contribute to the fit
     # we give such bins the largest sigma --> lowest contribution
@@ -74,10 +75,9 @@ if __name__=='__main__':
     # cov[0][0] is de spreiding^2 op de eerste fit parameter.
     # In dit geval is dat de spreiding op de schaal/normalisatie faktor
     # is dat is de juiste?
-    #fit_sigma2 = cov[0][0]
-    fit_sigma2 = sigma_list
 
-    chi2 = sum(np.power((n - expected)/fit_sigma2,2) / (len(n) - len(c)))
+
+    chi2 = sum(np.power((n - expected)/sigma_list,2) / (len(n) - len(c)))
     print "Reduced Chi-squared: ", chi2
 
     pearsson = sum(np.power((n - expected)/expected,2) / (len(n) - len(c)))
