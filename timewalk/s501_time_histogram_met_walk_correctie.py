@@ -6,7 +6,6 @@ t1-t2 from station 501, FULL YEAR 2010
 
 ph1 > TRIGGER = charged particle
 ph1 < TRIGGER = gamma
-
 """
 
 
@@ -20,9 +19,12 @@ from scipy.optimize import leastsq
 
 
 # time walk correction function
-#t_walk = lambda x: 8.36 * np.exp(-0.06702*(x-20.)) + 5.22 # fit from walk.py
-A = 50. # fit 13.11
-B = 0. # fit 3.97
+# fit_clas_note_02_2007.py:
+#t_walk = lambda x: -2.050 + 18.374 / (x-20.)**0.188
+
+# Wortel functie: (fit.py)
+A = 13.06 # fit 13.06
+B = 4. # fit 4.83
 t_walk = lambda x: A / np.sqrt(x-20.) + B
 
 STATION = 501
@@ -38,7 +40,7 @@ FILENAME = 's501_mrt.h5'
 # These values are consistent with a pulseheight histogram
 #
 HIGH_PH = 200
-LOW_PH = 120
+LOW_PH = 120.
 
 #
 # Open existing coincidence table.
@@ -90,18 +92,24 @@ if __name__=='__main__':
     dt = t1 - t2
     dt_corr = t1_corr - t2_corr
 
-    # gemiddelden van de gaussianfit
-    OFFSET1 = 5.
-    OFFSET2 = 0
 
     # remove -1 and -999
     # select events based on pulseheight
-    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
-    dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH))
+    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph1 > 20.) & (ph2 > 20.) & (ph2 > HIGH_PH) & (abs(dt_corr) < 100.))
+    dt1 = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > 20.) & (ph2 > 20.) & (ph1 < LOW_PH) & (ph2 > HIGH_PH) & (abs(dt) < 100.) )
+
+    # gemiddelden van de selectie
+    MEAN1 = np.mean(dt1)
+    MEAN2 = np.mean(dt1_corr)
+    OFFSET = MEAN1-MEAN2
+    print "offset: %f-%f = %f" % ( MEAN1, MEAN2, OFFSET )
 
     print "number of events", dt1.size
-    n1, bins1, blaat1 = plt.hist(dt1-OFFSET1, bins=bins2ns5, histtype='step')
-    n2, bins2, blaat2 = plt.hist(dt1_corr-OFFSET2, bins=bins2ns5, histtype='step')
+    n1, bins1, blaat1 = plt.hist(dt1-OFFSET, bins=bins2ns5, histtype='step')
+    n2, bins2, blaat2 = plt.hist(dt1_corr, bins=bins2ns5, histtype='step')
     plt.title('s501, april 2010, delta PMT 1 - PMT 2')
     plt.legend(['t1-t2','-walk'], loc=1)
     plt.show()
+
+    print "Before correction: Skew = %3.3f" % scipy.stats.skew(dt1)
+    print "After timewalk correction: Skew = %3.3f" % scipy.stats.skew(dt1_corr)

@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import leastsq
 
+INPUTFILE = 'dt_s501_test.csv'
 #
 #
 # Least squares fit of histogram data to guassian distribution
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     read_dt = []
     read_ph2 = []
     # lees csv
-    with open('dt_s501_jan_mei_2014.csv', 'r') as csvfile:
+    with open(INPUTFILE, 'r') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         for row in csvreader:
             read_dt.append(float(row[0]))

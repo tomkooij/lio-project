@@ -4,6 +4,7 @@
 import tables
 import numpy as np
 import csv
+import datetime
 
 STATION = 501
 STATIONS = [STATION]
@@ -11,7 +12,7 @@ START = datetime.datetime(2014,4,1)
 END = datetime.datetime(2014,6,1)
 #FILENAME = 'station_501_april2010.h5'
 #FILENAME = 's501_filtered_2014.h5'
-FILENAME = 's501_apr_mei.h5'
+FILENAME = 's501_jan_feb.h5'
 
 
 #
@@ -68,9 +69,9 @@ if __name__=='__main__':
 
     # remove -1 and -999
     # select events based on pulseheight t1 HIGH t2 LOW
-    selected_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20) & (abs(t1-t2) < 100))
-    selected_ph1 = ph1.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
-    selected_ph2 = ph2.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH)& (ph1 < 2*HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
+    selected_dt = dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) &  (ph2 < LOW_PH) & (ph1>20) & (ph1>20) & (abs(t1-t2) < 100))
+    selected_ph1 = ph1.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
+    selected_ph2 = ph2.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
 
     print "number of events", selected_dt.size
 
