@@ -86,19 +86,13 @@ def gauss_fit_histogram(histogram_y, bins, sigma=None, initialguess = [1., 1., 1
 
 if __name__=='__main__':
     # random data
-    mu, sigma = 5., 10. # mean and standard deviation
-    dataset = np.random.normal(mu, sigma, 5000)
-
-    #
-    # Bins die passen bij de 2.5ns timing van HiSPARC kastjes
-    #
-    bins_edges = np.arange(-21.25,21.25,1)
+    dataset = np.random.normal(5., 10., 5000)
 
     # Maak een histogram
     #  n is nu een lijst met "counts"
     #  bins zijn de bin "randen"
     plt.figure()
-    n,bins,patches = plt.hist(dataset,bins=bins_edges,histtype='step')
+    n,bins,patches = plt.hist(dataset,bins=np.arange(-20., 30., 1.),histtype='step')
 
     #
     # sigma: standaard deviatie van de meetwaarden (=wortel(aantal per bin))
@@ -107,7 +101,7 @@ if __name__=='__main__':
 
     c, fitx, fity = gauss_fit_histogram(n, bins, sigma=sigma_list, verbose=True)
     mu = c[1]
-    simga = abs(c[2])
+    sigma = abs(c[2])
 
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
