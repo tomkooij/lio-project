@@ -18,7 +18,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 
-def gauss_fit_histogram(histogram_y, bins, sigma=None, initialguess = [1., 1., 1., 0.], verbose=False):
+def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], verbose=False):
     """
     Fit a histogram with a gaussian distribution
 
@@ -28,7 +28,7 @@ def gauss_fit_histogram(histogram_y, bins, sigma=None, initialguess = [1., 1., 1
     Parameters
     ----------
 
-    histogram_y: a list with histogram data
+    n: a list with histogram data
     bins: list with bin-edges [left, left, ... , right]
     sigma:  None or list with uncertaincies in the histrogram_y data
     initialguess : None initial guess
@@ -59,7 +59,7 @@ def gauss_fit_histogram(histogram_y, bins, sigma=None, initialguess = [1., 1., 1
     middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
     # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, histogram_y, p0=initialguess, sigma=sigma, absolute_sigma=True)
+    c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma, absolute_sigma=True)
 
     if (verbose):
         print "exp[-0.5((x-mu)/sigma)^2]"
@@ -75,7 +75,7 @@ def gauss_fit_histogram(histogram_y, bins, sigma=None, initialguess = [1., 1., 1
     # is dat is de juiste?
 
     if (verbose):
-        chi2 = sum(np.power((n - fit)/sigma_list,2)) / (len(n) - len(c))
+        chi2 = sum(np.power((n - fit)/sigma,2)) / (len(n) - len(c))
         print "Reduced Chi-squared: ", chi2
 
         pearsson = sum(np.power((n - fit),2)/fit) / (len(n) - len(c))
