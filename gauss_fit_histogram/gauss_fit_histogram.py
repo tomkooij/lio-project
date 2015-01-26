@@ -12,18 +12,58 @@
 #  maakt een histogram
 #  fit een willekeurige gauss verdeling met kleinste kwaderen (scipy.optimize.leastsq)
 #  plot de verdeling in het histogram
-# TODO: chi-kwadraten bereken
 #
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
-if __name__=='__main__':
-    #
-    # De normale (gauss) verdeling voor scipy.optimize.curve_fit
-    #
-    fit_func  = lambda x,a,b,c: a*np.exp(-0.5*((x-b)/c)**2)
 
+def gauss_fit_histogram(histogram_y, bins, sigma_list):
+    """
+    Fit a histogram with a gaussian distribution
+
+    Can fit non-normalised histogram with vertical "noise" offsets
+    Fit = a*np.exp(-0.5*((x-b)/c)**2)+d
+
+    :param histogram_y: a list with histogram data
+    :param bins: list with bin-edges [left, left, ... , right]
+    :sigma_list: list with standard deviation sigma per bin
+    """
+
+    #
+    # De normale (gauss) verdeling
+    #
+    fit_func  = lambda x,a,b,c,d : a*np.exp(-0.5*((x-b)/c)**2)+d
+
+    #
+    # Middens van de bins:
+    #
+    middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
+
+    # Least squares: scipy.optimize.curve_fit:
+    c, cov = curve_fit(fit_func, middle, n, sigma=sigma_list, absolute_sigma=True)
+
+    print "exp[-0.5((x-mu)/sigma)^2]"
+    print "Fit Coefficients:"
+    print c[0],c[1],abs(c[2]),c[3]
+    print "Co-variance matrix:"
+    print cov
+
+    fit =  fit_func(middle, c[0], c[1], abs(c[2]), c[3])
+
+    # cov[0][0] is de spreiding^2 op de eerste fit parameter.
+    # In dit geval is dat de spreiding op de schaal/normalisatie faktor
+    # is dat is de juiste?
+
+    chi2 = sum(np.power((n - fit)/sigma_list,2)) / (len(n) - len(c))
+    print "Reduced Chi-squared: ", chi2
+
+    pearsson = sum(np.power((n - fit),2)/fit) / (len(n) - len(c))
+    print 'Reduced Pearsons Chi-squared: ', pearsson
+
+    return c, middle, fit
+
+if __name__=='__main__':
     # random data
     mu, sigma = 5., 10. # mean and standard deviation
     dataset = np.random.normal(mu, sigma, 5000)
@@ -40,45 +80,16 @@ if __name__=='__main__':
     n,bins,patches = plt.hist(dataset,bins=bins_edges,histtype='step')
 
     #
-    # sigma
+    # sigma: standaard deviatie van de meetwaarden (=wortel(aantal per bin))
     #
     sigma_list = np.sqrt(n)
 
-    # sigma == 0 --> empty bin
-    # in gaussfit's empty bins should NOT contribute to the fit
-    # we give such bins the largest sigma --> lowest contribution
-    sigma_list[sigma_list == 0] = max(sigma_list)
+    c, fitx, fity = gauss_fit_histogram(n, bins, sigma_list)
+    mu = c[1]
+    simga = abs(c[2])
 
-    #
-    # Middens van de bins:
-    #
-    middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
-
-    # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, n, sigma=sigma_list, absolute_sigma=True)
-
-    print "exp[-0.5((x-mu)/sigma)^2]"
-    print "Fit Coefficients:"
-    print c[0],c[1],abs(c[2])
-    print "Co-variance matrix:"
-    print cov
-
-
-    plt.plot(bins, fit_func(bins, c[0], c[1], abs(c[2])),'r--', linewidth=3)
+    plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
     plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(c[1],abs(c[2])), 'random data' ], loc = 3)
+    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'random data' ], loc = 2)
     plt.show()
-
-    expected = fit_func(middle,c[0], c[1], abs(c[2]))
-
-    # cov[0][0] is de spreiding^2 op de eerste fit parameter.
-    # In dit geval is dat de spreiding op de schaal/normalisatie faktor
-    # is dat is de juiste?
-
-
-    chi2 = sum(np.power((n - expected)/sigma_list,2)) / (len(n) - len(c))
-    print "Reduced Chi-squared: ", chi2
-
-    pearsson = sum(np.power((n - expected)/expected,2)) / (len(n) - len(c))
-    print 'Reduced Pearsons Chi-squared: ', pearsson
