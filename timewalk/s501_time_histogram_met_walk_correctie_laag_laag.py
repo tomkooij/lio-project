@@ -1,11 +1,6 @@
 """
 Read data from station 501 and plot t1-t2 histogram
 
-Goal: recreate graphs form D.Pennink 2010
-t1-t2 from station 501, FULL YEAR 2010
-
-ph1 > TRIGGER = charged particle
-ph1 < TRIGGER = gamma
 """
 
 import datetime
@@ -80,7 +75,7 @@ if __name__=='__main__':
     ph3 = ph[:,2]
     ph4 = ph[:,3]
 
-    bins2ns5 = np.arange(-20.25,20.26,2.5)
+    bins2ns5 = np.arange(-30.25,30.26,2.5)
     #bins2ns5 = np.arange(-51.25,51.26,2.5)
     #bins2ns5_midden = np.arange(-50,50.1,2.5)
 
@@ -91,7 +86,7 @@ if __name__=='__main__':
 
     # time walk correction
     t1_corr = t1 - t_walk(ph1)
-    t2_corr = t2 # - t_walk(ph2)
+    t2_corr = t2 - t_walk(ph2)
     #
     # Plot histogram for t1-t2 using event selection based on pulseheight
     dt = t1 - t2
@@ -100,9 +95,9 @@ if __name__=='__main__':
 
     # remove -1 and -999
     # select events based on pulseheight
-    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph1 > 20.) & (ph2 > HIGH_PH) & (abs(dt_corr) < 100.))
-    dt1      =      dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph1 > 20.) & (ph2 > HIGH_PH) & (abs(dt) < 100.) )
-
+    dt1_corr = dt_corr.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph1 > 20.) & (ph2 > 20.) & (ph2 < LOW_PH) & (abs(dt_corr) < 100.))
+    dt1      =      dt.compress((t1 >= 0) & (t2 >= 0) & (ph1 < LOW_PH) & (ph1 > 20.) & (ph2 > 20.) & (ph2 < LOW_PH) & (abs(dt) < 100.) )
+    dt1_HOOG = dt.compress((t1 >= 0) & (t2 >= 0) & (ph2 > HIGH_PH) & (ph1 > HIGH_PH) & (abs(dt) < 100.))
     # gemiddelden van de selectie
     MEAN1 = np.mean(dt1)
     MEAN2 = np.mean(dt1_corr)
@@ -110,7 +105,7 @@ if __name__=='__main__':
     print "offset: %f-%f = %f" % ( MEAN1, MEAN2, OFFSET )
 
     print "number of events", dt1.size
-    n1, bins1, blaat1 = plt.hist(dt1-OFFSET, bins=bins2ns5, histtype='step')
+    n1, bins1, blaat1 = plt.hist(dt1_HOOG, bins=bins2ns5, histtype='step')
 
     c, fitx, fity = gauss_fit_histogram(n1, bins1, sigma=np.sqrt(n1), verbose=True)
     mu = c[1]
