@@ -105,5 +105,5 @@ if __name__=='__main__':
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
     plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'random data' ], loc = 2)
+    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'random data' ], loc = 2, bbox_to_anchor=(1,1))
     plt.show()
