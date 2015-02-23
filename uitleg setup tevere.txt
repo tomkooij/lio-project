@@ -1,0 +1,17 @@
+Op tevere:
+
+source activate tom
+
+
+git clone git@github.com:hisparc/sapphire.git
+
+
+git remote add upstream git@github.com:hisparc/sapphire.git
+git fetch upstream
+
+
+# branch en zorg dat "track" aanstaat (oude versie git op tevere) 
+git checkout -b groundparticles_gamma --track upstream/groundparticles_gamma
+
+
+git fetch upstream
