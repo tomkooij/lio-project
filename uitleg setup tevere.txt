@@ -15,3 +15,5 @@ git checkout -b groundparticles_gamma --track upstream/groundparticles_gamma
 
 
 git fetch upstream
+
+git rebase upstream/groundparticles_gamma
