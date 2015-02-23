@@ -10,8 +10,8 @@ N = number of simulations
 """
 
 
-max_core_distance = 30	# m
-N = 1000					# monte carlo runs
+max_core_distance = 300	# m
+N = 5000					# monte carlo runs
 
 import tables
 import matplotlib.pyplot as plt
@@ -21,8 +21,8 @@ from sapphire.simulations.groundparticles import GroundParticlesSimulation
 from sapphire.clusters import *
 
 #FILENAME = 'corsika_834927089_144221120.h5'    # 1e14 p theta = 0
-#FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 0
-FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
+FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 0
+#FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
 
 
 cluster = SingleStation()
