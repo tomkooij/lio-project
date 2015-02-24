@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-#FILENAME = 'corsika_834927089_144221120.h5'    # 1e14 p theta = 0
+FILENAME = 'corsika_834927089_144221120.h5'    # 1e14 p theta = 0
 #FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 0
-FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
+#FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
 
 if __name__=='__main__':
     data = tables.open_file(FILENAME, 'r')
@@ -29,15 +29,12 @@ if __name__=='__main__':
     p_z = gp.col('p_z')
     phi = gp.col('phi')
 
-    ax = plt.subplot(111,polar=True)
-    ax.scatter(phi,r)
-    ax.set_rmax(3500.0)
+    p = np.sqrt(p_x**2+p_y**2+p_z**2)/1e6  # total momentum [MeV]
 
+    p_gamma = p.compress(id==1)
+    #electron = p.compress((id==3)
+    plt.figure()
+    plt.hist(p_gamma, bins=np.arange(0,5,.01))
     plt.show()
 
-    p = p_z
-
-    gamma = p.compress(id==1)
-    #electron = p.compress((id==3)
-
-    #data.close()
+    data.close()
