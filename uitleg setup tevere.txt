@@ -10,10 +10,18 @@ git remote add upstream git@github.com:hisparc/sapphire.git
 git fetch upstream
 
 
-# branch en zorg dat "track" aanstaat (oude versie git op tevere) 
+# branch en zorg dat "track" aanstaat (oude versie git op tevere)
 git checkout -b groundparticles_gamma --track upstream/groundparticles_gamma
 
 
 git fetch upstream
 
 git rebase upstream/groundparticles_gamma
+
+
+
+Nieuwe methode 2 maart:
+(origin staat goed!)
+
+git fetch origin
+git reset --hard origin/groundparticles_gamma
