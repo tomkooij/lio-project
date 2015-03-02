@@ -27,5 +27,9 @@ def read_input(filename):
 
 if __name__=='__main__':
     print 'Dit is process_star_lines.py'
-    photons = read_input(FILENAME)
-    print 'E = ',photons[1]
+    photons = np.array(read_input(FILENAME))
+
+    E = photons[:,1]
+    k = photons[:,2] # random getal
+    p = photons[:,3] # interactie kans
+    mips = photons[:,4]
