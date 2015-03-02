@@ -19,7 +19,7 @@ def read_input(filename):
     lines = [line.strip().split(' ') for line in open(filename)]
 
     for line in lines:
-        # regels met TK zijn regels uit "do_compton()"
+        # alleen regels met een * bevatten relevante data
         if (line[0] == "*"):
             photons.append(line)
 
