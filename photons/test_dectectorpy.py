@@ -2,8 +2,7 @@ import numpy as np
 
 max_E = 4.0 # 2 MeV per cm * 2cm scintilator depth
 MIP = 3.38 # MeV
-LRAD = 42.53 # [cm] radiation length in scintilator
-
+P_pair_production = 0.015
 
 # W.R. Leo (1987) p 54
 # E photon energy [MeV]
@@ -71,6 +70,9 @@ def _compton_energy_transfer(E):
     p = np.poly1d(transfer_function_table[idx])
     return p(np.random.random())*_compton_edge(E)
 
+def _compton_interaction_probability(E):
+    return 0.134198 * np.exp(-0.392398*E) + 0.034156
+
 #p [eV]
 #E [MeV]
 #E = p / 1.e6
@@ -78,42 +80,34 @@ def _compton_energy_transfer(E):
 #interaction_probability = 0.134198 * np.exp(-0.392398*E) + 0.034156
 
 n = 3
-p = [2.]    # DIT ZIJN ALTIJD LIJSTEN!
-E = np.array(p)
-compton_interaction_probability = 0.134198 * np.exp(-0.392398*E) + 0.034156
-
-photons = zip(E, compton_interaction_probability)
+E = np.random.rand(100)*10.    # DIT ZIJN ALTIJD LIJSTEN!
 
 mips = 0
-for photon in photons:
+for energy in E:
 
-    depth_compton = np.random.random()/photon[2] # unit: scintilator depth
-    depth_pair = np.random.random()/0.015 # 0.015 = P(pair production)
-    print "depth compton, pair = ", depth_compton, depth_pair
+    depth_compton = np.random.random()/_compton_interaction_probability(energy) # unit: scintilator depth
+    depth_pair = np.random.random()/P_pair_production # 0.015 = P(pair production)
+    #print "E, depth compton, pair = ", energy, depth_compton, depth_pair
 
     if ((depth_pair > 1.0) & (depth_compton > 1.0)):
-        print "no interaction!"
-        break
+        continue
 
     #  interaction in scintilator
-    if depth_compton < depth_pair:
+    if ((energy < 1.022) | (depth_compton < depth_pair)):
         # compton scattering
-        print "compton!"
         maximum_energy_deposit_in_MIPS = (1-depth_compton)*max_E/MIP
-        print "max deposit =",maximum_energy_deposit_in_MIPS
 
-        energy_deposit_in_MIPS = _compton_energy_transfer(photon[0])/max_E
+        energy_deposit_in_MIPS = _compton_energy_transfer(energy)/max_E
 
         extra_mips = np.minimum(maximum_energy_deposit_in_MIPS, energy_deposit_in_MIPS)  # maximise energy transfer per photon to 1 MIP/cm * depth
         # stdout output: Energy, k, interaction_probability, transfered_energy [mips]
         # print '*', photon[0], photon[1], photon[2], extra_mips
-        print "extra mips = ", extra_mips
         mips += extra_mips
     else:
-        print "pair!"
         # pair production: Two "electrons"
         maximum_energy_deposit_in_MIPS = (1-depth_pair)*max_E/MIP
-        mips =  2. * maximum_energy_deposit # two particles
+        extra_mips =  2. * maximum_energy_deposit_in_MIPS # two particles
         mips += extra_mips
+        print mips
 
 print "mips = ", mips
