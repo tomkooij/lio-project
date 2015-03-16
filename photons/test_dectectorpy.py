@@ -96,18 +96,18 @@ for energy in E:
     if ((energy < 1.022) | (depth_compton < depth_pair)):
         # compton scattering
         maximum_energy_deposit_in_MIPS = (1-depth_compton)*max_E/MIP
-
-        energy_deposit_in_MIPS = _compton_energy_transfer(energy)/max_E
-
+        energy_deposit_in_MIPS = _compton_energy_transfer(energy)/MIP
         extra_mips = np.minimum(maximum_energy_deposit_in_MIPS, energy_deposit_in_MIPS)  # maximise energy transfer per photon to 1 MIP/cm * depth
         # stdout output: Energy, k, interaction_probability, transfered_energy [mips]
         # print '*', photon[0], photon[1], photon[2], extra_mips
         mips += extra_mips
+        print "compton: ", extra_mips
     else:
         # pair production: Two "electrons"
         maximum_energy_deposit_in_MIPS = (1-depth_pair)*max_E/MIP
-        extra_mips =  2. * maximum_energy_deposit_in_MIPS # two particles
+        energy_deposit_in_MIPS = (energy - 1.022) / MIP # 1.022 MeV used for creation of two particles
+        extra_mips = np.minimum(maximum_energy_deposit_in_MIPS, energy_deposit_in_MIPS)
         mips += extra_mips
-        print mips
+        print "pair! ",extra_mips
 
 print "mips = ", mips
