@@ -130,9 +130,21 @@ if __name__=='__main__':
         y = [y_value(xx, dist) for xx in x]
         z = np.polyfit(x,y,2)               # fit order 2 polynomial
         print "polyfit z:", energy, z
+
         z2 = leastsq_fit_polynomial(x, y)  # own fit to set z[0]==0
 
         z_list.append([energy, z[0], z[1], z[2], z2[0], z2[1], z2[2]])
+
+    # sapphire detector.py output
+    print "Energy_table = np.array([\ "
+    for energy in E:
+        print "\t %f ,\ " % energy
+    print "\ntransfer_function_table = [\ "
+    for z in z_list:
+        print"\t[%f , %f , %f],\ " % (z[1], z[2],z[3] )
+    # add extra item for E > Emax
+    z = z_list[-1] # last item
+    print "\t[%f , %f , %f]] # E > Emax " % (z[1], z[2],z[3] )
 
     z = np.array(z_list)
     z_kwadraat_term = z[:,1]
