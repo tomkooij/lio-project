@@ -9,14 +9,14 @@ from next_time import time_series, next_time
 
 
 # number of events to generate
-N = int(1e6)
+N = int(5e5)
 
 # events far from the core have low lepton detection probability
 LEPTON_DETECTION_PROBABILITY = 0.50 # based on particle density in shower
 PHOTON_DETECTION_PROBABILITY = 0.05 # based on scinitlator interaction
 NUMBER_OF_PHOTONS = 5 # density photons = 10* density leptons
-DELTA_TIME_PHOTONS = 5 # must fit in "shower pancake"
-DELTA_TIME_LEPTONS = 20 # ns ref fig 2.3 Fokkema2012
+DELTA_TIME_PHOTONS = 10 # must fit in "shower pancake"
+DELTA_TIME_LEPTONS = 10 # ns ref fig 2.3 Fokkema2012
 
 def detect_lepton():
 
@@ -38,7 +38,7 @@ def detect_photon():
 
 def station():
 
-    t = np.array([0,0,0,0])
+    t = np.array([-999.,-999.,-999.,999.])
     #ph = [-999,-999,-999,-999]
     ph = [0,0,0,0]
 
@@ -115,7 +115,7 @@ if __name__=='__main__':
     plt.show()
 
     plt.hist(dt_low_low,bins=20,histtype='step')
-    plt.title('delta-t histogram left=low ph (photon) right=high ph (lepton)')
+    plt.title('delta-t histogram low,low (photon, photon)')
     plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
     plt.show()
