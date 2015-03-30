@@ -50,20 +50,20 @@ n_gamma = t_prime.compress((id==1) & (r > R1) & (r < R2) )
 print "n = ", len(n_lepton), len(n_gamma)
 area = 3.14*(R2**2-R1**2)
 print "area = %5.f m2. dichtheid_lepton = %1.3f dichtheid_photon = %1.3f " % (area,len(n_lepton)/area,len(n_gamma)/area)
-#
-# #
-# # Plot een serie plot tussen 0.8 en 1.2 * R met daarin de aankomstijdhistogrammen voor cp en gamma's
-# #
-# Rvalues = [100., 500., 750., 1000., 1500., 2000.]
-# for Rstep in Rvalues:
-#     gamma = t_prime.compress((id==1) & (r > .8*Rstep) & (r < 1.2*Rstep) & (phi > 0) & (phi < 0.1))
-#     electron = t_prime.compress((id==3) & (r > .8*Rstep) & (r < 1.2*Rstep)& (phi > 0) & (phi < 0.1))
-#
-#     plt.figure()
-#     plt.hist(electron, bins=50, histtype='step')
-#     plt.hist(gamma, bins=50, histtype='step')
-#     plt.legend(['electron', 'gamma'])
-#     plt.title('R = '+str(Rstep))
-#     plt.show()
 
-#data.close()
+#
+# Plot een serie plot tussen 0.8 en 1.2 * R met daarin de aankomstijdhistogrammen voor cp en gamma's
+#
+Rvalues = [10., 20., 30., 50.]
+for Rstep in Rvalues:
+    gamma = t_prime.compress((id==1) & (r > .8*Rstep) & (r < 1.2*Rstep) & (phi > 0) & (phi < 0.01))
+    electron = t_prime.compress((id==3) & (r > .8*Rstep) & (r < 1.2*Rstep)& (phi > 0) & (phi < 0.01))
+
+    plt.figure()
+    plt.hist(electron, bins=50, histtype='step')
+    plt.hist(gamma, bins=50, histtype='step')
+    plt.legend(['electron', 'gamma'])
+    plt.title('R = '+str(Rstep))
+    plt.show()
+
+data.close()
