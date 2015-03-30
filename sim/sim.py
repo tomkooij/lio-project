@@ -9,7 +9,7 @@ from next_time import time_series, next_time
 
 
 # number of events to generate
-N = int(1e5)
+N = int(1e6)
 
 # events far from the core have low lepton detection probability
 LEPTON_DETECTION_PROBABILITY = 0.50 # based on particle density in shower
@@ -103,11 +103,19 @@ if __name__=='__main__':
     ph1 = np.array(ph1)
     ph2 = np.array(ph2)
 
-    dt_sel = dt.compress((ph1 == 10) & (ph2 == 10) & (t1 > 0) & (t2 > 0))
-    print "Number of events in selection: ",dt_sel.size
+    dt_high_low = dt.compress((ph1 == 100) & (ph2 == 10) & (t1 > 0) & (t2 > 0))
+    print "Number of events in selection (high-low): ",dt_high_low.size
+    dt_low_low = dt.compress((ph1 == 10) & (ph2 == 10) & (t1 > 0) & (t2 > 0))
+    print "Number of events in selection (low-low): ",dt_low_low.size
 
-    plt.hist(dt_sel,bins=20,histtype='step')
+    plt.hist(dt_high_low,bins=20,histtype='step')
     plt.title('delta-t histogram left=low ph (photon) right=high ph (lepton)')
-    plt.xlabel('t_HIGH - t2 [ns]')
+    plt.xlabel('t1 - t2 [ns]')
+    plt.ylabel('number of events')
+    plt.show()
+
+    plt.hist(dt_low_low,bins=20,histtype='step')
+    plt.title('delta-t histogram left=low ph (photon) right=high ph (lepton)')
+    plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
     plt.show()
