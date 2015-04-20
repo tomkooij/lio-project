@@ -4,6 +4,7 @@ investigate time difference t1-t2 in corsika groundparticlesim data
 
 import tables
 import numpy as np
+import matplotlib.pyplot as plt
 
 def get_timestamp_of_first_groundparticle(events):
     """
@@ -56,3 +57,15 @@ if __name__=='__main__':
     events = data.root.cluster_simulations.station_0.events
 
     dt, n1, n2 = prepare_delta_t(events, 1, 2)
+
+    dt_hoog_laag = dt.compress((n1>0.1) & (n2>0.1) & (n2 < 0.2))
+    dt_laag_hoog = dt.compress((n2>0.1) & (n1>0.1) & (n1 < 0.2))
+    dt_laag_laag = dt.compress((n2>0.1) & (n2 < 0.2) & (n1>0.1) & (n1 < 0.2))
+
+    plt.figure()
+    plt.hist(dt_hoog_laag, bins=np.arange(-22.5,22.5,2.5))
+    plt.figure()
+    plt.hist(dt_laag_hoog, bins=np.arange(-22.5,22.5,2.5))
+    plt.figure()
+    plt.hist(dt_laag_laag, bins=np.arange(-52.5,52.5,5.))
+    plt.show()
