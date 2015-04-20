@@ -10,8 +10,8 @@ import itertools
 MIP = 220 # ADC
 
 PH_MIN = 20  # minimum mips that still is particle/event (t!=-999)
-PH_MIN_LEPTON = 120  # everything above = lepton
-PH_MAX_PHOTON = 70 # everything below = gamma
+PH_MIN_LEPTON = 200 # everything above = lepton
+PH_MAX_PHOTON = 120 # everything below = gamma
 
 def get_timestamp_of_first_groundparticle(events):
     """
@@ -80,11 +80,12 @@ def prepare_delta_t(events, k, l, esddata=False, mip=220):
 if __name__=='__main__':
 
     #data = tables.open_file('600k_events_gammas.h5', 'r')
-
+    #ESDDATA = False
     #events = data.root.cluster_simulations.station_0.events
 
 
     data = tables.open_file('station_501_april2010.h5', 'r')
+    ESDDATA = True
     events = data.root.s501.events
 
     dt_hoog_laag = np.array([], dtype='float32')
@@ -94,17 +95,18 @@ if __name__=='__main__':
     for i,j in itertools.combinations(range(1,5),2):
 
         print "detectoren: ",i,j
-        dt, ph1, ph2 = prepare_delta_t(events, i, j, esddata=True)
+        # prepare time series and pulseheights
+        dt, ph1, ph2 = prepare_delta_t(events, i, j, esddata=ESDDATA, mip=MIP)
 
+        # select events and store
         dt_hoog_laag = np.concatenate((dt.compress((ph1>PH_MIN_LEPTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_hoog_laag))
         dt_laag_hoog = np.concatenate((dt.compress((ph2>PH_MIN_LEPTON) & (ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON)), dt_laag_hoog))
         dt_laag_laag = np.concatenate((dt.compress((ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_laag_laag))
         print "laag_laag.size = ", dt_laag_laag.size
 
     plt.figure()
-    plt.hist(dt_hoog_laag, bins=np.arange(-21.25,21.24,2.5))
-    plt.figure()
-    plt.hist(dt_laag_hoog, bins=np.arange(-21.25,21.24,2.5))
-    plt.figure()
-    plt.hist(dt_laag_laag, bins=np.arange(-52.5,52.49,5.))
+    plt.hist(dt_hoog_laag, bins=np.arange(-51.25,51.24,2.5), histtype='step')
+    plt.hist(dt_laag_hoog, bins=np.arange(-51.25,51.24,2.5), histtype='step')
+    plt.figure() # different y-axis!
+    plt.hist(dt_laag_laag, bins=np.arange(-51.25,51.24,2.5), histtype='step')
     plt.show()
