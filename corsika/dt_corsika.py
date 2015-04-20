@@ -33,7 +33,7 @@ def get_timestamp_of_first_groundparticle(events):
 
     return t0
 
-def prepare_delta_t(events, k, j, esddata=False, mip=220):
+def prepare_delta_t(events, k, l, esddata=False, mip=220):
     """
     extract timecolumns k and j from event table. Compute t_k - t_j
 
@@ -51,35 +51,41 @@ def prepare_delta_t(events, k, j, esddata=False, mip=220):
     t0 = get_timestamp_of_first_groundparticle(events)
 
     t_k = events.col('t%d' % k) - t0
-    t_j = events.col('t%d' % j) - t0
+    t_l = events.col('t%d' % l) - t0
 
-    dt = (t_k - t_j).compress((t_k > 0) & (t_j > 0))
+    dt = (t_k - t_l).compress((t_k > 0) & (t_l > 0))
 
     if esddata:
         """
         real data from the ESD
         pulseheights are stored in ADC
         """
-        pass
+        ph = events.col('pulseheights')
+        ph_k = ph[:,(k-1)].compress((t_k > 0) & (t_l > 0))
+        ph_l = ph[:,(l-1)].compress((t_k > 0) & (t_l > 0))
+
     else:
         """
         sapphire.groundparticlesim() output
         convert number of mips columns (n1, n2...) to pulseheights
         """
+        ph_k = events.col('n1').compress((t_k > 0) & (t_l > 0))*mip
+        ph_l = events.col('n2').compress((t_k > 0) & (t_l > 0))*mip
 
-        n_k = events.col('n1').compress((t_k > 0) & (t_j > 0))*mip
-        n_j = events.col('n2').compress((t_k > 0) & (t_j > 0))*mip
+    assert(ph_k.size==dt.size)
+    assert(ph_l.size==dt.size)
 
-    assert(n_k.size==dt.size)
-    assert(n_j.size==dt.size)
-
-    return dt, n_k, n_j
+    return dt, ph_k, ph_l
 
 if __name__=='__main__':
 
-    data = tables.open_file('600k_events_gammas.h5', 'r')
+    #data = tables.open_file('600k_events_gammas.h5', 'r')
 
-    events = data.root.cluster_simulations.station_0.events
+    #events = data.root.cluster_simulations.station_0.events
+
+
+    data = tables.open_file('station_501_april2010.h5', 'r')
+    events = data.root.s501.events
 
     dt_hoog_laag = np.array([], dtype='float32')
     dt_laag_hoog = np.array([], dtype='float32')
@@ -88,7 +94,7 @@ if __name__=='__main__':
     for i,j in itertools.combinations(range(1,5),2):
 
         print "combinatie: ",i,j
-        dt, ph1, ph2 = prepare_delta_t(events, i, j)
+        dt, ph1, ph2 = prepare_delta_t(events, i, j, esddata=True)
 
         dt_hoog_laag = np.concatenate((dt.compress((ph1>PH_MIN_LEPTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_hoog_laag))
         dt_laag_hoog = np.concatenate((dt.compress((ph2>PH_MIN_LEPTON) & (ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON)), dt_laag_hoog))
