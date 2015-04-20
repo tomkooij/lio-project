@@ -44,8 +44,8 @@ def prepare_delta_t(events, k, j):
     n_k = events.col('n1').compress((t_k > 0) & (t_j > 0))
     n_j = events.col('n2').compress((t_k > 0) & (t_j > 0))
 
-    assert(t_k.size==n_k.size)
-    assert(t_j.size==n_j.size)
+    assert(n_k.size==dt.size)
+    assert(n_j.size==dt.size)
 
     return dt, n_k, n_j
 
