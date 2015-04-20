@@ -7,9 +7,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
-N_MIN = 0.05 # minimum mips that still is particle/event (t!=-999)
-N_MIN_LEPTON = 0.7 # everything above = lepton
-N_MAX_PHOTON = 0.2 # everything below = gamma
+MIP = 220 # ADC
+
+PH_MIN = 0.05 * MIP  # minimum mips that still is particle/event (t!=-999)
+PH_MIN_LEPTON = 0.7 * MIP # everything above = lepton
+PH_MAX_PHOTON = 0.2 * MIP # everything below = gamma
 
 def get_timestamp_of_first_groundparticle(events):
     """
@@ -31,13 +33,19 @@ def get_timestamp_of_first_groundparticle(events):
 
     return t0
 
-def prepare_delta_t(events, k, j):
+def prepare_delta_t(events, k, j, esddata=False, mip=220):
     """
     extract timecolumns k and j from event table. Compute t_k - t_j
 
     remove t = -999 (no particle)
 
     substract time of first particle (needed for corsika gpsim)
+
+    :param events: events table in ESD of groundparticlesim output
+    :param k,j: detector ids
+    :param esddata=false: use ESD data when true. Default is use groundparticlesim data
+    :param mip=220: height of the MIP peak in ADC. Used to convert n1,n2... to pulseheights
+    :returns: dt, ph_k, ph_j : timedifference and corresponding pulseheights
     """
 
     t0 = get_timestamp_of_first_groundparticle(events)
@@ -47,8 +55,20 @@ def prepare_delta_t(events, k, j):
 
     dt = (t_k - t_j).compress((t_k > 0) & (t_j > 0))
 
-    n_k = events.col('n1').compress((t_k > 0) & (t_j > 0))
-    n_j = events.col('n2').compress((t_k > 0) & (t_j > 0))
+    if esddata:
+        """
+        real data from the ESD
+        pulseheights are stored in ADC
+        """
+        pass
+    else:
+        """
+        sapphire.groundparticlesim() output
+        convert number of mips columns (n1, n2...) to pulseheights
+        """
+
+        n_k = events.col('n1').compress((t_k > 0) & (t_j > 0))*mip
+        n_j = events.col('n2').compress((t_k > 0) & (t_j > 0))*mip
 
     assert(n_k.size==dt.size)
     assert(n_j.size==dt.size)
@@ -68,12 +88,11 @@ if __name__=='__main__':
     for i,j in itertools.combinations(range(1,5),2):
 
         print "combinatie: ",i,j
-        dt, n1, n2 = prepare_delta_t(events, i, j)
-        print "dt.size, dt_laag_laag.size", dt.size, dt.compress((n1>N_MIN) & (n2>N_MIN) & (n2 < N_MAX_PHOTON)).size
+        dt, ph1, ph2 = prepare_delta_t(events, i, j)
 
-        dt_hoog_laag = np.concatenate((dt.compress((n1>N_MIN_LEPTON) & (n2>N_MIN) & (n2 < N_MAX_PHOTON)), dt_hoog_laag))
-        dt_laag_hoog = np.concatenate((dt.compress((n2>N_MIN_LEPTON) & (n1>N_MIN) & (n1 < N_MAX_PHOTON)), dt_laag_hoog))
-        dt_laag_laag = np.concatenate((dt.compress((n2>N_MIN) & (n2 < N_MAX_PHOTON) & (n1>N_MIN) & (n1 < N_MAX_PHOTON)), dt_laag_laag))
+        dt_hoog_laag = np.concatenate((dt.compress((ph1>PH_MIN_LEPTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_hoog_laag))
+        dt_laag_hoog = np.concatenate((dt.compress((ph2>PH_MIN_LEPTON) & (ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON)), dt_laag_hoog))
+        dt_laag_laag = np.concatenate((dt.compress((ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_laag_laag))
 
     plt.figure()
     plt.hist(dt_hoog_laag, bins=np.arange(-21.25,21.24,2.5))
