@@ -7,6 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
+N_MIN = 0.05 # minimum mips that still is particle/event (t!=-999)
+N_MIN_LEPTON = 0.7 # everything above = lepton
+N_MAX_PHOTON = 0.2 # everything below = gamma
+
 def get_timestamp_of_first_groundparticle(events):
     """
     get timestamp of first groundparticle (usually >>1e5 ns in corsika)
@@ -57,23 +61,24 @@ if __name__=='__main__':
 
     events = data.root.cluster_simulations.station_0.events
 
-    dt_hoog_laag = np.array([0], dtype='float32')
-    dt_laag_hoog = np.array([0], dtype='float32')
-    dt_laag_laag = np.array([0], dtype='float32')
+    dt_hoog_laag = np.array([], dtype='float32')
+    dt_laag_hoog = np.array([], dtype='float32')
+    dt_laag_laag = np.array([], dtype='float32')
 
     for i,j in itertools.combinations(range(1,5),2):
 
         print "combinatie: ",i,j
         dt, n1, n2 = prepare_delta_t(events, i, j)
-        print "dt.size, dt_laag_laag.size", dt.size, dt.compress((n1>0.1) & (n2>0.1) & (n2 < 0.2)).size
-        dt_hoog_laag = np.concatenate((dt.compress((n1>0.1) & (n2>0.1) & (n2 < 0.2)), dt_hoog_laag))
-        dt_laag_hoog = np.concatenate((dt.compress((n2>0.1) & (n1>0.1) & (n1 < 0.2)), dt_laag_hoog))
-        dt_laag_laag = np.concatenate((dt.compress((n2>0.1) & (n2 < 0.2) & (n1>0.1) & (n1 < 0.2)), dt_laag_laag))
+        print "dt.size, dt_laag_laag.size", dt.size, dt.compress((n1>N_MIN) & (n2>N_MIN) & (n2 < N_MAX_PHOTON)).size
+
+        dt_hoog_laag = np.concatenate((dt.compress((n1>N_MIN_LEPTON) & (n2>N_MIN) & (n2 < N_MAX_PHOTON)), dt_hoog_laag))
+        dt_laag_hoog = np.concatenate((dt.compress((n2>N_MIN_LEPTON) & (n1>N_MIN) & (n1 < N_MAX_PHOTON)), dt_laag_hoog))
+        dt_laag_laag = np.concatenate((dt.compress((n2>N_MIN) & (n2 < N_MAX_PHOTON) & (n1>N_MIN) & (n1 < N_MAX_PHOTON)), dt_laag_laag))
 
     plt.figure()
-    plt.hist(dt_hoog_laag, bins=np.arange(-22.5,22.5,2.5))
+    plt.hist(dt_hoog_laag, bins=np.arange(-21.25,21.24,2.5))
     plt.figure()
-    plt.hist(dt_laag_hoog, bins=np.arange(-22.5,22.5,2.5))
+    plt.hist(dt_laag_hoog, bins=np.arange(-21.25,21.24,2.5))
     plt.figure()
-    plt.hist(dt_laag_laag, bins=np.arange(-52.5,52.5,5.))
+    plt.hist(dt_laag_laag, bins=np.arange(-52.5,52.49,5.))
     plt.show()
