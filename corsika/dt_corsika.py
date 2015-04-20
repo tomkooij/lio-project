@@ -9,9 +9,9 @@ import itertools
 
 MIP = 220 # ADC
 
-PH_MIN = 0.05 * MIP  # minimum mips that still is particle/event (t!=-999)
-PH_MIN_LEPTON = 0.7 * MIP # everything above = lepton
-PH_MAX_PHOTON = 0.2 * MIP # everything below = gamma
+PH_MIN = 20  # minimum mips that still is particle/event (t!=-999)
+PH_MIN_LEPTON = 120  # everything above = lepton
+PH_MAX_PHOTON = 70 # everything below = gamma
 
 def get_timestamp_of_first_groundparticle(events):
     """
@@ -93,12 +93,13 @@ if __name__=='__main__':
 
     for i,j in itertools.combinations(range(1,5),2):
 
-        print "combinatie: ",i,j
+        print "detectoren: ",i,j
         dt, ph1, ph2 = prepare_delta_t(events, i, j, esddata=True)
 
         dt_hoog_laag = np.concatenate((dt.compress((ph1>PH_MIN_LEPTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_hoog_laag))
         dt_laag_hoog = np.concatenate((dt.compress((ph2>PH_MIN_LEPTON) & (ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON)), dt_laag_hoog))
         dt_laag_laag = np.concatenate((dt.compress((ph1>PH_MIN) & (ph1 < PH_MAX_PHOTON) & (ph2>PH_MIN) & (ph2 < PH_MAX_PHOTON)), dt_laag_laag))
+        print "laag_laag.size = ", dt_laag_laag.size
 
     plt.figure()
     plt.hist(dt_hoog_laag, bins=np.arange(-21.25,21.24,2.5))
