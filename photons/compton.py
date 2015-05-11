@@ -55,9 +55,7 @@ def KN_total_cross_section(gamma):
 #
 # Compton scattering
 # Klein-Nisihina absorption cross section
-#
-#  "absorption cross section is the average fraction of the total energy for the scattered photon"
-#
+
 # W.R. Leo, Techniques for Nuclear and Particles Physics Expermiments,
 #     Springer (1987)
 #
@@ -88,7 +86,7 @@ def KN_absorption_cross_section(gamma):
 # E photon energy [MeV]
 # T electron recoil energy [MeV]
 
-def dsigma_dT(E,T):
+def dsigma_dT(E, T):
 
     r_e = 2.82e-15  # classical electron radius [m]
 
@@ -97,8 +95,8 @@ def dsigma_dT(E,T):
     s = T / E
 
     return (math.pi*(r_e**2) / (electron_rest_mass_MeV * gamma**2) *
-                    (2 + (s**2 / ((gamma**2) * ((1 - s)**2)) ) +
-                                (s/(1 - s))*(s - 2/gamma)))
+                    (2 + (s**2 / ((gamma**2) * ((1 - s)**2))) +
+                     (s/(1 - s))*(s - 2/gamma)))
 
 
 # W.R. Leo (1987) p 54
@@ -110,13 +108,15 @@ def compton_edge(E):
 
     return (E * 2 * gamma / (1 + 2 * gamma))
 
+
 def plot_compton_cs_versus_E():
 
     E = np.logspace(-3, 3, 1000)
 
     # electron rest mass 0.5 MeV
     # cs in barn
-    cs = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+    cs = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28
+          for energy in E]
 
     plt.plot(E, cs)
     plt.xscale('log')
@@ -143,17 +143,17 @@ def compton_mean_free_path(energy):
     n = rho / A * N_a
 
     # Z = atom number (= number of electrons per atom)
-    A = 9 * 6. + 10 * 1.  # C9H10
+    Z = 9 * 6. + 10 * 1.  # C9H10
 
     # electron rest mass 0.5109989 MeV
-    # cross section in [m2]
-    # n = number of atoms per unit volume
+    # cross section in [m2] Hence the 1e4 factor!
+    # n = number of ELECTRONS per unit volume
 
-    return 1/(n*Z*KN_total_cross_section(energy / electron_rest_mass_MeV)*1e4) # in [cm]
+    return 1/(n*Z*KN_total_cross_section(energy / electron_rest_mass_MeV)*1e4)
 
 
 #
-# Calculate the probablity of compton scattering in 2cm vinyltoluene scintilator
+# Calculate the probablity of compton scattering in 2cm vinyltoluene scint
 #
 def interaction_probability(energy):
 
@@ -168,8 +168,7 @@ def interaction_probability(energy):
 #
 def compton_max_energy_transfer(energy):
 
-    return (energy * (2. * energy / (electron_rest_mass_MeV+2.*energy) ) )
-#
+    return (energy * (2. * energy / (electron_rest_mass_MeV + 2. * energy)))
 
 
 def plot_MAX_energy_transfer():
@@ -178,7 +177,7 @@ def plot_MAX_energy_transfer():
     E = np.logspace(-3, 3, 1000)
 
     # maak een lijst met T per energie
-    T = [compton_max_energy_transfer(energy) for energy in E] # in [cm]
+    T = [compton_max_energy_transfer(energy) for energy in E]  # in [cm]
 
     # maak plotje
     plt.figure()
@@ -188,7 +187,7 @@ def plot_MAX_energy_transfer():
     plt.ylabel('T [MeV]')
     plt.xlabel('photon energy (MeV)')
     plt.title('Photon max energy loss for Compton scattering')
-    #plt.savefig('T.png')
+    # plt.savefig('T.png')
 
 
 def plot_compton_mean_free_path_versus_E():
@@ -201,26 +200,33 @@ def plot_compton_mean_free_path_versus_E():
 
     # maak plotje
     plt.figure()
-    plt.plot(E,l)
+    plt.plot(E, l)
     plt.xscale('log')
     plt.yscale('log')
     plt.ylabel('mean free path [cm]')
     plt.xlabel('photon energy (MeV)')
     plt.title('Photon mean free path in vinyltoluene scintilator')
-#    plt.savefig('freepath.png')
+    # plt.savefig('freepath.png')
+
 
 def plot_compton_full_versus_E():
 
-    #E = np.logspace(-2, 3, 1000)  # figure 2.23 Leo, p 53
-    E = np.logspace(-1,1,1000)   # HiSPARC relevant energy spectrum
+    # E = np.logspace(-2, 3, 1000)  # figure 2.23 Leo, p 53
+    E = np.logspace(-1, 1, 1000)   # HiSPARC relevant energy spectrum
 
     # electron rest mass 0.5 MeV
     # cs in barn
-    cs_total = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
-    cs_scattering = [KN_scattering_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
-    cs_absorption = [KN_absorption_cross_section(energy / electron_rest_mass_MeV) / 1e-28 for energy in E]
+    cs_total = [KN_total_cross_section(energy / electron_rest_mass_MeV) / 1e-28
+                for energy in E]
 
-    plt.plot(E, cs_total,label='total cs')
+    cs_scattering = [KN_scattering_cross_section(energy /
+                                                 electron_rest_mass_MeV)
+                     / 1e-28 for energy in E]
+
+    cs_absorption = [KN_absorption_cross_section(energy /
+                     electron_rest_mass_MeV) / 1e-28 for energy in E]
+
+    plt.plot(E, cs_total, label='total cs')
     plt.plot(E, cs_scattering, label='scattering')
     plt.plot(E, cs_absorption, label='absorption')
     plt.legend()
@@ -231,6 +237,7 @@ def plot_compton_full_versus_E():
     plt.title('Klein-Nisihina cross sections for Compton scattering')
 #    plt.savefig('kn_cross_sec.png')
 
-if __name__== '__main__':
+
+if __name__ == '__main__':
 
     print "This is compton.py!\n"

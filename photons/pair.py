@@ -103,7 +103,7 @@ def plot_cross_section_versus_E():
     # plt.savefig('pair_freepath.png')
 
 
-if __name__== '__main__':
+if __name__ == '__main__':
 
     print "This is pair.py!\n"
     plot_cross_section_versus_E()
