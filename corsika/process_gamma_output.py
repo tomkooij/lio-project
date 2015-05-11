@@ -19,7 +19,7 @@ groundparticles.py
     P = pair production
 """
 
-FILENAME = 'out'
+FILENAME = 'output'
 
 if __name__ == '__main__':
 

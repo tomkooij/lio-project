@@ -5,7 +5,6 @@ Test gamma digitisation implementation
 
 """
 
-
 max_core_distance = 50 	# m
 
 N = int(1e4)				# monte carlo runs
@@ -14,11 +13,18 @@ import tables
 import numpy as np
 
 from sapphire.simulations.groundparticles import GroundParticlesGammaSimulation
-from sapphire.clusters import SingleStation
+from sapphire.clusters import BaseCluster
 
-cluster = SingleStation()
 
-FILENAME = 'sorted_713335232.h5'
+class SingleDetectorStation(BaseCluster):
+    """Define a cluster containing a single detector """
+
+    def __init__(self):
+        super(SingleDetectorStation, self).__init__()
+
+        detectors = [((0, 0, 0), 'UD')]
+
+        self._add_station((0, 0, 0), 0, detectors)
 
 
 class TestGammas(GroundParticlesGammaSimulation):
@@ -29,13 +35,17 @@ class TestGammas(GroundParticlesGammaSimulation):
     """
     def get_particles_in_detector(self, detector):
 
-        E = [10.0]
+        E = [1000.]
 
         gammas = [(0, 0, energy*1e6, 0) for energy in E]
 
         # no leptons, just gamma's
         return [], np.array(gammas, dtype=np.dtype([('p_x', float),
                             ('p_y', float), ('p_z', float), ('t', float)]))
+
+
+cluster = SingleDetectorStation()
+FILENAME = 'sorted_713335232.h5'  # needs to exist, opened, not used
 
 if __name__ == '__main__':
 
@@ -44,7 +54,7 @@ if __name__ == '__main__':
     print "N = %d \n" % N
 
     sim = TestGammas(FILENAME, max_core_distance, cluster, data, '/',
-                     N, seed=42)
+                     N, seed=12345)
     sim.run()
     print "number of events: ", \
         len(data.root.coincidences.coincidences.read_where('N==1'))
