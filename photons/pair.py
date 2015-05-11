@@ -28,8 +28,8 @@ def f(Z):
                      0.0083 * a ** 4 - 0.002 * a ** 6)
 
 
-def pair_cross_section(gamma):
-    """ Bron: Leo 1987 blz 55 """
+def pair_cross_section_no_screening(gamma):
+    """ Bron: Leo 1987 blz 55 eq. 2.116 """
 
     r_e = 2.82e-15  # classical electron radius [m]
 
@@ -42,14 +42,32 @@ def pair_cross_section(gamma):
 
     return 4 * Z * (Z+1) * alpha * r_e ** 2 * (7. / 9 * _ln_fZ - 109. / 54)
 
+def pair_cross_section_full_screening(gamma):
+    """ Bron: Leo 1987 blz 55 eq. 2.117 """
+
+    r_e = 2.82e-15  # classical electron radius [m]
+
+    # Z = charge of an average atom  H : C = 1.104 : 1 (vinyltoluene)
+    Z = (1.104+6) / 2.
+
+    alpha = 1/137.
+
+    _ln_fZ = math.log(183*Z**(1./3)) - f(Z)
+
+    return 4 * Z * (Z+1) * alpha * r_e ** 2 * (7. / 9 * _ln_fZ - 1. / 54)
+
+
+def pair_cross_section(gamma):
+    return pair_cross_section_no_screening(gamma)
 
 def pair_mean_free_path(energy):
 
     N_a = 6.022e23  # avogadro
     # vinyltoluene = CH2=CHC6H4CH3 (C9H10)
     rho = 1.032  # g/cm3
-    A = 13.1 / 2.
-
+    # A = 13.1 / 2.
+    A = 9 * 12. + 10 * 1.
+    
     # number of atoms per unit volume (cm3)
     n = rho / A * N_a
 
