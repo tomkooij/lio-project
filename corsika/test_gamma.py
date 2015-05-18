@@ -4,13 +4,16 @@
 Test gamma digitisation implementation
 
 """
+from __future__ import division
 
 max_core_distance = 50 	# m
 
-N = int(1e4)				# monte carlo runs
+N = int(1e5)				# monte carlo runs
 
 import tables
 import numpy as np
+import random
+
 
 from sapphire.simulations.groundparticles import GroundParticlesGammaSimulation
 from sapphire.clusters import BaseCluster
@@ -35,7 +38,8 @@ class TestGammas(GroundParticlesGammaSimulation):
     """
     def get_particles_in_detector(self, detector):
 
-        E = [1000.]
+        #E = [0.1 + random.random()*500.]  # linear van 0.1 tot 500.1
+        E = [0.1 + random.expovariate(1/10)]  # exponentieel gemiddeld 10
 
         gammas = [(0, 0, energy*1e6, 0) for energy in E]
 
