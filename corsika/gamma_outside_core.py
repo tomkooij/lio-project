@@ -26,7 +26,7 @@ FILENAME = 'sorted_713335232.h5'
 class OutsideCoreGPS(GroundParticlesSimulation):
     """
     Overwrite generate_core_distance classmethod (../detector.py)
-    to generate events with R > MIN_CORE_DISTANCE 
+    to generate events with R > MIN_CORE_DISTANCE
     """
 
     @classmethod
@@ -38,17 +38,11 @@ class OutsideCoreGPS(GroundParticlesSimulation):
 
         """
         assert(MIN_CORE_DISTANCE < R)
-        """
+
         r = sqrt(np.random.uniform(MIN_CORE_DISTANCE**2 , R ** 2))
         phi = np.random.uniform(-pi, pi)
         x = r * cos(phi)
         y = r * sin(phi)
-        """
-        while 1:
-            x = np.random.uniform(-R,R)
-            y = np.random.uniform(-R,R)
-            if sqrt(x**2+y**2) < R:
-                break
 
         return x, y
 
@@ -66,8 +60,8 @@ if __name__ == '__main__':
     print data_1.root.cluster_simulations.station_0.events
 
     # calculate core positions for "detected" events
-    x =data_1.root.coincidences.coincidences.read_where('N==1')['x']
-    y =data_1.root.coincidences.coincidences.read_where('N==1')['y']
+    x = data_1.root.coincidences.coincidences.read_where('N==1')['x']
+    y = data_1.root.coincidences.coincidences.read_where('N==1')['y']
     r = np.sqrt(x**2+y**2)
     print r.size
 
