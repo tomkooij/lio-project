@@ -6,17 +6,18 @@ Investigate Pytables.read_where()/Numpy.compress() performance
 """
 
 
+
 max_core_distance = 400  	# m
-N = 1					# monte carlo runs
+N = 1000					# monte carlo runs
 
 import tables
 from timeit import default_timer as timer
 import numpy as np
 
 from sapphire.simulations.groundparticles import GroundParticlesSimulation
-from sapphire.simulations.groundparticles import OptimizeQueryGroundParticlesSimulation
+#from sapphire.simulations.groundparticles import OptimizeQueryGroundParticlesSimulation
 #from sapphire.simulations.groundparticles import OptimizeQuery_ParticlesOnly_GroundParticlesSimulation
-#from sapphire.simulations.groundparticles import NumpyGPS
+from sapphire.simulations.groundparticles import NumpyGPS
 
 from sapphire.clusters import ScienceParkCluster
 
@@ -25,9 +26,9 @@ cluster = ScienceParkCluster()
 
 
 SHOWERS = {'1e14 eV 7Mb unsorted': 'corsika_713335232_854491062.h5',
-            '1e14 eV 6Mb sorted+csi': 'sorted_713335232.h5',
-            '1e16 eV 88Mb unsorted': 'corsika_10019744_792483217.h5',
-            '1e14 eV 81Mb sorted+csi': 'sorted_10019744.h5'}
+            '1e14 eV 6Mb sorted+csi': 'sorted_713335232.h5'}
+    #        '1e16 eV 88Mb unsorted': 'corsika_10019744_792483217.h5',
+    #        '1e14 eV 81Mb sorted+csi': 'sorted_10019744.h5'}
 
 def do_compare(corsikafile_path):
     data_old = tables.open_file('bagger1.h5', 'w')
@@ -35,9 +36,10 @@ def do_compare(corsikafile_path):
 
     print "N = ",N
     print "old code pytables_readwhere:"
+    start = timer()
+
     sim_old = GroundParticlesSimulation(corsikafile_path, max_core_distance, cluster, data_old, '/', N, seed=42)
 
-    start = timer()
     sim_old.run()
     end = timer()
     t_old = end - start
@@ -45,10 +47,11 @@ def do_compare(corsikafile_path):
     testvalue_old = data_old.root.coincidences.coincidences.read_where('N>0')
     print "number of coincidences: ", len(testvalue_old)
 
-    print "new code: pytbales_readwhere on x. compress on y and particle_id"
-    sim_opt = OptimizeQueryGroundParticlesSimulation(corsikafile_path, max_core_distance, cluster, data_opt, '/', N, seed=42)
-
+    print "new code: NumpyGPS"
     start = timer()
+
+    sim_opt = NumpyGPS(corsikafile_path, max_core_distance, cluster, data_opt, '/', N, seed=42)
+
     sim_opt.run()
     end = timer()
     t_opt = end - start

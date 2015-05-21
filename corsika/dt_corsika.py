@@ -79,14 +79,14 @@ def prepare_delta_t(events, k, l, esddata=False, mip=220):
 
 if __name__=='__main__':
 
-    #data = tables.open_file('600k_events_gammas.h5', 'r')
-    #ESDDATA = False
-    #events = data.root.cluster_simulations.station_0.events
+    data = tables.open_file('600k_events_gammas.h5', 'r')
+    ESDDATA = False
+    events = data.root.cluster_simulations.station_0.events
 
 
-    data = tables.open_file('station_501_april2010.h5', 'r')
-    ESDDATA = True
-    events = data.root.s501.events
+    #data = tables.open_file('station_501_april2010.h5', 'r')
+    #ESDDATA = True
+    #events = data.root.s501.events
 
     dt_hoog_laag = np.array([], dtype='float32')
     dt_laag_hoog = np.array([], dtype='float32')
