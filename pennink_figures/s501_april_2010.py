@@ -136,7 +136,7 @@ def do_it():
     bins2ns5 = np.arange(-50.25,51.26,2.5)
 
     dt_pennink = (t1-t2).compress( (t1 >0) & (t2 > 0) & ((t1-t2) < 50.) & (ph1 < LOW_PH) & (ph2 < LOW_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH))
-    print "Penninkg selectie (laag, laag, hoog, hoog)", dt_pennink.size
+    print "Pennink selectie (laag, laag, hoog, hoog)", dt_pennink.size
     n1, bins1, blaat1 = plt.hist(dt_pennink, bins=bins2ns5, histtype='step')
 
     sigma_list = np.sqrt(n1)
