@@ -1,0 +1,1925 @@
+#LyX file created by tex2lyx 2.1
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+% define the title
+\author{T. Kooij}
+\title{Simulatie van fotondetectie in HiSPARC}
+
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package none
+\inputencoding auto
+\fontencoding default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 2
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% generates the title
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+maketitle
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% insert the table of contents
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Samenvatting
+\end_layout
+
+\begin_layout Standard
+Ja, het kan!
+\end_layout
+
+\begin_layout Section
+Inleiding
+\end_layout
+
+\begin_layout Standard
+Geladen leptonen (elektronen en muonen) worden in HiSPARC stations efficient gedetecteerd met vinyltolueen scintilatorplaten. De stoppping power is groot genoeg om de energieafgifte te benaderen door de 
+\shape italic
+Continous Slowing Down Approach (CSDA).
+\shape default
+ Door het grote aantal interacties van geladen leptonen met materie geven ze in kleine stapjes energie af aan de detector. De detectie kans is 1 en de energieafgifte per deeltje is reproduceerbaar.
+\end_layout
+
+\begin_layout Standard
+Detectie van fotonen is moeizaam. De werkzame doorsnedes van de interacties zijn klein, zodat de kans op interactie slechts enkele procentpunt is 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Pennink:2010"
+
+\end_inset
+
+. De energieafgifte per interactie kan echter groot zijn. Daarom is de energieafgifte per foton variabel.
+\end_layout
+
+\begin_layout Standard
+In een pulsehoogtehistogram van een HiSPARC detector station zijn bijdragen van fotonen te identificeren 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Pennink:2010"
+
+\end_inset
+
+. In de simulatie van EAS op HiSPARC detectoren met behulp van CORSIKA en sapphire wordt geen rekening gehouden met de bijdragen van fotonen. Fotonen zijn wel aanwezig in de CORSIKA output, maar worden niet meegenomen in sapphire. Daarom is de interactie van fotonen met de HiSPARC detectoren onderzocht om de detectorreponse op fotonen in the bouwen in de sapphire simulaties.
+\end_layout
+
+\begin_layout Section
+Theorie
+\end_layout
+
+\begin_layout Standard
+In de HiSPARC scintilator platen word fotonen (gamma's) gedetecteerd met een energie tussen 100 keV en 10 MeV 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Steijger2010-gammas"
+
+\end_inset
+
+. Er zijn drie mechanismen waarmee dergelijke gamma's energieverliezen in een scintilatorplaat: Het foto-elektrisch effect, compton verstrooiing en paarvorming. Door deze interacties wordt energie van de invallende fotonen ovegedragen aan elektronen in de detector. Deze elektronen worden dan gedetecteerd zoals invallende elektronen uit airshowers.
+\end_layout
+
+\begin_layout Standard
+De werkzame doorsnede voor het foto-elektrisch effect is alleen bij lage energie voldoende groot. Voor foton met energie rond 1 MeV is de werkzame doorsnede zo klein dat de interactie kans vrijwel nul is. Er zijn alleen foto-elektrische interacties die elektronen met lage energie vrijmaken. De pulshoogte in de PMT is kleiner dan het ruisniveau. 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Steijger2010-gammas"
+
+\end_inset
+
+. Hypothese: Het foto-elektrisch effect kan buiten beschouwing gelaten worden.
+\end_layout
+
+\begin_layout Standard
+Compton verstrooiing is de domineerende interactie. De elektronen die door deze interactie worden vrijgemaakt leveren pulshoogten tussen ruis-niveau en 1 MIP. Compton verstrooiing moet worden gesimuleerd in de detector response voor fotonen.
+\end_layout
+
+\begin_layout Standard
+Paar-vorming kan alleen optreden bij foton energie groter dan 1.022 MeV (de rustmassa van een elektron positron paar). De bijbehorende pulshoogtes zijn groot; In de orde van 1 MIP of meer. De werkzame doorsnede van paarvorming is klein, daarom is de interactiekans klein. De pulsen zijn in de detector ononderscheidbaar van pulsen die veroozaakt worden door invallende geladen leptonen. Hierdoor is de invloed van paar-vorming op het uiteindelijke pulseintegral histrogram minimaal. Hypothese: Paarvorming kan buiten beschouwng gelaten worden.
+\end_layout
+
+\begin_layout Section
+Monte carlo simulatie van fotonen door een scintilatorplaat
+\end_layout
+
+\begin_layout Subsection
+Beschrijving van de montecarlo analyse
+\end_layout
+
+\begin_layout Standard
+Voor het analyseren van de response van HiSPARC detectoren op fotonen is een monte carlo simulatie programma geschreven door J. Steijger 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Steijger2010-gammas"
+
+\end_inset
+
+. De analyse wordt door de auteur 
+\shape italic
+Mini-Monte Carlo
+\shape default
+ genoemd. Hier wordt "de simulatie" gebruikt om te verwijzen naar de montecarlo simulatie.
+\end_layout
+
+\begin_layout Standard
+De simulatie, geschreven in C, is gecompileerd met gcc-4.8.1 via cygwin64 op Windows 7. De uitvoer van de simulatie is of meerdere regels tekst per vrijgemaakt elektron. De opbouw van de tekstregels van de programmauitvoer is gedocumenteerd. De uitvoer wordt ingelezen een python-2.7 script waarmee de tabellen en figuren uit dit pamflet zijn gemaakt. De C en python broncode zijn beschikbaar via Github.
+\end_layout
+
+\begin_layout Standard
+Aangenomen wordt dat de gammastraling loodrecht invalt op de detector en dat alle deeltje in dezelfde richting door de detector verplaatsen. De detector kan zo gemodelleerd worden als eendimensionaal met een lengte van 2,0 cm. De code simuleert een groot aantal fotonen waarvan de energie willekeurig getrokken wordt uit een 1/E verdeling tussen 100keV en 10MeV. Per foton wordt de werkzame doorsnede van de drie interacties bepaald en daaruit de vrije weglengte van het foton. De kleinste vrije wegelengte bepaalt het interactietype en een willekeurig getal bepaalt de interactieplaats. De aan de elektronen overgedragen energie wordt bepaald en daaruit wordt de aan de scintilatorplaat afgegeven energie berekend volgens de 
+\shape italic
+continuous slowing down approach
+\shape default
+ met dE/dx = 1.75 g/cm. Hierbij wordt zoals eerder genoemd aangenomen dat de elektronen ook loodrecht op scintilator plaat verder bewegen en dat alle energie in de detector wordt opgenomen, d.w.z. het elektron voldoende afstand kan afleggen voordat het de detector verlaat. Deze aanname is juist VERWIJZEN.
+\end_layout
+
+\begin_layout Subsection
+Resultaten montecarlo simulatie
+\end_layout
+
+\begin_layout Standard
+De resultaten zijn uitgesplits per mechanisme, zie 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "table:mmc-mechanisme"
+
+\end_inset
+
+. In figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Eloss-hist"
+
+\end_inset
+
+ is een histogram weergegeven van de energieafgifte aan de detector per foton.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float table
+placement ht
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Resultaten mini montecarlo
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Tabular 
+<lyxtabular version="3" rows="7" columns="7">
+<features rotate="0" tabularvalignment="middle" tabularwidth="0pt">
+<column alignment="left" valignment="top">
+<column alignment="none" valignment="top" special=" ">
+<column alignment="center" valignment="top">
+<column alignment="none" valignment="top" special=" ">
+<column alignment="center" valignment="top">
+<column alignment="none" valignment="top" special=" ">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% centered columns
+\end_layout
+
+\end_inset
+
+Omschrijving 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+aantal 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+percentage 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+[0.5ex] 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% header
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% inserts single horizontal line
+\end_layout
+
+\end_inset
+
+Aantal primaire fotonen 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+651075 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+100% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+- 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% inserting body of the table
+\end_layout
+
+\end_inset
+
+Fotonen met interactie 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+100000 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+15.4% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+100% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+waarvan foto-elektrisch effect 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+293 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+0.29% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+waarvan Compton verstrooing 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+90596 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+91% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+waarvan Paarvorming 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+9111 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+9.1% 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+[1ex] 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% [1ex] adds vertical space
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+%inserts single line
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "table:mmc-mechanisme"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+% is used to refer this table in the text
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement t
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+\align center
+
+\begin_inset Graphics 
+	filename fig-Eloss-hist.pdf
+	width 70text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Eloss-hist"
+
+\end_inset
+
+ Energieafgifte aan detector per foton.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Analyse van de detectorresponse van fotonen per mechanisme
+\end_layout
+
+\begin_layout Subsubsection
+Analyse van de bijdrage van het foto-elektrisch effect
+\end_layout
+
+\begin_layout Standard
+In 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Steijger2010-gammas"
+
+\end_inset
+
+ is de ondergrens van de primaire fotonon in de minimontecarlo simulatie bepaald op 100 keV. Fotonen met minder energie worden niet waargenomen, omdat PMT pulsen binnen het ruisniveau vallen.
+\end_layout
+
+\begin_layout Standard
+Omdat de werkzame doorsnede voor het foto-elektrisch effect bij 100keV klein is, zijn er slechts weinig (minder dan 1%) fotoelektrische interacties (tabel 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "table:mmc-mechanisme"
+
+\end_inset
+
+) in de simulatie. Deze interacties leveren electronen in de scintilator plaat met lage energie (figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:fe"
+
+\end_inset
+
+). De bijbehorende pulshoogte is onder het ruisniveau.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-fe-scatter.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Scatter plot van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:fe-scatter"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-fe-hist2d.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+2D histogram van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:fe-hist3d"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Foto-elektrisch effect: Energieoverdracht aan detector vs Gamma energie
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:fe"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Conclusie: Het foto-elektrisch effect kan verwaarloosd worden.
+\end_layout
+
+\begin_layout Subsubsection
+Analyse van de bijdrage van Compton verstrooiing
+\end_layout
+
+\begin_layout Standard
+Compton verstrooiing is het mechanisme dat voor 90% van alle interacties zorgt. In figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:compton-scatter"
+
+\end_inset
+
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:compton-hist2d"
+
+\end_inset
+
+ en is de energie afgifte aan de detector weergegeven. Het overgrote deel van de energie overdracht aan de detector is tussen de 0.1 en 2 MeV. Bijbehorende pulshoogte is tussen ruis en 60mV (120 ADC counts) 
+\begin_inset Foot
+status collapsed
+
+
+\begin_layout Standard
+3.38 MeV = 200mV = 350 ADC counts; De hoogte van de 
+\shape italic
+MIP piek
+\shape default
+ is 3.38 MeV, dit komt overeen met 200mV (beide volgens 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Pennink:2010"
+
+\end_inset
+
+ blz 24). 1mV komt overeen met 1.75 ADC stap (volgens 
+\begin_inset CommandInset citation
+LatexCommand cite*
+after ""
+before ""
+key "Pennink:2010"
+
+\end_inset
+
+ blz 32).
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-compton-scatter.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Scatter plot van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:compton-scatter"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-compton-hist2d.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+2D histogram van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:compton-hist3d"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Compton verstrooiing: Energieoverdracht aan detector vs Gamma energie
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:compton"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Conclusie: Compton verstrooiing zorgt voor detector response in het voor deze analyse interessante gebied.
+\end_layout
+
+\begin_layout Subsubsection
+Analyse van de bijdrage van paarvorming
+\end_layout
+
+\begin_layout Standard
+Bij ongeveer 10% van de interacties van fotonen in de detector treedt paarvorming op. De overgedragen energie is hierbij hoog. In figuren 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pair"
+
+\end_inset
+
+ is af te lezen dat de energieoverdracht meestal groter is dan 2 MeV. De bijbehorende pulsehoogte is ongeveer 120mV (200 ADC counts)
+\begin_inset Foot
+status collapsed
+
+
+\begin_layout Standard
+3.38 MeV = 200mV = 350 ADC counts
+\end_layout
+
+\end_inset
+
+ en groter.
+\end_layout
+
+\begin_layout Standard
+Daarmee zijn de pulsen ononderscheidbaar van geladen leptonen.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-pair-scatter.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Scatter plot van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pair-scatter"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+begin{subfigure}
+\end_layout
+
+\end_inset
+
+[b]
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+0.6
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+textwidth
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename fig-pair-hist2d.png
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+2D histogram van events
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pair-hist3d"
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+end{subfigure}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+Paarvorming: Energieoverdracht aan detector vs Gamma energie
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pair"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Conclusie: Compton verstrooiing levert grote detectorrespons die onderscheidbaar is van de response door geladen leptonen. De interactiekans is echter zo klein, dat deze bijdrage t.o.v. de bijdrage van geladen leptonen verwaarloosd kan worden.
+\end_layout
+
+\begin_layout Subsection
+Absorptie van electronen in detector
+\end_layout
+
+\begin_layout Standard
+In de montecarlo simulatie worden elektronen gegeneerd. Vervolgens wordt aangenomen dat alle energie van de elektronen opgenomen wordt in de detector. Deze aanname is alleen geldig als er het elektron nog voldoende afstand kan afleggen in de detector. Als het elektron meer energie krijgt dan 
+\shape italic
+stopping power * dikte
+\shape default
+ dan verlaat het elektron de detector met energie.
+\end_layout
+
+\begin_layout Standard
+In de simulatie van 10.000 events waarbij een electron wordt vrijgemaakt zijn 12034 elektronen vrijgemaakt. (Paarvorming levert 2 of 3 electronen op). Hiervan zijn 9989 totaal geabsorbeerd in de detector, dat is 83%. Slechts 17% van de electronen verlaat de detector met energie. Dit zijn voornamelijk elektronen met grote energie die vrijgemaakt zijn door paarvorming.
+\end_layout
+
+\begin_layout Standard
+In
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:notabsorbed-hist"
+
+\end_inset
+
+ is een histogram weergegevan van de energie van gesimuleerde elektronen als ze de detector verlaten. De helft (8% van het totaal) heeft een energie in het gebied dat interessant is (0 - 2 MeV).
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement t
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+\align center
+
+\begin_inset Graphics 
+	filename notabsorbed.png
+	width 70text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:notabsorbed-hist"
+
+\end_inset
+
+ Histrogram van energie van elektronen bij het verlaten van de detector.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+De aanname dat alle energie van een door compton verstrooiing vrijgemaakt elektron wordt opgenomen door de detector is juist.
+\end_layout
+
+\begin_layout Section
+Parametrisatie van Compton verstrooiing
+\end_layout
+
+\begin_layout Standard
+Uitleg compton verstrooing
+\end_layout
+
+\begin_layout Standard
+Deze paragraaf vullen naar behoefte vanuit tekst hieronder 
+\end_layout
+
+\begin_layout Subsection
+Detectiekans
+\end_layout
+
+\begin_layout Standard
+De kans op compton verstrooiing van een electron in de scintilator door een invallend foton is kan berekend worden door: 
+\begin_inset Formula \begin{equation}
+P(d) = 1 - \exp(- \frac{1}{l \cdot d})
+\end{equation}
+\end_inset
+
+waarin:
+\begin_inset Newline newline
+\end_inset
+
+ l = vrije weglengte voor compton verstrooiing voor een foton met gegeven energie 
+\begin_inset Newline newline
+\end_inset
+
+ d = dikte scintilator 
+\begin_inset Newline newline
+\end_inset
+
+ De vrije weglengte wordt bepaald door: 
+\begin_inset Formula \begin{equation}
+l = \frac{1}{n \cdot Z \cdot \sigma}
+\end{equation}
+\end_inset
+
+waarin:
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset Formula $\sigma $
+\end_inset
+
+ = totale werkzame doorsnede voor compton scattering (Klein-Nisihina) 
+\begin_inset CommandInset citation
+LatexCommand citet
+after ""
+before ""
+key "Leo1987"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+ Z = atoommassa (64. voor vinyltoluene) 
+\begin_inset Newline newline
+\end_inset
+
+ n = aantal atomen per m3 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement t
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+\align center
+
+\begin_inset Graphics 
+	filename P_fit.png
+	width 90text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:P_fit"
+
+\end_inset
+
+ Detectiekans van fotonen door compton scattering. Gestippelde lijn is een parametrisatie d.m.v. een e-macht. Zie tekst.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:P_fit"
+
+\end_inset
+
+ laat de detectiekans zien voor het spectrum 100keV-10MeV. Deze kans kan geparametriseerd worden door (gestippelde lijn): 
+\begin_inset Formula \begin{equation}
+P(E) = 0.134198 \exp(-0.392389 \cdot E) + 0.034156
+\end{equation}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Afgegeven energie aan het electron
+\end_layout
+
+\begin_layout Standard
+Als er een interactie plaatsvind dan wordt de energie van het electron (T) bepaald door de impuls van het foton en de (onbekende) verstrooiingshoeken 
+\begin_inset Formula $\theta$
+\end_inset
+
+ en 
+\begin_inset Formula $\phi$
+\end_inset
+
+. De energieverdeling van de electronen wordt bepaald door de 
+\begin_inset Formula $\frac{d\sigma}{dT}$
+\end_inset
+
+. 
+\begin_inset CommandInset citation
+LatexCommand citet
+after ""
+before ""
+key "Leo1987"
+
+\end_inset
+
+ en 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+Evans1955
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+. De energieverdeling is weergegeven in figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:compton_edge"
+
+\end_inset
+
+ voor verschillende energieen.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement t
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+\align center
+
+\begin_inset Graphics 
+	filename compton_edge.png
+	width 90text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:compton_edge"
+
+\end_inset
+
+ Energieverdeling van vrijgemaakte elektronen door Compton verstrooiing voor verschillende foton energie. De zwarte lijn is de 
+\shape italic
+compton edge
+\shape default
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+De overgedragen energie T heeft een kinematisch maximum, de zogenaamde 
+\shape italic
+compton edge
+\shape default
+. Dit is het geval waarin het foton 180 graden wordt terugverstrooid. Dit maximum is goed zichtbaar in de energieverdeling.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float figure
+placement t
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+\align center
+
+\begin_inset Graphics 
+	filename cum-energy.png
+	width 90text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Standard
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:cum-energy"
+
+\end_inset
+
+ Cumulatieve energie verdeling voor Compton Scattering. Op de horizontale as staat de energie van 0.1 MeV tot de 
+\shape italic
+compton edge
+\shape default
+ in 1000 bins. De verticale as is genormaliseerd.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Als we deze verdeling integreren over T dan krijgen we een cumulatieve energieverdeling. In figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:cum-energy"
+
+\end_inset
+
+ is deze verdeling weergegeven. Op de horizontale as staat de Energie van 0.1 MeV tot de 
+\shape italic
+compton edge
+\shape default
+ onderverdeeld in 1000 bins. De verticale as is genormaliseerd. Als we een willekeurig getal trekken en tussen 0 en 1 en het daarbij horende 
+\shape italic
+bin
+\shape default
+ opzoeken in figuur 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:cum-energy"
+
+\end_inset
+
+ dan kan daaruit de energie die is overgedragen aan het elektron T bepaald worden.
+\end_layout
+
+\begin_layout Section
+Sapphire algorithme
+\end_layout
+
+\begin_layout Standard
+Flowchart?
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "mybib"
+options "default"
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+bibliographystyle{plain}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
