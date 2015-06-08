@@ -66,3 +66,9 @@ Thumbs.db
 *.mtc1
 *.out
 *.synctex.gz
+corsika/corsika_datafile_plot_particles - kopie.py
+corsika/out
+corsika/output
+corsika/output'
+corsika/output100k
+corsika/output_exp
