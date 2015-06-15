@@ -104,6 +104,7 @@ def do_it():
         mu = c[1]
         print "gemiddelde van dataset: ", mu
         sigma = abs(c[2])
+        print "sigma fit figuur11 = ", sigma
 
         grafiek11.plot(fitx, fity, 'r--', linewidth=3)
         grafiek11.set_title('ph1,ph2=hoog, hoog')
@@ -120,6 +121,7 @@ def do_it():
         c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,10., 10., 0.], verbose=False)
         mu = c[1]
         sigma = abs(c[2])
+        print "sigma fit 12 = ", sigma
 
         grafiek12.plot(fitx, fity, 'r--', linewidth=3)
         grafiek12.set_title('ph1,ph2=laag, laag')
@@ -146,7 +148,7 @@ def do_it():
     grafiek.savefig('pennink4plots.png', dpi=150)
     grafiek.show()
 
-    
+
 
 if __name__=='__main__':
 
