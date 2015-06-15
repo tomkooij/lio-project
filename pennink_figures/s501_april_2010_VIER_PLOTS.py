@@ -142,34 +142,11 @@ def do_it():
         #grafiek22.set_ylabel('aantal events')
 
 
-    plt.title('Titel!')
     plt.tight_layout()
     grafiek.savefig('pennink4plots.png', dpi=150)
     grafiek.show()
 
-    """
-    Nu de selectie van Pennink, 2010: laag, laag, hoog, hoog
-    """
-    bins2ns5 = np.arange(-50.25,51.26,2.5)
-
-    dt_pennink = (t1-t2).compress( (t1 >0) & (t2 > 0) & ((t1-t2) < 50.) & (ph1 < LOW_PH) & (ph2 < LOW_PH) & (ph3 > HIGH_PH) & (ph4 > HIGH_PH))
-    print "Pennink selectie (laag, laag, hoog, hoog)", dt_pennink.size
-    #n1, bins1, blaat1 = plt.hist(dt_pennink, bins=bins2ns5, histtype='step')
-
-    sigma_list = np.sqrt(n1)
-
-    c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,10., 10., 0.], verbose=False)
-    mu = c[1]
-    sigma = abs(c[2])
-
-    #grafiek21.plot(fitx, fity ,'r--', linewidth=3)
-    #grafiek21.title('%s t1-t2: ph1,ph2=laag ph3,4=hoog (Pennink)' % FILENAME)
-    #grafiek21.xlabel('pulseheight [ADC]')
-    #grafiek21.ylabel('counts')
-
-    #grafiek21.legend([r'fit: $ \mu = %.1f\  \sigma = %.1f\ $' %(mu, sigma), 't1-t2'], loc=4)
-    #grafiek21.show()
-
+    
 
 if __name__=='__main__':
 
