@@ -60,7 +60,7 @@ if __name__=='__main__':
     plt.plot(fit_bins, mu, 'bo')
     #    plt.errorbar(fit_bins,  mu_list, yerr=sigma_list, fmt='bo')
     plt.grid(b=True, which='major', color='b', linestyle='-')
-    plt.xlabel('Pulseheight [ADC]')
+    plt.xlabel('Pulshoogte [ADC]')
     plt.ylabel(r' < $\Delta t$ > [ns]')
     #plt.yscale('log')
 
@@ -69,6 +69,6 @@ if __name__=='__main__':
     print "fit: ", fit
     plt.plot(np.arange(20,120,1), fitfunc2(fit, np.arange(20,120,1)),'r--', linewidth=2)
     plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
-    plt.legend(['binned averages','fit = %2.3f + %2.3f /(x-20.)^%2.3f  ' % (fit[0], fit[1], fit[2]) ])
-    plt.savefig('time_walk.png',dpi=200)
+    plt.legend(['gemiddelden van bins','fit = %2.3f + %2.3f /(x-20.)^%2.3f  ' % (fit[0], fit[1], fit[2]) ])
+    plt.savefig('time_walk_model2.png',dpi=200)
     plt.show()

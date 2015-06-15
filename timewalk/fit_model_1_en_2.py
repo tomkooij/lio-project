@@ -38,9 +38,10 @@ if __name__=='__main__':
     #
     # op logschaal punten niet op een rechte! Het is geen pure exponentiele functie.
     # daarom gefit met exponent EN verschuiving. Is dat het lineaire deel uit CLAS NOTE 2002-007?
-    #fitfunc1  = lambda p, x: p[0]*np.exp(-1.*p[1]*(x - 20.))+p[2]
     fitfunc1 = lambda p,x: p[0]+p[1]/np.sqrt(x - 20.)
     errfunc1  = lambda p, x, y: (y - fitfunc1(p, x))
+    fitfunc2  = lambda p, x: p[0]+p[1]/(x - 20.)**p[2]
+    errfunc2  = lambda p, x, y: (y - fitfunc2(p, x))
 
     #
     # calculate middle of bins for fitting and plotting
@@ -52,24 +53,34 @@ if __name__=='__main__':
 
     # leastsquares fit
     init = [1.,10.]
-    out = leastsq(errfunc1, init, args=(fit_bins, mu))
-    print "fit: ",out
+    model1 = leastsq(errfunc1, init, args=(fit_bins, mu))
+    print "fit1: ",model1
+
+    init = [5.,1.,1.]
+    model2 = leastsq(errfunc2, init, args=(fit_bins, mu))
+    print "fit2: ",model2
+
 
     # plot and plot fit
 
     plt.figure()
-    plt.plot(fit_bins, mu, 'bo')
+    plt.plot(fit_bins, mu, 'o')
     #    plt.errorbar(fit_bins,  mu_list, yerr=sigma_list, fmt='bo')
     plt.grid(b=True, which='major', color='b', linestyle='-')
     plt.xlabel('Pulshoogte [ADC]')
     plt.ylabel(r' < $\Delta t$ > [ns]')
     #plt.yscale('log')
 
-    fit = out[0]
+    fit1 = model1[0]
+    fit2 = model2[0]
 
-    print "fit: ", fit
-    plt.plot(np.arange(20,120,1), fitfunc1(fit, np.arange(20,120,1)),'r--', linewidth=2)
+    print "fit1: ", fit1
+    print "fit2: ", fit2
+    plt.plot(np.arange(20,120,1), fitfunc1(fit1, np.arange(20,120,1)),'r--', linewidth=1)
+    plt.plot(np.arange(20,120,1), fitfunc2(fit2, np.arange(20,120,1)),'b--', linewidth=1)
+
     plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
-    plt.legend(['gemiddelden van bins','fit = %2.2f + %2.2f / sqrt (x-20))' % (fit[0], fit[1]) ])
-    plt.savefig('time_walk_model1.png',dpi=200)
+    plt.legend(['gemiddelde van bins','model 1: t = %2.2f + %2.2f / sqrt (x-20))' % (fit1[0], fit1[1]),
+    'model 2: t = %2.3f + %2.3f /(x-20.)^%2.3f  ' % (fit2[0], fit2[1], fit2[2])])
+    plt.savefig('time_walk_model_1_en_2.png',dpi=200)
     plt.show()
