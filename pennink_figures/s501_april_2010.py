@@ -102,12 +102,15 @@ def do_it():
     plt.title('%s t1-t2: ph1,ph2=hoog' % FILENAME)
     plt.xlabel('pulseheight [ADC]')
     plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $'
-               % (mu, sigma), 't1-t2'], loc=2)
+               % (mu, sigma), 't1-t2'], loc=4)
     plt.show()
 
     print "ph1 hoog, ph2 laag", dt_t1hoog_t2laag.size
     n1, bins1, blaat1 = plt.hist(dt_t1hoog_t2laag, bins=bins2ns5, histtype='step')
-    plt.title('t1-t2: ph1=hoog, ph2=laag')
+    plt.xlabel('pulseheight [ADC]')
+    plt.ylabel('counts')
+    plt.title('pennink_figures/s501_april_2010py: t1-t2: ph1=hoog, ph2=laag')
+    plt.legend([r't1-t2 s501 april 2010'], loc=1)
     plt.show()
 
     print "ph1 laag, ph2 hoog", dt_t1laag_t2hoog.size
@@ -127,7 +130,9 @@ def do_it():
     plt.plot(fitx, fity, 'r--', linewidth=3)
     plt.title('%s t1-t2: ph1,ph2=laag' % FILENAME)
     plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 't1-t2'], loc = 2)
+    plt.ylabel('counts')
+    plt.legend([r'fit: $ \mu = %.1f\  \sigma = %.1f\ $' %(mu, sigma), 't1-t2'], loc=4)
+    plt.savefig('s501_april_2010_histogram_t1_t2_laag_laag.png', dpi=150)
     plt.show()
 
     """
@@ -148,7 +153,9 @@ def do_it():
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('%s t1-t2: ph1,ph2=laag ph3,4=hoog (Pennink)' % FILENAME)
     plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 't1-t2'], loc=2)
+    plt.ylabel('counts')
+
+    plt.legend([r'fit: $ \mu = %.1f\  \sigma = %.1f\ $' %(mu, sigma), 't1-t2'], loc=4)
     plt.show()
 
 
