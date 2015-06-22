@@ -24,6 +24,8 @@ if __name__=='__main__':
 
                 table = data.root.groundparticles
 
+
+
                 n_gammas = len(data.root.groundparticles)
                 n_leptons = len(data.root.groundparticles) / 10
 
@@ -33,4 +35,7 @@ if __name__=='__main__':
                 print "leptons."
                 copy_rows(table, leptons, '(particle_id >= 2) & (particle_id <= 6)', n_leptons)
 
+                # copy hdf5 attr
+                data.copy_node_attrs('/', leptons.get_node('/'))
+                data.copy_node_attrs('/', gammas.get_node('/'))
                 print "Don't forget to ptrepack --sortby x --propindexes"
