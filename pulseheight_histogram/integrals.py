@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     events = data.root.s501.events
 
-    ph = events.col('pulseheights')
+    ph = events.col('integrals')
     ph1 = ph[:, 0]
     ph2 = ph[:, 1]
     ph3 = ph[:, 2]
@@ -53,11 +53,11 @@ if __name__ == '__main__':
 
     #plt.xkcd()
     plt.figure()
-    plt.hist(ph1, bins=np.arange(10.,1200.,20.), histtype='step')
-    plt.title('s501, 1apr2010, /pulseheight_histogram/histogram.py')
+    plt.hist(ph1, bins=np.arange(10.,15000.,250.), histtype='step')
+    plt.title('s501, 1apr2010, /pulseheight_histogram/integrals.py')
     #plt.legend('[s501. detector 1. 2010-4-1 24h]')
-    plt.xlabel('pulshoogte [ADC]')
+    plt.xlabel('Pulsintegraal [ADC ns]')
     plt.ylabel('aantal')
-    plt.savefig('histogram.py.png',dpi=150)
+    plt.savefig('integrals.png',dpi=150)
     plt.show()
     data.close()
