@@ -1,0 +1,5 @@
+bigcorsika.h5 (165Mb)
+
+unsorted runtime: 21 min
+sorted ptrepack (1 min) runtime: 32 sec
+split runtime: 27 sec
