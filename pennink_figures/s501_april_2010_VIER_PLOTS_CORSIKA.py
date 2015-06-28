@@ -24,8 +24,10 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010, 4, 1)
 END = datetime.datetime(2010, 5, 1)
-FILENAME = 'station_501_april2010.h5'
+#FILENAME = 'station_501_april2010.h5'
+FILENAME = 'gamma_outside_core.h5'
 
+MIP = 380  # ADC   1.0 MIP = 380 ADC
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
 # >200 ADC count = charged particle
@@ -33,7 +35,7 @@ FILENAME = 'station_501_april2010.h5'
 # These values are consistent with a pulseheight histogram
 #
 HIGH_PH = 200
-LOW_PH = 120
+LOW_PH = 1000
 
 
 #
@@ -66,18 +68,24 @@ def do_it():
     else:
         print "data already in globals."
 
-    events = data.root.s501.events
+    #events = data.root.s501.events
+    events = data.root.cluster_simulations.station_0.events
 
     t1 = events.col('t1')
     t2 = events.col('t2')
     t3 = events.col('t3')
     t4 = events.col('t4')
 
-    ph = events.col('pulseheights')
-    ph1 = ph[:, 0]
-    ph2 = ph[:, 1]
-    ph3 = ph[:, 2]
-    ph4 = ph[:, 3]
+    n1 = events.col('n1')
+    n2 = events.col('n2')
+    n3 = events.col('n3')
+    n4 = events.col('n4')
+
+    ph1 = n1 * MIP
+    ph2 = n2 * MIP
+    ph3 = n3 * MIP
+    ph4 = n4 * MIP
+
 
     bins2ns5 = np.arange(-41.25, 41.26, 2.5)
 
@@ -112,9 +120,9 @@ def do_it():
         grafiek11.set_ylabel('aantal events')
 
 
-    if grafiek12:  # bovenste rij, laag laag met fit
+    if not grafiek12:  # bovenste rij, laag laag met fit
         print "ph1 laag, ph2 laag", dt_t1laag_t2laag.size
-        n1, bins1, blaat1 = grafiek12.hist(dt_t1laag_t2laag, bins=bins2ns5, histtype='step')
+        n1, bins1, blaat1 = grafiek12.hist([0], bins=bins2ns5, histtype='step')
 
         sigma_list = np.sqrt(n1)
 
@@ -145,7 +153,7 @@ def do_it():
 
 
     plt.tight_layout()
-    grafiek.savefig('pennink4plots.png', dpi=150)
+    grafiek.savefig('pennink4plots-corsika_data.png', dpi=150)
     grafiek.show()
 
 
