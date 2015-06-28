@@ -11,7 +11,7 @@ N = number of simulations
 
 
 max_core_distance = 100	# m
-N = 50000				# monte carlo runs
+N = 5000				# monte carlo runs
 
 import tables
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ from sapphire.clusters import SingleStation
 
 FILENAME = 'corsika_713335232_854491062_sorted.h5'    # 1e14 p theta = 0
 GAMMAS = 'corsika_no_leptons_sorted.h5'
-LEPTONS = 'corsika_no_gammas_sorted.h5'
+LEPTONS = 'leptons.h5'
 
 cluster = SingleStation()
 #cluster = SingleDiamondStation()
@@ -37,8 +37,8 @@ class NoTrigger(GroundParticlesGammaSimulation):
 
 if __name__ == '__main__':
     data = tables.open_file('gp_sim_output.h5', 'w')
-    sim = NoTrigger(GAMMAS, max_core_distance, cluster, data, '/gammas', N, seed=43)
-    sim.run()
+    #sim = NoTrigger(GAMMAS, max_core_distance, cluster, data, '/gammas', N, seed=43)
+    #sim.run()
     sim = NoTrigger(LEPTONS, max_core_distance, cluster, data, '/leptons', N, seed=43)
     sim.run()
     print "closing datafile... and opening readonly"

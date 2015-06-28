@@ -38,4 +38,8 @@ if __name__=='__main__':
                 # copy hdf5 attr
                 data.copy_node_attrs('/', leptons.get_node('/'))
                 data.copy_node_attrs('/', gammas.get_node('/'))
+
+                gammas.root.groundparticles.cols.x.create_csindex()
+                leptons.root.groundparticles.cols.x.create_csindex()
+
                 print "Don't forget to ptrepack --sortby x --propindexes"
