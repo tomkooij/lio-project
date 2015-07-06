@@ -7,9 +7,10 @@ from progressbar import ProgressBar, ETA, Bar, Percentage
 
 from next_time import time_series, next_time
 
+FILENAME = 'data.txt'
 
 # number of events to generate
-N = int(5e5)
+N = int(2e6)
 
 # events far from the core have low lepton detection probability
 LEPTON_DETECTION_PROBABILITY = 0.50 # based on particle density in shower
@@ -37,7 +38,7 @@ def detect_photon():
 
 
 def station():
-
+    """ simulate event """
     t = np.array([-999.,-999.,-999.,999.])
     #ph = [-999,-999,-999,-999]
     ph = [0,0,0,0]
@@ -62,8 +63,9 @@ def station():
     else:
         return [], []
 
-if __name__=='__main__':
 
+def simulate_events():
+    """ simulate arrival times and phs (to distinguish cp and gammas)"""
     t1 = []
     t2 = []
     t3 = []
@@ -72,8 +74,6 @@ if __name__=='__main__':
     ph2 = []
     ph3 = []
     ph4 = []
-    total_ph = []
-
 
     progress = ProgressBar(widgets=[ETA(), Bar(), Percentage()])
 
@@ -94,8 +94,10 @@ if __name__=='__main__':
             ph3.append(ph[2])
             ph4.append(ph[3])
 
-            total_ph.append(sum(ph))
+    return t1,t2,t3,t4, ph1, ph2, ph3, ph4
 
+
+def do_plots(t1, t2, t3, t4, ph1, ph2, ph3, ph4):
     t1 = np.array(t1)
     t2 = np.array(t2)
     dt = t1 - t2
@@ -108,14 +110,34 @@ if __name__=='__main__':
     dt_low_low = dt.compress((ph1 == 10) & (ph2 == 10) & (t1 > 0) & (t2 > 0))
     print "Number of events in selection (low-low): ",dt_low_low.size
 
-    plt.hist(dt_high_low,bins=20,histtype='step')
-    plt.title('delta-t histogram left=low ph (photon) right=high ph (lepton)')
+    bins = np.arange(-72.5,72.5,5)
+    plt.hist(dt_high_low,bins=bins,histtype='step')
+    plt.title('sim/sim.py: delta-t histogram left=low ph (photon) right=high ph (lepton)')
     plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
     plt.show()
 
-    plt.hist(dt_low_low,bins=20,histtype='step')
-    plt.title('delta-t histogram low,low (photon, photon)')
+    plt.hist(dt_low_low,bins=bins,histtype='step')
+    plt.title('sim/sim.py: delta-t histogram low,low (photon, photon)')
     plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
     plt.show()
+
+    """
+    if 'data' not in globals():
+        data = tables.open_file(FILENAME, 'a')
+
+    if '/s501/events' not in data:
+        data.close()
+        data = create_new_event_file(FILENAME, STATIONS, START, END)
+    np.savetxt(OUTPUTFILE,[middle_of_selection, mu_list])
+    """
+
+if __name__=='__main__':
+    try:
+        t1, t2, t3, t4, ph1, ph2, ph3, ph4 = np.loadtxt(FILENAME)
+    except IOError:
+        t1, t2, t3, t4, ph1, ph2, ph3, ph4 = simulate_events()
+        np.savetxt(FILENAME, [t1, t2, t3, t4, ph1, ph2, ph3, ph4])
+        print "saved: ", FILENAME
+    do_plots(t1, t2, t3, t4, ph1, ph2, ph3, ph4)
