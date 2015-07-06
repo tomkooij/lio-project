@@ -46,6 +46,17 @@ class OutsideCoreGPS(GroundParticlesSimulation):
 
         return x, y
 
+	def simulate_and_store_offsets(self):
+		"""overwrite: Simulate and store station and detector offsets
+			set offsets to 0 """
+
+        for station in self.cluster.stations:
+            station.gps_offset = 0
+            for detector in station.detectors:
+                detector.offset = 0
+				
+		# Store updated version of the cluster
+        self.coincidence_group._v_attrs.cluster = self.cluster
 
 if __name__ == '__main__':
 
