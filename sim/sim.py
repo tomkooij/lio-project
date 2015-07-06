@@ -115,23 +115,15 @@ def do_plots(t1, t2, t3, t4, ph1, ph2, ph3, ph4):
     plt.title('sim/sim.py: delta-t histogram left=low ph (photon) right=high ph (lepton)')
     plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
+    plt.savefig('laaghoog.png',dpi=150)
     plt.show()
 
     plt.hist(dt_low_low,bins=bins,histtype='step')
     plt.title('sim/sim.py: delta-t histogram low,low (photon, photon)')
     plt.xlabel('t1 - t2 [ns]')
     plt.ylabel('number of events')
+    plt.savefig('laaglaag.png',dpi=150)
     plt.show()
-
-    """
-    if 'data' not in globals():
-        data = tables.open_file(FILENAME, 'a')
-
-    if '/s501/events' not in data:
-        data.close()
-        data = create_new_event_file(FILENAME, STATIONS, START, END)
-    np.savetxt(OUTPUTFILE,[middle_of_selection, mu_list])
-    """
 
 if __name__=='__main__':
     try:
