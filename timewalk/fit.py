@@ -18,11 +18,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import leastsq
 
-if __name__=='__main__':
+INPUTFILE = 'data.txt'
 
-
+def main():
     # load analysis from walk.py
-    fit_bins, mu_list = np.loadtxt('data.txt')
+    print "fit.py: inputfile:", INPUTFILE
+    fit_bins, mu_list = np.loadtxt(INPUTFILE)
+
     print "list of averages: \n",mu_list
 
     # time-walk correction function
@@ -69,7 +71,10 @@ if __name__=='__main__':
 
     print "fit: ", fit
     plt.plot(np.arange(20,120,1), fitfunc1(fit, np.arange(20,120,1)),'r--', linewidth=2)
-    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
+    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=132k)' )
     plt.legend(['gemiddelden van bins','fit = %2.2f + %2.2f / sqrt (x-20))' % (fit[0], fit[1]) ])
     plt.savefig('time_walk_model1.png',dpi=200)
     plt.show()
+
+if __name__=='__main__':
+    main()

@@ -18,7 +18,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import leastsq
 
-if __name__=='__main__':
+INPUTFILE = 'data.txt'
+
+def main():
 
 
     # load analysis from walk.py
@@ -79,9 +81,12 @@ if __name__=='__main__':
     plt.plot(np.arange(20,120,1), fitfunc1(fit1, np.arange(20,120,1)),'c--', linewidth=2)
     plt.plot(np.arange(20,120,1), fitfunc2(fit2, np.arange(20,120,1)),'r--', linewidth=2)
 
-    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=77k)' )
+    plt.title('Time walk, s501 t1-t2, jan-mei 2014 (n=132k)' )
     plt.legend(['gemiddelde per bin','model 1: t = %2.2f + %2.2f / sqrt (x-20))' % (fit1[0], fit1[1]),
-    'model 2: t = %2.3f + %2.3f /(x-20.)^%2.3f  ' % (fit2[0], fit2[1], fit2[2])])
+    'model 2: t = %2.2f + %2.2f /(x-20.)^%2.2f  ' % (fit2[0], fit2[1], fit2[2])])
     plt.xlim((0,120))
     plt.savefig('time_walk_model_1_en_2.png',dpi=200)
     plt.show()
+
+if __name__=='__main__':
+    main()

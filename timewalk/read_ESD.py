@@ -1,6 +1,7 @@
 # walk -- ESD lees event, selecteer een schrijf naar CSV
 # De CSV wordt ingelezen in walk.py
 
+import sapphire
 import tables
 import numpy as np
 import csv
@@ -8,12 +9,12 @@ import datetime
 
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2014,4,1)
+START = datetime.datetime(2014,1,1)
 END = datetime.datetime(2014,6,1)
 #FILENAME = 'station_501_april2010.h5'
-#FILENAME = 's501_filtered_2014.h5'
-FILENAME = 's501_jan_feb.h5'
-
+#FILENAME = 's501_filtered_2014.h15'
+FILENAME = 's501_jan_mei_2014.h5'
+OUTPUTFILE = 'dt_output.csv'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -40,8 +41,7 @@ def create_new_event_file(filename, stations, start, end):
 
     return data
 
-
-if __name__=='__main__':
+def main():
     if 'data' not in globals():
         data = tables.open_file(FILENAME, 'a')
 
@@ -73,10 +73,16 @@ if __name__=='__main__':
     selected_ph1 = ph1.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
     selected_ph2 = ph2.compress((t1 >= 0) & (t2 >= 0) & (ph1 > HIGH_PH) & (ph2 < LOW_PH) & (ph1>20) & (ph1>20)& (abs(t1-t2) < 100))
 
+    print "inputfile: ", FILENAME
     print "number of events", selected_dt.size
 
     #maak datafile CSV --> input voor walk.py
-    with open('dt_s501_aprmei_2014.csv', 'w') as csvfile:
+    with open(OUTPUTFILE, 'w') as csvfile:
         lijst = csv.writer(csvfile, dialect='excel')
         for k in range(len(selected_dt)):
             lijst.writerow([selected_dt[k], selected_ph1[k], selected_ph2[k]])
+    print "outputfile: ", OUTPUTFILE
+    data.close()
+    
+if __name__=='__main__':
+    main()

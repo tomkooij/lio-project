@@ -31,7 +31,9 @@ from scipy.optimize import curve_fit
 from scipy.stats import chisquare
 
 #INPUTFILE = 'events_voor_jos.csv'
-INPUTFILE = 'dt_s501_jan_mei_2014.csv'
+INPUTFILE = 'dt_output.csv'
+OUTPUTFILE = 'data.txt'
+
 #
 #
 # Least squares fit of histogram data to guassian distribution
@@ -77,11 +79,11 @@ def gauss_fit_histogram(histogram_y, histogram_x):
 
 
 
-if __name__ == '__main__':
-
+def main():
     read_dt = []
     read_ph2 = []
     # lees csv
+    print "walk.py - inputfile: ", INPUTFILE
     with open(INPUTFILE, 'r') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         for row in csvreader:
@@ -168,5 +170,8 @@ breedte ervan.
     print "chi2:", chi2_list
     print "chi2-mean:", np.mean(chi2_list), np.std(chi2_list)
     # save data.txt for analysis
-    np.savetxt('data.txt',[middle_of_selection, mu_list])
-    #data.close()
+    np.savetxt(OUTPUTFILE,[middle_of_selection, mu_list])
+    print "walk.py - outputfile:", OUTPUTFILE
+
+if __name__ == '__main__':
+    main()
