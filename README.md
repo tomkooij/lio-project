@@ -5,8 +5,10 @@ LiO (Leraar in Onderzoek) project 2014
 Tom Kooij
 
 
-* timehistogram - recreated figures from Pennink 2010 (Lio verslag 2010) blz 32
+* pennink_figures - recreated figures from Pennink 2010 (Lio verslag 2010) blz 32
 
+* timehistogram - investigate arrival time difference variance (Pennink 2010)
+*
 * corsika - corsika simulations: investigate properties of available sims
 			GroundParticleSimulation() test
 
