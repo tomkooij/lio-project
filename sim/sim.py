@@ -13,11 +13,11 @@ FILENAME = 'data.txt'
 N = int(2e6)
 
 # events far from the core have low lepton detection probability
-LEPTON_DETECTION_PROBABILITY = 0.50 # based on particle density in shower
-PHOTON_DETECTION_PROBABILITY = 0.05 # based on scinitlator interaction
-NUMBER_OF_PHOTONS = 5 # density photons = 10* density leptons
-DELTA_TIME_PHOTONS = 10 # must fit in "shower pancake"
-DELTA_TIME_LEPTONS = 10 # ns ref fig 2.3 Fokkema2012
+LEPTON_DETECTION_PROBABILITY = 0.80 # based on particle density in shower
+PHOTON_DETECTION_PROBABILITY = 0.04 # based on scinitlator interaction
+NUMBER_OF_PHOTONS = 10  # minder fotonen want convolutie van fotonen bij elkaar
+DELTA_TIME_PHOTONS = 5 # must fit in "shower pancake"
+DELTA_TIME_LEPTONS = 5 # ns ref fig 2.3 Fokkema2012
 
 def detect_lepton():
 
