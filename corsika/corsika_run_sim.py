@@ -24,12 +24,13 @@ from sapphire.clusters import *
 FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 0
 #FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
 
+OUTPUTFILE = simulated.h5
 
 cluster = SingleStation()
 #cluster = SingleDiamondStation()
 
 if __name__ == '__main__':
-    data = tables.open_file('gp_sim_output.h5', 'w')
+    data = tables.open_file(OUTPUTFILE, 'w')
     #
     # Use GroundParticlesSimulation --> randomize azimuth and core distance
     # we set max core distance to 0, only azimuth is varied
@@ -38,11 +39,11 @@ if __name__ == '__main__':
     sim.run()
     print "closing datafile... and opening readonly"
     data.close()
-    data = tables.open_file('gp_sim_output.h5', 'r')
+    data = tables.open_file(OUTPUTFILE, 'r')
     #
     #
     events = data.root.simrun.cluster_simulations.station_0.events
     n1 = events.col('n1')
     plt.hist(n1, bins=np.arange(0,4.,0.1))
     plt.show()
-    #data.close()
+    data.close()
