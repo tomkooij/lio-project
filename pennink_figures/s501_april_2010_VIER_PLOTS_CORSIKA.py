@@ -16,16 +16,12 @@ import sapphire.esd
 import numpy as np
 import matplotlib.pyplot as plt
 import os.path
+import sys
 
 
 XKCD = False
 
-STATION = 501
-STATIONS = [STATION]
-START = datetime.datetime(2010, 4, 1)
-END = datetime.datetime(2010, 5, 1)
-#FILENAME = 'station_501_april2010.h5'
-FILENAME = 'gamma_outside_core.h5'
+FILENAME = 'simulated.h5'
 
 MIP = 380  # ADC   1.0 MIP = 380 ADC
 #
@@ -34,8 +30,8 @@ MIP = 380  # ADC   1.0 MIP = 380 ADC
 # <120 ADC counts = gamma
 # These values are consistent with a pulseheight histogram
 #
-HIGH_PH = 200
-LOW_PH = 1000
+HIGH_PH = 200.
+LOW_PH = 120.
 
 
 #
@@ -63,8 +59,8 @@ def do_it():
             print "%s exists. Opening." % FILENAME
             data = tables.open_file(FILENAME, 'a')
         else:
-            print "%s does not exist. Trying to read from ESD"
-            data = create_new_event_file(FILENAME, STATIONS, START, END)
+            print "%s does not exit. Can't create. Please fix!", FILENAME
+            sys.exit(0)
     else:
         print "data already in globals."
 
@@ -97,6 +93,9 @@ def do_it():
     dt_t1laag_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
                                         & (ph1 < LOW_PH) & (ph2 < LOW_PH))
 
+    plt.hist(ph1,np.arange(0.1,2000.,30.))
+    plt.show()
+
     grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
     grafiek12 = grafiek.add_subplot(222)
@@ -120,18 +119,18 @@ def do_it():
         grafiek11.set_ylabel('aantal events')
 
 
-    if not grafiek12:  # bovenste rij, laag laag met fit
+    if grafiek12:  # bovenste rij, laag laag met fit
         print "ph1 laag, ph2 laag", dt_t1laag_t2laag.size
-        n1, bins1, blaat1 = grafiek12.hist([0], bins=bins2ns5, histtype='step')
+        n1, bins1, blaat1 = grafiek12.hist(dt_t1laag_t2laag, bins=bins2ns5, histtype='step')
 
         sigma_list = np.sqrt(n1)
 
-        c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,10., 10., 0.], verbose=False)
-        mu = c[1]
-        sigma = abs(c[2])
+        #c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,10., 10., 0.], verbose=False)
+        #mu = c[1]
+        #sigma = abs(c[2])
         print "sigma fit 12 = ", sigma
 
-        grafiek12.plot(fitx, fity, 'r--', linewidth=3)
+        #grafiek12.plot(fitx, fity, 'r--', linewidth=3)
         grafiek12.set_title('ph1,ph2=laag, laag')
         #grafiek12.set_xlabel('t1-t2 [ns]')
         #grafiek12.set_ylabel('aantal events')
