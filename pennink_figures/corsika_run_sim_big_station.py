@@ -46,9 +46,9 @@ class BigDiamond(BaseCluster):
 
 
 
-#FILENAME = 'corsika_834927089_144221120.h5'    # 1e14 p theta = 22.5
-#FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 22.5
-FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 0
+#FILENAME = 'corsika_834927089_144221120.h5'    # SIM C
+#FILENAME = 'corsika_713335232_854491062.h5'    # SIM B  p theta = 0
+FILENAME = 'corsika_77102826_200916071.h5'     # SIM A 1e14 p theta = 22.5
 
 OUTPUTFILE = 'simulated_no_fotons_bigdiamond.h5'
 

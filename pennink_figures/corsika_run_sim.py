@@ -10,8 +10,8 @@ N = number of simulations
 """
 
 
-max_core_distance = 300	# m
-N = int(1e6)					# monte carlo runs
+max_core_distance = 50	# m
+N = int(1e5)					# monte carlo runs
 
 import tables
 import matplotlib.pyplot as plt
@@ -20,14 +20,13 @@ import numpy as np
 from sapphire.simulations.groundparticles import GroundParticlesSimulation
 from sapphire.clusters import *
 
-#FILENAME = 'corsika_834927089_144221120.h5'    # 1e14 p theta = 0
-FILENAME = 'corsika_713335232_854491062.h5'    # 1e14 p theta = 0
-#FILENAME = 'corsika_77102826_200916071.h5'     # 1e14 p theta = 22.5
+#FILENAME = 'corsika_834927089_144221120.h5'    # SIM C 1e14 p theta = 0
+FILENAME = 'corsika_713335232_854491062.h5'    # SIM B 1e14 p theta = 22.50
+#FILENAME = 'corsika_77102826_200916071.h5'     # SIM A 1e14  p theta = 22.5
 
-OUTPUTFILE = 'simulated_no_fotons_200k_simB.h5'
+OUTPUTFILE = 'simulated_no_fotons_test.h5'
 
-cluster = SingleStation()
-#cluster = SingleDiamondStation()
+cluster = SingleDiamondStation()
 
 if __name__ == '__main__':
     data = tables.open_file(OUTPUTFILE, 'w')
