@@ -23,7 +23,7 @@ import sapphire.esd
 import numpy as np
 import matplotlib.pyplot as plt
 import os.path
-
+import sys 
 
 XKCD = False
 
@@ -31,7 +31,7 @@ STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2010, 4, 1)
 END = datetime.datetime(2010, 5, 1)
-FILENAME = 'simulated_no_fotons_test.h5'
+FILENAME = 'simulated_no_fotons_bigdiamond.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -53,7 +53,7 @@ def create_new_event_file(filename, stations, start, end):
 
     print "No way! create_new_event_file() called for no reason!"
 
-    return 1
+    sys.exit(1)
 
 
 def do_it():
@@ -79,26 +79,35 @@ def do_it():
     # convert "number of particles n to ph"
     ph1 = events.col('n1') / N_TO_PH_FACTOR
     ph2 = events.col('n2') / N_TO_PH_FACTOR
+    ph3 = events.col('n3') / N_TO_PH_FACTOR
+    ph4 = events.col('n4') / N_TO_PH_FACTOR
 
 
-
-    bins2ns5 = np.arange(-31.25, 31.26, 2.5)
+    bins2ns5 = np.arange(-16.25, 16.26, 2.5)
 
     selectie_1hoog_2hoog = ((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
                                     & (ph1 > HIGH_PH) & (ph2 > HIGH_PH))
 
+    selectie_3hoog_4hoog = ((t3 > 0) & (t4 > 0) & ((t3-t4) < 50.)
+                                    & (ph3 > HIGH_PH) & (ph4 > HIGH_PH))
+
     t1 = t1.compress(selectie_1hoog_2hoog)
     t2 = t2.compress(selectie_1hoog_2hoog)
+
+
+    t3 = t3.compress(selectie_3hoog_4hoog)
+    t4 = t4.compress(selectie_3hoog_4hoog)
 
     grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(111)
 
-    dt_11 = t1-t2
+    dt_12 = t1-t2
+    #dt_12 = t3-t4
 
-    print "All events", dt_11.size
-    n1, bins1, blaat1 = grafiek11.hist(dt_11, bins=bins2ns5, histtype='step')
+    print "All events", dt_12.size
+    n1, bins1, blaat1 = grafiek11.hist(dt_12, bins=bins2ns5, histtype='step')
     sigma_list = np.sqrt(n1)
-    c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [500.,10., 10., 5.], verbose=False)
+    c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [500.,-10., -10., 5.], verbose=False)
     mu = c[1]
     print "gemiddelde van dataset: ", mu
     sigma = abs(c[2])
