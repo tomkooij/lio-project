@@ -59,7 +59,7 @@ def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], ve
     middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
     # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma, absolute_sigma=True)
+    c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma)
 
     if (verbose):
         print "exp[-0.5((x-mu)/sigma)^2]"
