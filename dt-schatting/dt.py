@@ -19,8 +19,9 @@ if __name__ == '__main__':
 
     for zenith in progress(np.arange(0,np.pi/2,np.pi/(2*STAPPEN))):
 
-        # benadering voor distributie van zenith hoeken, hier sin(zenith)
-        kans = 1. - np.sin(zenith)
+        # distributie van zenith hoeken BRON!?
+        kans = 100.*np.sin(zenith)*(np.cos(zenith))**7.
+        print kans
 
         for azimuth in np.arange(0,2*np.pi,np.pi/(STAPPEN/2)):
 
@@ -30,7 +31,7 @@ if __name__ == '__main__':
             # maak lijst met tijdsverschillen,
             # waarbij de tijdsverschillen met grote kans vaker voorkomen
             # en random "versmering" met sigma = 3.5ns
-            for item in np.arange(0, 10*kans, 1.):
+            for item in np.arange(0, kans, 1.):
                 dt_list.append(delta_t + np.random.normal(0,3.5))
 
     print "gem, stddev = ",np.mean(dt_list), np.std(dt_list)
