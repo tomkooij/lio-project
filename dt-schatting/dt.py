@@ -32,6 +32,6 @@ if __name__ == '__main__':
             # waarbij de tijdsverschillen met grote kans vaker voorkomen
             # en random "versmering" met sigma = 3.5ns
             for item in np.arange(0, kans, 1.):
-                dt_list.append(delta_t + np.random.normal(0,3.5))
+                dt_list.append(delta_t + np.random.normal(0,2.0))
 
     print "gem, stddev = ",np.mean(dt_list), np.std(dt_list)
