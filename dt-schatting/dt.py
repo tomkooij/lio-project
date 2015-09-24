@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for zenith in progress(np.arange(0,np.pi/2,np.pi/(2*STAPPEN))):
 
         # distributie van zenith hoeken BRON!?
-        weging = 100.*np.sin(zenith)*(np.cos(zenith))**7.
+        weging = 100.*np.sin(zenith)*(np.cos(zenith))**6.
 
         for azimuth in np.arange(0,2*np.pi,np.pi/(STAPPEN/2)):
 
