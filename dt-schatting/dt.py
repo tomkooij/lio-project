@@ -7,6 +7,9 @@ from __future__ import division
 
 import numpy as np
 import progressbar as pb
+import matplotlib.pyplot as plt
+import gauss_fit_histogram
+
 progress = pb.ProgressBar(widgets=[pb.Percentage(),pb.Bar(), pb.ETA()])
 STAPPEN = 200
 
@@ -17,20 +20,44 @@ if __name__ == '__main__':
 
     dt_list = []
 
-    for zenith in progress(np.arange(0,np.pi/2,np.pi/(2*STAPPEN))):
+    if 1:
+        for zenith in progress(np.arange(0,np.pi/4,np.pi/(2*STAPPEN))):
 
-        # distributie van zenith hoeken BRON!?
-        weging = 100.*np.sin(zenith)*(np.cos(zenith))**6.
+            # distributie van zenith hoeken
 
-        for azimuth in np.arange(0,2*np.pi,np.pi/(STAPPEN/2)):
+            # sin(theta)*cos^n(theta) , n = 6
+            weging = 100.*np.sin(zenith)*(np.cos(zenith))**6.
 
-            # tijdverschil behorende bij deze hoek combinatie (in ns)
-            delta_t = a / c * np.sin(zenith)*np.cos(azimuth)
+            # Ciampa, 1998 => sin(x)*exp(C*sec(theta)-D)
+            #  Ciampa -> C=4
+            #weging = 10000*np.sin(zenith)*np.exp(-1.*(4./np.cos(zenith))-1)
 
-            # maak lijst met tijdsverschillen,
-            # waarbij de tijdsverschillen met grote kans vaker voorkomen
-            # en random "versmering" met sigma = 3.5ns
-            for item in np.arange(0, weging, 1.):
-                dt_list.append(delta_t + np.random.normal(0,2.0))
+            for azimuth in np.arange(0,2*np.pi,np.pi/(STAPPEN/2)):
+
+                # tijdverschil behorende bij deze hoek combinatie (in ns)
+                delta_t = a / c * np.sin(zenith)*np.cos(azimuth)
+
+                # maak lijst met tijdsverschillen,
+                # waarbij de tijdsverschillen met grote kans vaker voorkomen
+                # en random "versmering" met sigma = 3.5ns
+                for item in np.arange(0, weging, 1.):
+                    dt_list.append((delta_t) + np.random.normal(0,2.0))
 
     print "gem, stddev = ",np.mean(dt_list), np.std(dt_list)
+
+
+    plt.figure()
+    n1, bins1, blaat = plt.hist(dt_list, histtype='step', bins=np.arange(-45.5,45.5,1.))
+
+    sigma_list = np.sqrt(dt_list)
+    #c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=np.sqrt(n1))
+    #mu = c[1]
+    #sigma = abs(c[2])
+    #print "fitted mu, sigma =", mu, sigma
+
+    #plt.plot(fitx, fity ,'r--', linewidth=3)
+    plt.title('theoretische dt verdeling')
+    plt.xlabel('dt [ns]')
+    #plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'dt' ],loc=3)
+    plt.show()
+    plt.show()
