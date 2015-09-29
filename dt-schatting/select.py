@@ -9,6 +9,7 @@ import math
 import random
 import tables
 import os.path
+import matplotlib.pyplot as plt
 
 from sapphire.corsika.corsika_queries import CorsikaQuery
 
@@ -21,11 +22,22 @@ max_core_distance = 25
 N = 5000
 cluster = SingleDiamondStation()
 
+MIP = 380  # ADC   1.0 MIP = 380 ADC
+#
+# Pennink, 2010 p32 specifies these cutoff ADC counts
+# >200 ADC count = charged particle
+# <120 ADC counts = gamma
+# These values are consistent with a pulseheight histogram
+#
+HIGH_PH = 200.
+LOW_PH = 120.
+
+
 ITERATIONS = 40
 
 CORSIKAPATH = '/data/hisparc/corsika/data/'
 INDEXFILE = '/data/hisparc/corsika/corsika_overview.h5'
-OUTPUTFILE = '1day.h5'
+OUTPUTFILE = '1day_1e14eV.h5'
 
 def round_to_7_5(x, base=7.5):
     return base * round(float(x)/base)
@@ -37,12 +49,12 @@ def simrun():
     with tables.open_file(OUTPUTFILE, 'w') as data:
 
         for iteration in range(ITERATIONS):
-        
+
             zenith = round_to_7_5(math.degrees(HiSPARCSimulation.generate_zenith()))
 
             print "iteration %d of %d, zenith = %2.1f" % (iteration, ITERATIONS, zenith)
             zenith_list.append(zenith)
- 
+
             sim = random.choice(query.simulations(energy=15.,zenith=zenith))
             seed = str(sim[0])+'_'+str(sim[1])
             print "seed %s (E=1E+15, zenith=%2.1f)" % (seed, zenith)
@@ -86,7 +98,7 @@ def readdata():
     return t1,t2,t3,t4,n1,n2,n3,n4
 
 if __name__ == '__main__':
-    if not os.path.exists(OUTPUTFILE): 
+    if not os.path.exists(OUTPUTFILE):
         simrun()
     else:
         print "%s exists. Skipping simrun." % OUTPUTFILE
@@ -95,4 +107,26 @@ if __name__ == '__main__':
     print n1.size, t1.size
     print "Analysis:"
 
+    ph1 = n1 * MIP
+    ph2 = n2 * MIP
+    ph3 = n3 * MIP
+    ph4 = n4 * MIP
 
+    dt_all = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.))
+    dt_t1hoog_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
+                                        & (ph2 < LOW_PH) & (ph1 > HIGH_PH))
+    dt_t1laag_t2hoog = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
+                                        & (ph2 > HIGH_PH) & (ph1 < LOW_PH))
+    dt_t1laag_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
+                                        & (ph1 < LOW_PH) & (ph2 < LOW_PH))
+
+    print dt_all.size, dt_t1laag_t2laag.size
+
+    bins2ns5 = np.arange(-41.25, 41.26, 2.5)
+    plt.figure()
+    plt.hist(dt_all, bins2ns5, histtype='step')
+    plt.title('Histogram t1-t2.  ph1,ph2 == HOOG')
+    plt.xlabel('t1-t2 [ns]')
+    plt.show()
+
+    print "t1-t2, std dev: %2.1f ns. " % np.std(dt_all)
