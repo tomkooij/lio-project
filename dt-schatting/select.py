@@ -21,6 +21,7 @@ from sapphire.clusters import SingleDiamondStation
 max_core_distance = 25
 N = 5000
 cluster = SingleDiamondStation()
+ENERGY_LOG10 = 14
 
 MIP = 380  # ADC   1.0 MIP = 380 ADC
 #
@@ -55,9 +56,9 @@ def simrun():
             print "iteration %d of %d, zenith = %2.1f" % (iteration, ITERATIONS, zenith)
             zenith_list.append(zenith)
 
-            sim = random.choice(query.simulations(energy=15.,zenith=zenith))
+            sim = random.choice(query.simulations(energy=ENERGY_LOG10,zenith=zenith))
             seed = str(sim[0])+'_'+str(sim[1])
-            print "seed %s (E=1E+15, zenith=%2.1f)" % (seed, zenith)
+            print "seed %s (E=1e%d, zenith=%2.1f)" % (seed, ENERGY_LOG10, zenith)
 
             CORSIKAFILENAME = CORSIKAPATH + seed + '/corsika.h5'
 
