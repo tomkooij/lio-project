@@ -29,7 +29,7 @@ python << END
 #
 from __future__ import division
 
-from sapphire.simulations.groundparticles import GroundParticlesSimulation
+from sapphire.simulations.groundparticles import GroundParticlesGammaSimulation
 from sapphire.clusters import SingleDiamondStation
 
 import tables
@@ -39,10 +39,10 @@ N = {N}
 cluster = SingleDiamondStation()
 
 CORSIKAFILE = '/data/hisparc/corsika/data/{seed}/corsika.h5'
-OUTPUTFILE = '/data/hisparc/tom/simruns/nofotons/{seed}.h5'
+OUTPUTFILE = '/data/hisparc/tom/simruns/fotons/{seed}.h5'
 
 with tables.open_file(OUTPUTFILE, 'w') as data:
-    sim = GroundParticlesSimulation(CORSIKAFILE, max_r, cluster, data, '/', N, progress=False)
+    sim = GroundParticlesGammaSimulation(CORSIKAFILE, max_r, cluster, data, '/', N, progress=False)
     sim.run()
     sim.finish()
 END
