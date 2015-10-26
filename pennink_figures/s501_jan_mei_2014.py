@@ -23,8 +23,8 @@ XKCD = False
 STATION = 501
 STATIONS = [STATION]
 START = datetime.datetime(2014, 1, 1)
-END = datetime.datetime(2014, 4, 1)
-FILENAME = 'station_501_jan_mrt_2014.h5'
+END = datetime.datetime(2014, 6, 1)
+FILENAME = '/data/hisparc/tom/pennink_figures/station_501_jan_mei_2014.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts
@@ -79,7 +79,10 @@ def do_it():
     ph3 = ph[:, 2]
     ph4 = ph[:, 3]
 
-    bins2ns5 = np.arange(-41.25, 41.26, 2.5)
+    bins2ns5 = np.arange(-41.25, 41.25, 2.5)
+
+    bins5ns = np.arange(-41.25, 41.25, 5.)
+
 
     dt_all = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.))
     dt_t1hoog_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
@@ -114,11 +117,11 @@ def do_it():
 
     if grafiek12:  # bovenste rij, laag laag met fit
         print "ph1 laag, ph2 laag", dt_t1laag_t2laag.size
-        n1, bins1, blaat1 = grafiek12.hist(dt_t1laag_t2laag, bins=bins2ns5, histtype='step')
+        n1, bins1, blaat1 = grafiek12.hist(dt_t1laag_t2laag, bins=bins5ns, histtype='step')
 
         sigma_list = np.sqrt(n1)
 
-        c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,10., 10., 0.], verbose=False)
+        c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=sigma_list, initialguess = [100.,5., 5., 0.], verbose=False)
         mu = c[1]
         sigma = abs(c[2])
         print "sigma fit 12 = ", sigma
@@ -131,14 +134,14 @@ def do_it():
 
     if grafiek21:  # onderste rij, scheve verdelingen, zonder fit
         print "ph1 hoog, ph2 laag", dt_t1hoog_t2laag.size
-        n1, bins1, blaat1 = grafiek21.hist(dt_t1hoog_t2laag, bins=bins2ns5, histtype='step')
+        n1, bins1, blaat1 = grafiek21.hist(dt_t1hoog_t2laag, bins=bins5ns, histtype='step')
         grafiek21.set_title('ph1,ph2=hoog, laag')
         grafiek21.set_xlabel('t1-t2 [ns]')
         grafiek21.set_ylabel('aantal events')
 
     if grafiek22:
         print "ph1 laag, ph2 hoog", dt_t1laag_t2hoog.size
-        n1, bins1, blaat1 = grafiek22.hist(dt_t1laag_t2hoog, bins=bins2ns5, histtype='step')
+        n1, bins1, blaat1 = grafiek22.hist(dt_t1laag_t2hoog, bins=bins5ns, histtype='step')
         grafiek22.set_title('ph1,ph2=laag, hoog')
         grafiek22.set_xlabel('t1-t2 [ns]')
         #grafiek22.set_ylabel('aantal events')
