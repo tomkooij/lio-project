@@ -22,9 +22,9 @@ XKCD = False
 
 STATION = 501
 STATIONS = [STATION]
-START = datetime.datetime(2014, 4, 1)
-END = datetime.datetime(2014, 5, 1)
-FILENAME = 'station_501_april2014.h5'
+START = datetime.datetime(2014, 1, 1)
+END = datetime.datetime(2014, 4, 1)
+FILENAME = 'station_501_jan_mrt_2014.h5'
 
 #
 # Pennink, 2010 p32 specifies these cutoff ADC counts

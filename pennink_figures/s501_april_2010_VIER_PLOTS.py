@@ -33,7 +33,7 @@ FILENAME = 'station_501_april2010.h5'
 # These values are consistent with a pulseheight histogram
 #
 HIGH_PH = 200
-LOW_PH = 60
+LOW_PH = 120
 
 
 #
@@ -83,11 +83,11 @@ def do_it():
 
     dt_all = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.))
     dt_t1hoog_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
-                                        & (ph2 < LOW_PH) & (ph1 > HIGH_PH))
+                                        & (ph2 < LOW_PH) & (ph2 > 0.) & (ph1 > HIGH_PH))
     dt_t1laag_t2hoog = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
-                                        & (ph2 > HIGH_PH) & (ph1 < LOW_PH))
+                                        & (ph2 > HIGH_PH) & (ph1 < LOW_PH) & (ph1 > 0.) )
     dt_t1laag_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
-                                        & (ph1 < LOW_PH) & (ph2 < LOW_PH))
+                                        & (ph1 < LOW_PH) & (ph2 < LOW_PH) & (ph1 > 0.) & (ph2 < LOW_PH) )
 
     grafiek = plt.figure()
     grafiek11 = grafiek.add_subplot(221)
