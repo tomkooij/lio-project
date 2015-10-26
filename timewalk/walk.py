@@ -150,7 +150,7 @@ breedte ervan.
           chi2_list.append(chi2)
 
           mu = c[1]
-          sigma = c[2]
+          sigma = abs(c[2])
 
           # stor fitted mu, sigma
           mu_list.append(mu)
