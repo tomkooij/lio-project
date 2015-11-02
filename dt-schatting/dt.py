@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import gauss_fit_histogram
 
 progress = pb.ProgressBar(widgets=[pb.Percentage(),pb.Bar(), pb.ETA()])
-STAPPEN = 200
+STAPPEN =  187
 
 a = 10.  # m  Distance between detectors
 c = 3.e-1  # m/ns speed of light
@@ -39,25 +39,25 @@ if __name__ == '__main__':
 
                 # maak lijst met tijdsverschillen,
                 # waarbij de tijdsverschillen met grote kans vaker voorkomen
-                # en random "versmering" met sigma = 3.5ns
+                # en random "versmering" met sigma = 2.5ns
                 for item in np.arange(0, weging, 1.):
-                    dt_list.append((delta_t) + np.random.normal(0,2.0))
+                    dt_list.append((delta_t) + np.random.normal(0,2.5))
 
     print "gem, stddev = ",np.mean(dt_list), np.std(dt_list)
 
 
     plt.figure()
-    n1, bins1, blaat = plt.hist(dt_list, histtype='step', bins=np.arange(-45.5,45.5,1.))
+    n1, bins1, blaat = plt.hist(dt_list, histtype='step', bins=np.arange(-25.5,25.5,1.))
 
     sigma_list = np.sqrt(dt_list)
-    #c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=np.sqrt(n1))
-    #mu = c[1]
-    #sigma = abs(c[2])
-    #print "fitted mu, sigma =", mu, sigma
+    c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=np.sqrt(n1))
+    mu = c[1]
+    sigma = abs(c[2])
+    print "fitted mu, sigma =", mu, sigma
 
-    #plt.plot(fitx, fity ,'r--', linewidth=3)
-    plt.title('theoretische dt verdeling')
+    plt.plot(fitx, fity ,'r--', linewidth=3)
+    plt.title('gesimuleerde dt verdeling. N = %.1e (..dt-schatting/dt.py)' % float(len(dt_list)))
     plt.xlabel('dt [ns]')
-    #plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'dt' ],loc=3)
-    plt.show()
+    plt.legend([r'fit: $ \mu = %.1f\  \sigma = %.1f\ $' %(mu, sigma), 'dt' ],loc=3)
+    plt.savefig('dt-schatting.png', dpi=200)
     plt.show()
