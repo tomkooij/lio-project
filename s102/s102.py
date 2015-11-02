@@ -67,7 +67,7 @@ if __name__=='__main__':
 
     print "number of events in selection:", dt.size, s40_60.size
     n1, bins1, blaat1 = plt.hist(dt, bins=bins2ns5, histtype='step')
-    plt.title('s102, oktober 2015, t1-t2 (ph1=hoog, ph2=laag)')
+    plt.title('s102, jan-okt 2015, t1-t2 (ph1=hoog, ph2=laag)')
     plt.show()
 
     for _ in range(20):
