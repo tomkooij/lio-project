@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 import tables
 from sapphire import Station
 import random
@@ -10,10 +11,7 @@ LOW_PH = 120
 HIGH_PH = 200
 
 
-def plot_trace(station_id, ext_timestamp, t1, t2):
-
-    START = 250  # 625 ns
-    END = 500  # 1250 ns
+def plot_trace(station_id, ext_timestamp, t1, t2, start=625, end=1250):
 
     timestamp = int(str(ext_timestamp)[0:10])
     nanosec = int(str(ext_timestamp)[10:])
@@ -22,16 +20,17 @@ def plot_trace(station_id, ext_timestamp, t1, t2):
     traces = Station(station_id).event_trace(timestamp, nanosec)
     print "Done."
 
-    t = np.arange(START*2.5, END*2.5, 2.5)
+    t = np.arange(0, len(traces[0])*2.5, 2.5)
 
     plt.figure()
-    plt.plot(t, traces[0][START:END])
-    plt.plot(t, traces[1][START:END])
+    plt.xlim(start,end)
+    plt.plot(t, traces[0])
+    plt.plot(t, traces[1])
     plt.ylabel('ph [ADC]')
     plt.xlabel('t [ns]')
     plt.title('event %s_%s t1=%.1f, t2=%.1f' % (timestamp, nanosec, t1, t2))
     plt.savefig('trace%s.png' % ext_timestamp)
-    #plt.show()
+    plt.show()
     return traces
 
 if __name__ == '__main__':
@@ -61,22 +60,30 @@ if __name__ == '__main__':
     t2_ = t2.compress(filter)
     stamps = ext_stamp.compress(filter)
 
-    selection = (dt > 60) & (dt < 80)
-    s40_60 = stamps.compress(selection)
-    t1_selection = t1_.compress(selection)
-    t2_selection = t2_.compress(selection)
-
-    print "number of events in selection:", dt.size, s40_60.size
+    print "number of events in hoog/laag filter:", dt.size
     n1, bins1, blaat1 = plt.hist(dt, bins=bins2ns5, histtype='step')
     plt.title('s102, jan-okt 2015, t1-t2 (ph1=hoog, ph2=laag)')
     plt.savefig('t1t2histogram.png', dpi=200)
     plt.show()
 
-    for i in range(20):
+    plt.figure()
+    plt.hist2d(t1_ ,t2_, bins=40, norm=LogNorm())
+    plt.colorbar()
+    plt.show()
+
+    #selection = (t1_ > 1000) & (t2_ < 985)
+    selection = (t1_ < 985) & (t2_ > 1000)
+
+    selected_stamps = stamps.compress(selection)
+    t1_selection = t1_.compress(selection)
+    t2_selection = t2_.compress(selection)
+    print "number of events in selection:", selected_stamps.size
+
+    for i in range(3):
         # random.choice and np.random.choice does not work on uint64
-        idx = random.randint(0, s40_60.size-1)
-        event_timestamp = s40_60[idx]
+        idx = random.randint(0, selected_stamps.size-1)
+        event_timestamp = selected_stamps[idx]
         event_t1 = t1_selection[idx]
         event_t2 = t2_selection[idx]
         print i, event_timestamp
-        traces = plot_trace(102, event_timestamp, event_t1, event_t2)
+        traces = plot_trace(102, event_timestamp, event_t1, event_t2, 500, 1500)
