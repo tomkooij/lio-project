@@ -60,21 +60,22 @@ if __name__=='__main__':
     t2_ = t2.compress(filter)
     stamps = ext_stamp.compress(filter)
 
-    selection = (dt > -60) & (dt < -40)
+    selection = (dt > 60) & (dt < 80)
     s40_60 = stamps.compress(selection)
-    t1__ = t1_.compress(selection)
-    t2__ = t2_.compress(selection)
+    t1_selection = t1_.compress(selection)
+    t2_selection = t2_.compress(selection)
 
     print "number of events in selection:", dt.size, s40_60.size
     n1, bins1, blaat1 = plt.hist(dt, bins=bins2ns5, histtype='step')
     plt.title('s102, jan-okt 2015, t1-t2 (ph1=hoog, ph2=laag)')
+    plt.savefig('t1t2histogram.png', dpi=200)
     plt.show()
 
-    for _ in range(20):
+    for i in range(20):
         # random.choice and np.random.choice does not work on uint64
         idx = random.randint(0,s40_60.size-1)
-        timestmp = s40_60[idx]
-        _t1 = t1__[idx]
-        _t2 = t2__[idx]
-        print timestmp
-        traces = plot_trace(102, timestmp, _t1, _t2)
+        event_timestamp = s40_60[idx]
+        event_t1 = t1_selection[idx]
+        event_t2 = t2_selection[idx]
+        print i, event_timestamp
+        traces = plot_trace(102, event_timestamp, event_t1, event_t2)
