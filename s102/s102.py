@@ -9,6 +9,7 @@ FILENAME = 's102_heel2015.h5'
 LOW_PH = 120
 HIGH_PH = 200
 
+
 def plot_trace(station_id, ext_timestamp, t1, t2):
 
     START = 250  # 625 ns
@@ -33,7 +34,7 @@ def plot_trace(station_id, ext_timestamp, t1, t2):
     #plt.show()
     return traces
 
-if __name__=='__main__':
+if __name__ == '__main__':
 
     if 'data' not in globals():
         data = tables.open_file(FILENAME, 'a')
@@ -45,10 +46,10 @@ if __name__=='__main__':
     t2 = events.col('t2')
 
     ph = events.col('pulseheights')
-    ph1 = ph[:,0]
-    ph2 = ph[:,1]
+    ph1 = ph[:, 0]
+    ph2 = ph[:, 1]
 
-    bins2ns5 = np.arange(-101.25,101.26,2.5)
+    bins2ns5 = np.arange(-101.25, 101.26, 2.5)
 
     grafiek = plt.figure()
 
@@ -73,7 +74,7 @@ if __name__=='__main__':
 
     for i in range(20):
         # random.choice and np.random.choice does not work on uint64
-        idx = random.randint(0,s40_60.size-1)
+        idx = random.randint(0, s40_60.size-1)
         event_timestamp = s40_60[idx]
         event_t1 = t1_selection[idx]
         event_t2 = t2_selection[idx]
