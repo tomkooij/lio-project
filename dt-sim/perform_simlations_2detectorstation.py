@@ -36,7 +36,7 @@ import tables
 
 max_r = {max_r}
 N = {N}
-cluster = SingleDiamondStation()
+cluster = SingleTwoDetectorStation()
 
 CORSIKAFILE = '/data/hisparc/corsika/data/{seed}/corsika.h5'
 OUTPUTFILE = '/data/hisparc/tom/simruns/twodetector/{seed}.h5'
