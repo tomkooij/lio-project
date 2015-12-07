@@ -122,6 +122,9 @@ def reconstruct_and_store(filename):
 
                 row.append()
 
+        print "reconstructed %d of %d events, " % (data.root.s501.maan.col('n1').size, selected_events.size)
+
+        return data.root.s501.maan.col('n1').size
 
 if __name__ == '__main__':
     reconstruct_and_store(FILENAME)

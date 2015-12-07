@@ -16,15 +16,15 @@ data = tables.open_file(FILENAME, 'r')
 
 query = '(n2 > 2.0) & (n3 > 2.0) & (n4 > 2.0)'
 
-e = data.root.s501.events.read_where(query)
+selected_events = data.root.s501.events.read_where(query)
 n1 = data.root.s501.events.col('n1')
 
 angles = []
 
-for event in e:
+for event in selected_events:
     zenith, azimuth, detectors = rec.reconstruct_event(event)
     if not math.isnan(zenith):
-        angles.append((zenith,azimuth, len(detectors)))
+        angles.append((zenith, azimuth, len(detectors)))
         if len(angles) % 1000 == 0:
             print len(angles)
 
