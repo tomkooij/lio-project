@@ -59,11 +59,9 @@ def reconstruct_and_store(filename):
         # Copy the user attributes
         events.attrs._f_copy(copy)
 
-        selected_events = data.root.s501.events.read_where(query)
-
         teller = 0
 
-        for event in selected_events:
+        for event in data.root.s501.events.where(query):
 
             zenith, azimuth, detectors = rec.reconstruct_event(event)
 
@@ -71,6 +69,7 @@ def reconstruct_and_store(filename):
 
                 teller += 1
                 if teller % 1000 == 0:
+                    copy.flush()
                     print teller
 
                 # break up event
@@ -104,8 +103,8 @@ def reconstruct_and_store(filename):
                 ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
 
                 s = ephem.Observer()
-                s.long = longitude
-                s.lat = latitude
+                s.long = np.radians(longitude)
+                s.lat = np.radians(latitude)
                 s.elevation = 0
                 s.date = datetime.fromtimestamp(timestamp)
 
@@ -122,7 +121,7 @@ def reconstruct_and_store(filename):
 
                 row.append()
 
-        print "reconstructed %d of %d events, " % (data.root.s501.maan.col('n1').size, selected_events.size)
+        print "reconstructed %d events, " % (data.root.s501.maan.col('n1').size)
 
         return data.root.s501.maan.col('n1').size
 
