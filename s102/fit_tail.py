@@ -1,10 +1,12 @@
 """
-maak een histogram van aankomsttijdveschillen van station 102 (2 plaats)
+histogram van aankomsttijdveschillen van station 102 (2 plaats)
 t2-t1
 t1 = laag (<0.5MIP)
 t2 = hoog (>1 MIP)
 
 Dataset: s102, jan t/m okt
+
+Fit een gauss+achtergrond+exponentiele verdeling
 """
 from __future__ import division
 
@@ -23,25 +25,16 @@ MIP = 150 / 0.57  # ADC =  mV/0.57
 LOW_PH = 0.5*MIP
 HIGH_PH = 1.*MIP
 
-def fit_func_for_plot(x, a, mu, sigma, background):
-    gauss = a*np.exp(-0.5*((x-mu)/sigma)**2)
-
-    if x < 0:
-        tail = 650000.
-    else:
-        tail = 0
-
-    return gauss + tail + background
 #
 # fit = gauss + tail + background
 #
-def fit_func(x, a, mu, sigma, tail_amp, tail_l, background):
+def fit_func(x, a, mu, sigma, background, tail_A, tail_l):
+
     gauss = a*np.exp(-0.5*((x-mu)/sigma)**2)
 
-    tail = np.where(x < 0, tail_amp*np.exp(1./tail_l*x), 0.)
+    tail = np.where(x < 0., tail_A * np.exp(x/tail_l), 0)
 
     return gauss + tail + background
-
 
 if __name__ == '__main__':
 
@@ -79,7 +72,6 @@ if __name__ == '__main__':
     plt.xlim(-250,250)
 
     plt.title('s102, jan-okt 2015, t1-t2 (ph1<0.5MIP, ph2>1.0MIP)')
-    plt.show()
 
     #
     # Middens van de bins:
@@ -89,20 +81,27 @@ if __name__ == '__main__':
     sigma = np.sqrt(n1)
 
     # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, n1, p0=[100.,0.,10.,5000.,50.,2000.], sigma=sigma, absolute_sigma=True)
+    c, cov = curve_fit(fit_func, middle, n1, p0=[10000.,0.,10.,1000.,1000.,10.], sigma=sigma, absolute_sigma=True)
 
+    a = c[0]
     mu = c[1]
-    sigma = abs(c[2])
-    tail_amp = c[3]
-    tail_l = c[4]
-    background = c[5]
+    s = abs(c[2])
+    bg = c[3]
+    tail_A = c[4]
+    tail_l = c[5]
 
-    fitx = middle
-    fity = fit_func_for_plot(fitx, c[0], c[1], abs(c[2]), c[5])
+
+    print "Fit: a = %.1f, mu = %.1f, sigma = %2.1f, background = %4.0f, tail_A = %4.0f, tail_l =%2.1f" % (a, mu, s, bg, tail_A, tail_l)
+
+    fitx = np.asarray(middle)
+    fity = fit_func(fitx, a, mu, s, bg, tail_A, tail_l)
+
+    chi2 = sum(np.power((n1 - fity)/sigma,2)) / (len(n1) - len(c))
+    print "Reduced Chi-squared: ", chi2
 
     plt.plot(fitx, fity ,'r--', linewidth=2)
-    plt.plot(fitx, n1-fity, 'g--')
-    plt.title('gauss_fit_histogram.py');
-    plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 't2-t1' ], loc = 2, bbox_to_anchor=(1,1))
+    plt.title('Station 102.s Jan-Okt 2015. ph1 > 1MIP, ph2 < 0.5 MIP');
+    plt.xlabel('t2-t1 [ns]')
+
+    plt.legend(['fit', 'data'])
     plt.show()
