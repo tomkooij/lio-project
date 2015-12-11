@@ -4,6 +4,10 @@ from __future__ import division
 
 import ephem
 import numpy as np
+import matplotlib.pyplot as plt
+import tables
+
+FILENAME = 's501_2010_1.h5'
 
 SciencePark = ephem.Observer()
 SciencePark.lon = '4.95'
@@ -24,11 +28,28 @@ while SciencePark.date < end:
 alt = np.asarray(alt)
 zenith = np.where(alt > 0, 90. - alt, 90.)
 
-angle = np.arange(0,90.,1.)
-cum_f = [(zenith < a).sum()/zenith.size for a in angle]
-absorption = [np.sin(a)*(np.cos(a)**6) for a in np.radians(angle)]
+angle = np.arange(0,90.,5.)
+#absorption = [np.sin(a)*(np.cos(a)**6) for a in np.radians(angle)]
+
+data = tables.open_file(FILENAME, 'r')
+reconstructed_zenith = data.root.s501.maan.col('zenith')
+
+bins=np.arange(0, 100., 5)
+
+plt.figure()
+plt.hist(np.degrees(reconstructed_zenith), bins=bins, normed = 1, histtype='step')
+plt.hist(zenith, bins=np.arange(0, 100., 5.), normed=1, histtype='step')
+plt.ylabel('N (normalised)')
+plt.xlabel('zenith angle (degrees)')
+plt.legend(['event','moon'])
+plt.title('Moon @ SciencePark 2010')
+plt.xlim([0.,90.])
+plt.ylim([0.,0.05])
+plt.show()
+
+cum_f = [(zenith < a).sum()/zenith.size for a in np.arange(0.,90.,5.)]
 
 # percentage bruikbare events
-gain = [cum_f[i]*absorption[i] for i in range(len(angle))]
+#gain = [cum_f[i]*absorption[i] for i in range(len(angle))]
 
-print 'declinatie in alt. Zenithoek in zenith'
+print 'declinatie in alt. Zenithoek in zenith. Event zenit hoek in reconstructed_zenith'
