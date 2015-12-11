@@ -37,8 +37,8 @@ reconstructed_zenith = data.root.s501.maan.col('zenith')
 bins=np.arange(0, 100., 5)
 
 plt.figure()
-plt.hist(np.degrees(reconstructed_zenith), bins=bins, normed = 1, histtype='step')
-plt.hist(zenith, bins=np.arange(0, 100., 5.), normed=1, histtype='step')
+n1, b, bla = plt.hist(np.degrees(reconstructed_zenith), bins=bins, normed = 1, histtype='step')
+n2, b, bla = plt.hist(zenith, bins=np.arange(0, 100., 5.), normed=1, histtype='step')
 plt.ylabel('N (normalised)')
 plt.xlabel('zenith angle (degrees)')
 plt.legend(['event','moon'])
@@ -47,6 +47,10 @@ plt.xlim([0.,90.])
 plt.ylim([0.,0.05])
 plt.show()
 
+plt.figure()
+plt.plot(n1*n2)
+plt.title('sum = %f percent' % ((n1*n2).sum()*100.))
+plt.show()
 cum_f = [(zenith < a).sum()/zenith.size for a in np.arange(0.,90.,5.)]
 
 # percentage bruikbare events
