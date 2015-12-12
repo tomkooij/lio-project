@@ -26,7 +26,7 @@ while SciencePark.date < end:
     SciencePark.date += .1
 
 alt = np.asarray(alt)
-zenith = np.where(alt > 0, 90. - alt, 90.)
+zenith = 90. - alt
 
 angle = np.arange(0,90.,5.)
 #absorption = [np.sin(a)*(np.cos(a)**6) for a in np.radians(angle)]
@@ -34,24 +34,32 @@ angle = np.arange(0,90.,5.)
 data = tables.open_file(FILENAME, 'r')
 reconstructed_zenith = data.root.s501.maan.col('zenith')
 
-bins=np.arange(0, 100., 5)
+bins=np.arange(0, 180., 5)
 
 plt.figure()
-n1, b, bla = plt.hist(np.degrees(reconstructed_zenith), bins=bins, normed = 1, histtype='step')
-n2, b, bla = plt.hist(zenith, bins=np.arange(0, 100., 5.), normed=1, histtype='step')
+n_events, b, bla = plt.hist(np.degrees(reconstructed_zenith), bins=bins, normed = 1, histtype='step')
+n_moon, b, bla = plt.hist(zenith, bins=bins, normed=1, histtype='step')
 plt.ylabel('N (normalised)')
 plt.xlabel('zenith angle (degrees)')
 plt.legend(['event','moon'])
-plt.title('Moon @ SciencePark 2010')
-plt.xlim([0.,90.])
-plt.ylim([0.,0.05])
+plt.title('Moon at Science Park in 2010')
+plt.xlim([0.,180.])
+plt.ylim([0.,0.035])
 plt.show()
 
+binsize = 1
+bins=np.arange(0, 180., binsize)
+n_events, b = np.histogram(np.degrees(reconstructed_zenith), bins=bins, normed=True)
+n_moon, b = np.histogram(zenith, bins=bins, normed=True)
+
 plt.figure()
-plt.plot(n1*n2)
-plt.title('sum = %f percent' % ((n1*n2).sum()*100.))
+plt.plot(n_events*n_moon)
+plt.title('N_normed(moon) * N_normed(event) foreach bin (%d degree bins)' % binsize)
+plt.ylabel('N*N')
+plt.xlabel('zenith angle (degrees)')
+plt.legend(['sum = %.6f' % ((n_events*n_moon).sum())])
 plt.show()
-cum_f = [(zenith < a).sum()/zenith.size for a in np.arange(0.,90.,5.)]
+#cum_f = [(zenith < a).sum()/zenith.size for a in np.arange(0.,90.,5.)]
 
 # percentage bruikbare events
 #gain = [cum_f[i]*absorption[i] for i in range(len(angle))]
