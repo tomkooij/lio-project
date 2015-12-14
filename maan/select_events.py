@@ -111,7 +111,7 @@ def reconstruct_and_store(filename):
                 s.long = np.radians(longitude)
                 s.lat = np.radians(latitude)
                 s.elevation = 0
-                s.date = datetime.fromtimestamp(timestamp)
+                s.date = datetime.utcfromtimestamp(timestamp)
 
                 m = ephem.Moon(s)
 
