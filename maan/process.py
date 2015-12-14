@@ -18,4 +18,4 @@ if __name__ == '__main__':
         aantal += reconstruct_and_store(filename)
 
     print "Klaar."
-    print "Totaal %d events gereconstrueerd.", aantal
+    print "Totaal %d events gereconstrueerd." % aantal
