@@ -70,6 +70,9 @@ def reconstruct_and_store(filename):
 
             zenith, azimuth, detectors = rec.reconstruct_event(event)
 
+            # convert to sane azimuth
+            azimuth = azimuth % (2*np.pi)
+
             if not math.isnan(zenith):
 
                 teller += 1
@@ -119,7 +122,7 @@ def reconstruct_and_store(filename):
                 m_ra = float(m.ra)
                 m_dec = float(m.dec)
                 m_alt = float(m.alt)
-                m_az = float(m.az)
+                m_az = float(m.az) % (2*np.pi)
 
                 separation = ephem.separation((m_ra, m_dec), (ra, dec))
 
