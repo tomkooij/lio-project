@@ -20,6 +20,7 @@ import ephem
 import math
 import matplotlib.pyplot as plt
 
+import numpy as np
 
 
 FILENAME  = 'station_501_april2010.h5'
@@ -33,6 +34,10 @@ def reconstruct_and_store(filename):
 
         s501 = HiSPARCStations([501]).get_station(501)
         s501.cluster.set_timestamp(timestamp)
+        latitude, longitude, alt = s501.get_lla_coordinates()
+
+        print "DEBUG: lat,lon: ", latitude, longitude
+
         rec = EventDirectionReconstruction(s501)
 
         query = '(n2 > 2.0) & (n3 > 2.0) & (n4 > 2.0)'
@@ -61,7 +66,7 @@ def reconstruct_and_store(filename):
 
         teller = 0
 
-        for event in data.root.s501.events.where(query):
+        for event in data.root.s501.events.read_where(query):
 
             zenith, azimuth, detectors = rec.reconstruct_event(event)
 
@@ -98,7 +103,7 @@ def reconstruct_and_store(filename):
                 row['zenith'] = zenith
                 row['azimuth'] = azimuth
 
-                longitude, latitude, alt = s501.get_lla_coordinates()
+                latitude, longitude, alt = s501.get_lla_coordinates()
 
                 ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
 
@@ -110,12 +115,24 @@ def reconstruct_and_store(filename):
 
                 m = ephem.Moon(s)
 
-                separation = ephem.separation((m.ra, m.dec), (ra, dec))
+                #store ephem data in float
+                m_ra = float(m.ra)
+                m_dec = float(m.dec)
+                m_alt = float(m.alt)
+                m_az = float(m.az)
 
-                row['maan_ra'] = m.ra
-                row['maan_dec'] = m.dec
-                row['maan_alt'] = m.alt
-                row['maan_az'] = m.az
+                separation = ephem.separation((m_ra, m_dec), (ra, dec))
+
+                if separation < 0.05:
+                    print "observer() s", s
+                    print "separation %f alt maan: %f zenith event: %f" % (separation, float(np.pi/2 - m.alt), zenith)
+                    if abs((np.pi/2-m_alt)-zenith) > 0.025:
+                        print "CURIOUS EVENT %d: separation %f for moon ra %f dec %f event ra %f dec %f " % (timestamp, separation, m_ra, m_dec, ra, dec)
+                        print "alt maan %f. Zenith maan: %f zenith event: %f" % (m.alt, float(np.pi/2 - m.alt), zenith)
+                row['maan_ra'] = m_ra
+                row['maan_dec'] = m_dec
+                row['maan_alt'] = m_alt
+                row['maan_az'] = m_az
 
                 row['separation'] = separation
 
