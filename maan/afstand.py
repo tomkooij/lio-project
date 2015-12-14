@@ -5,14 +5,22 @@ import matplotlib.pyplot as plt
 YEAR = 2010
 STATION = 501
 
+COLUMNS = ['timestamp', 'separation', 'zenith', 'maan_alt']
+
 from configuration import PATH
 
 if __name__ == '__main__':
 
     assert(STATION==501, 'reconstruct_and_store werkt alleen met 501...')
 
-    dist = np.array([])
+    all_separation = np.array([])
 
+    # initialise results dictionairy
+    results = {}
+    for column in COLUMNS:
+        results[column] = np.array([])
+
+    # for reach results file --> store in results dict
     for month in range(1,13):
         print "maand: ", month,
 
@@ -20,8 +28,8 @@ if __name__ == '__main__':
 
         with tables.open_file(filename, 'r') as data:
 
-            sep = data.root.s501.maan.col('separation')
-            print " Found %d reconstructions." % sep.size
-            dist = np.concatenate((dist, sep))
+            print "%s : Found %d events with direction reconstruction." % (filename, data.root.s501.maan.col('timestamp').size)
+            for column in COLUMNS:
+                results[column] = np.concatenate((results[column], data.root.s501.maan.col(column)))
 
-    print "dist has all the data!"
+    print "results is a dict of np.arrays with all the data!"
