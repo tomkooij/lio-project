@@ -13,6 +13,7 @@ import tables
 from sapphire.analysis.direction_reconstruction import EventDirectionReconstruction
 from sapphire import HiSPARCStations
 from sapphire.transformations.celestial import zenithazimuth_to_equatorial
+from sapphire.utils import norm_angle
 from datetime import datetime
 
 import ephem
@@ -48,8 +49,8 @@ def reconstruct_and_store(filename):
         description['azimuth'] = tables.Float32Col()
         description['ra'] = tables.Float32Col()
         description['dec'] = tables.Float32Col()
-        description['maan_alt'] = tables.Float32Col()
-        description['maan_az'] = tables.Float32Col()
+        description['maan_zenith'] = tables.Float32Col()
+        description['maan_azimuth'] = tables.Float32Col()
         description['maan_ra'] = tables.Float32Col()
         description['maan_dec'] = tables.Float32Col()
         description['separation'] = tables.Float32Col()
@@ -70,8 +71,6 @@ def reconstruct_and_store(filename):
 
             zenith, azimuth, detectors = rec.reconstruct_event(event)
 
-            # convert to sane azimuth
-            azimuth = azimuth % (2*np.pi)
 
             if not math.isnan(zenith):
 
@@ -121,21 +120,23 @@ def reconstruct_and_store(filename):
                 #store ephem data in float
                 m_ra = float(m.ra)
                 m_dec = float(m.dec)
-                m_alt = float(m.alt)
-                m_az = float(m.az) % (2*np.pi)
+
+                m_zenith = np.pi/2 - float(m.alt)
+                m_azimuth = norm_angle(-(float(m.az) - np.pi/2))  # in sapphire coords
 
                 separation = ephem.separation((m_ra, m_dec), (ra, dec))
 
-                if separation < 0.05:
+                if separation < 0.1:
                     print "observer() s", s
-                    print "separation %f alt maan: %f zenith event: %f" % (separation, float(np.pi/2 - m.alt), zenith)
-                    if abs((np.pi/2-m_alt)-zenith) > 0.025:
+                    print "separation %f zenith maan: %f zenith event: %f" % (separation, m_zenith, zenith),
+                    print "Azimuth maan: %f azimuth event: %f" % (m_azimuth, azimuth)
+                    if abs(m_zenith-zenith) > 0.09:
                         print "CURIOUS EVENT %d: separation %f for moon ra %f dec %f event ra %f dec %f " % (timestamp, separation, m_ra, m_dec, ra, dec)
-                        print "alt maan %f. Zenith maan: %f zenith event: %f" % (m.alt, float(np.pi/2 - m.alt), zenith)
+
                 row['maan_ra'] = m_ra
                 row['maan_dec'] = m_dec
-                row['maan_alt'] = m_alt
-                row['maan_az'] = m_az
+                row['maan_zenith'] = m_zenith
+                row['maan_azimuth'] = m_azimuth
 
                 row['separation'] = separation
 
