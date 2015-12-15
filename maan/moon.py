@@ -75,17 +75,26 @@ print "separation (haversine) from (alt,az) = %f" % angle_between(zenith, azimut
 print "separation (law of cosines) from (alt, az) = %f" % law_of_cosines(zenith, azimuth, moon_zenith, moon_azimuth)
 print "seperation from ephem.separation((ra,dec),(moon_ra,moon_dec))", float(ephem.separation((ra,dec),(moon_ra,moon_dec))),
 print ephem.separation((ra,dec),(moon_ra,moon_dec))
+
 delta_list = []
 
-for zenith in np.arange(0, np.pi/2, 0.05):
-    for azimuth in np.arange(0, 2*np.pi, 0.05):
-        azimuth = norm_angle(azimuth)
-        ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
+for delta_z in np.arange(-np.pi/5, np.pi/5, 0.05):
+    for delta_a in np.arange(-np.pi/5, np.pi/5, 0.05):
+
+        azimuth = norm_angle(moon_azimuth+delta_a)
+        zenith = moon_zenith+delta_z
+        assert(zenith > 0.)
+        assert(azimuth < np.pi)
+        assert(azimuth > -np.pi)
+
+
+        ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, -(moon_azimuth - (np.pi/2)))
 
         haversine = angle_between(zenith, azimuth, moon_zenith, moon_azimuth)
         sep = float(ephem.separation((ra,dec),(moon_ra,moon_dec)))
 
         delta = haversine - sep
+        #print zenith, azimuth, delta
 
         #print "delta separation (haversine - ephem.separation) %f" % delta
 
