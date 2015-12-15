@@ -33,16 +33,16 @@ print SciencePark
 print "m = Moon(SciencePark @ %s) " % datetime.utcfromtimestamp(timestamp)
 
 moon_zenith = np.pi/2 - float(m.alt)
-moon_azimuth = float(m.az) % (2*np.pi)
+moon_azimuth = norm_angle(float(m.az))
 moon_ra = float(m.ra)  # m.ra is WITH atmospheric abberations, m.g_ra without
 moon_dec = float(m.dec)
 
-zenith = moon_zenith
+#zenith = moon_zenith
 #
 # PyEphem azimuth: North=0°, East=90°, South=180°, West=270°
 # Sapphire azimuth: E=0°, N=90°, W=180°, S=-90°
 #
-azimuth = norm_angle(-(moon_azimuth - np.pi/2))
+#azimuth = norm_angle(-(moon_azimuth - np.pi/2))
 
 print zenith, azimuth
 # zenithazimuth_to_equatorial really uses (lon, lat)
@@ -52,8 +52,9 @@ print
 print "moon (alt, azi) [degrees]", 90. - np.degrees(moon_zenith), np.degrees(moon_azimuth)
 print "event (zenith, azimuth): ", zenith, azimuth
 print "moon (zenith, azimuth): ", moon_zenith, moon_azimuth
-print "separation from (alt,az) = %f" % angle_between(zenith, moon_zenith, azimuth, moon_azimuth)
 print
 print "moon (ra [graden] , dec [uren])", decdeg2dms(moon_ra/(2*np.pi)*24), decdeg2dms(np.degrees(moon_dec))
 print "event (ra,dec) calculated from zen,az,position", decdeg2dms(ra/(2*np.pi)*24), decdeg2dms(np.degrees(dec))
+print
+print "separation from (alt,az) = %f" % angle_between(zenith, azimuth, moon_zenith, moon_azimuth)
 print "seperation from ephem.separation((ra,dec),(moon_ra,moon_dec))", float(ephem.separation((ra,dec),(moon_ra,moon_dec)))
