@@ -58,11 +58,10 @@ moon_dec = float(m.dec)
 #
 #azimuth = norm_angle(-(moon_azimuth - np.pi/2))
 
-print zenith, azimuth
+print "event: ",zenith, azimuth
 # zenithazimuth_to_equatorial really uses (lon, lat)
 ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
 
-print
 print "moon (alt, azi) [degrees]", 90. - np.degrees(moon_zenith), np.degrees(moon_azimuth)
 print "event (zenith, azimuth): ", zenith, azimuth
 print "moon (zenith, azimuth): ", moon_zenith, moon_azimuth
@@ -73,3 +72,23 @@ print
 print "separation (haversine) from (alt,az) = %f" % angle_between(zenith, azimuth, moon_zenith, moon_azimuth)
 print "separation (law of cosines) from (alt, az) = %f" % law_of_cosines(zenith, azimuth, moon_zenith, moon_azimuth)
 print "seperation from ephem.separation((ra,dec),(moon_ra,moon_dec))", float(ephem.separation((ra,dec),(moon_ra,moon_dec)))
+
+delta_list = []
+
+for zenith in np.arange(0, np.pi/2, 0.05):
+    for azimuth in np.arange(0, 2*np.pi, 0.05):
+        azimuth = norm_angle(azimuth)
+        ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
+
+        haversine = angle_between(zenith, azimuth, moon_zenith, moon_azimuth)
+        sep = float(ephem.separation((ra,dec),(moon_ra,moon_dec)))
+
+        delta = haversine - sep
+
+        print "delta separation (haversine - ephem.separation) %f" % delta
+
+        delta_list.append((zenith, azimuth,delta))
+
+delta_list = np.asarray(delta_list)
+deltas = delta_list[:,2]
+print "delta between haversine (from alt, az) and ephem.seperation (from ra,dec) in: deltas"
