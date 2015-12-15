@@ -48,31 +48,33 @@ print "m = Moon(SciencePark @ %s) " % datetime.utcfromtimestamp(timestamp)
 
 moon_zenith = np.pi/2 - float(m.alt)
 moon_azimuth = norm_angle(float(m.az))
+
 moon_ra = float(m.ra)  # m.ra is WITH atmospheric abberations, m.g_ra without
 moon_dec = float(m.dec)
 
-#zenith = moon_zenith
+zenith = moon_zenith
+azimuth = moon_azimuth
+
 #
 # PyEphem azimuth: North=0°, East=90°, South=180°, West=270°
 # Sapphire azimuth: E=0°, N=90°, W=180°, S=-90°
 #
-#azimuth = norm_angle(-(moon_azimuth - np.pi/2))
-
-print "event: ",zenith, azimuth
 # zenithazimuth_to_equatorial really uses (lon, lat)
-ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, azimuth)
+ra, dec = zenithazimuth_to_equatorial(longitude, latitude, timestamp, zenith, norm_angle(-(moon_azimuth - (np.pi/2))))
 
+print "event (zenith, azi) [radians] ",zenith, azimuth
+print "moon (zenith, azi) [radians]", moon_zenith, moon_azimuth
+print
+print "event (alt, azi) [degrees]", 90. - np.degrees(zenith), np.degrees(azimuth)
 print "moon (alt, azi) [degrees]", 90. - np.degrees(moon_zenith), np.degrees(moon_azimuth)
-print "event (zenith, azimuth): ", zenith, azimuth
-print "moon (zenith, azimuth): ", moon_zenith, moon_azimuth
 print
 print "moon (ra [graden] , dec [uren])", dms(moon_ra/(2*np.pi)*24), dms(np.degrees(moon_dec))
 print "event (ra,dec) calculated from zen,az,position", dms(ra/(2*np.pi)*24), dms(np.degrees(dec))
 print
 print "separation (haversine) from (alt,az) = %f" % angle_between(zenith, azimuth, moon_zenith, moon_azimuth)
 print "separation (law of cosines) from (alt, az) = %f" % law_of_cosines(zenith, azimuth, moon_zenith, moon_azimuth)
-print "seperation from ephem.separation((ra,dec),(moon_ra,moon_dec))", float(ephem.separation((ra,dec),(moon_ra,moon_dec)))
-
+print "seperation from ephem.separation((ra,dec),(moon_ra,moon_dec))", float(ephem.separation((ra,dec),(moon_ra,moon_dec))),
+print ephem.separation((ra,dec),(moon_ra,moon_dec))
 delta_list = []
 
 for zenith in np.arange(0, np.pi/2, 0.05):
@@ -85,7 +87,7 @@ for zenith in np.arange(0, np.pi/2, 0.05):
 
         delta = haversine - sep
 
-        print "delta separation (haversine - ephem.separation) %f" % delta
+        #print "delta separation (haversine - ephem.separation) %f" % delta
 
         delta_list.append((zenith, azimuth,delta))
 
