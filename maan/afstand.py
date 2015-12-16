@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 YEAR = 2010
 STATION = 501
 
-COLUMNS = ['timestamp', 'separation', 'zenith', 'maan_alt']
+COLUMNS = ['timestamp', 'separation', 'zenith', 'maan_zenith', 'azimuth', 'maan_azimuth']
 
 from configuration import PATH
 
@@ -33,3 +33,6 @@ if __name__ == '__main__':
                 results[column] = np.concatenate((results[column], data.root.s501.maan.col(column)))
 
     print "results is a dict of np.arrays with all the data!"
+
+    t = results['timestamp'].compress(results['separation']<0.1)
+    print "t = timestamps waarbij sep<0.1. >>>hist(t) en vergelijk met maan altitude!"
