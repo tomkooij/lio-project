@@ -64,9 +64,9 @@ def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], ve
     if (verbose):
         print "exp[-0.5((x-mu)/sigma)^2]"
         print "Fit Coefficients:"
-        print c[0],c[1],abs(c[2]),c[3]
-        print "Co-variance matrix:"
-        print cov
+        print "A %.2f, mu %.2f,sigma %.2f, bg %.2f" % (c[0],c[1],abs(c[2]),c[3])
+        #print "Co-variance matrix:"
+        #print cov
 
     fit =  fit_func(middle, c[0], c[1], abs(c[2]), c[3])
 
@@ -101,6 +101,10 @@ if __name__=='__main__':
     c, fitx, fity = gauss_fit_histogram(n, bins, sigma=sigma_list, verbose=True)
     mu = c[1]
     sigma = abs(c[2])
+
+    fitx = middle
+    fity = fit_func(fitx, c[0], c[1], abs(c[2]), c[3])
+
 
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
