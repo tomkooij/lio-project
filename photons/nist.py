@@ -43,25 +43,38 @@ def plot_pair_mean_free_path_versus_E():
 
 def create_table_for_sapphire():
 
-    E_list, l_list = load_XCOM2()
+    E_list, l_list, c_list = load_XCOM2()
 
     l_max = l_list[-1]
+    c_max = c_list[-1]
     l_list = l_list.compress(E_list < 10000)
+    c_list = c_list.compress(E_list < 10000)
     E_list = E_list.compress(E_list < 10000)
 
-    print "l_pair =  [ \ "
+
+    print "l_pair =  np.array([ \ "
 
     for E,l in zip(E_list, l_list):
         print "           [%.0f, %3.2f], " % ( E, l )
 
-    print "          ];"
+    print "          ])"
     print "l_max = %3.2f" % l_max
+
+    print "l_compton =  np.array([\ "
+
+    for E,c in zip(E_list, c_list):
+        print "           [%.0f, %3.2f], " % ( E, c )
+
+    print "          ])"
+    print "l_max = %3.2f" % c_max
 
 def load_XCOM2():
 
     data = np.genfromtxt('xcom.txt', skip_header=11)
 
     E = data[:,0]
+
+    a_compton_incoherent = data[:,2].compress(E > 3.0)
 
     a_nuc = data[:,4].compress(E > 3.0)
     a_elec = data[:,5].compress(E > 3.0)
@@ -71,10 +84,12 @@ def load_XCOM2():
     Lpair_elec = 1./a_elec
 
     Lpair = 1./(a_nuc+a_elec)
+    Lcompton = 1./a_compton_incoherent
 
     print "Lpair [cm] E = 1000 MeV", Lpair[-1]
+    print "Lcompton [cm] E = 1000 MeV", Lcompton[-1]
 
-    return E, Lpair
+    return E, Lpair, Lcompton
 
 if __name__ == '__main__':
     print "this is nist.py!"
