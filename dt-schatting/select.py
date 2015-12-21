@@ -38,7 +38,7 @@ ITERATIONS = 40
 
 CORSIKAPATH = '/data/hisparc/corsika/data/'
 INDEXFILE = '/data/hisparc/corsika/corsika_overview.h5'
-OUTPUTFILE = '1day_1e14eV.h5'
+OUTPUTFILE = '1day_1e15ev_fotons.h5'
 
 def round_to_7_5(x, base=7.5):
     return base * round(float(x)/base)
@@ -114,6 +114,8 @@ if __name__ == '__main__':
     ph4 = n4 * MIP
 
     dt_all = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.))
+    dt_t1hoog_t2hoog = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
+                                        & (ph2 > HIGH_PH) & (ph1 > HIGH_PH))
     dt_t1hoog_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
                                         & (ph2 < LOW_PH) & (ph1 > HIGH_PH))
     dt_t1laag_t2hoog = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
@@ -121,13 +123,34 @@ if __name__ == '__main__':
     dt_t1laag_t2laag = (t1-t2).compress((t1 > 0) & (t2 > 0) & ((t1-t2) < 50.)
                                         & (ph1 < LOW_PH) & (ph2 < LOW_PH))
 
-    print dt_all.size, dt_t1laag_t2laag.size
+    print dt_all.size, dt_t1hoog_t2hoog.size, dt_t1laag_t2laag.size, dt_t1laag_t2hoog.size, dt_t1hoog_t2laag.size
 
     bins2ns5 = np.arange(-41.25, 41.26, 2.5)
-    plt.figure()
-    plt.hist(dt_all, bins2ns5, histtype='step')
-    plt.title('Histogram t1-t2.  ph1,ph2 == HOOG')
-    plt.xlabel('t1-t2 [ns]')
-    plt.show()
 
-    print "t1-t2, std dev: %2.1f ns. " % np.std(dt_all)
+    grafiek = plt.figure()
+
+    grafiek11 = grafiek.add_subplot(221)
+    grafiek12 = grafiek.add_subplot(222)
+    grafiek21 = grafiek.add_subplot(223)
+    grafiek22 = grafiek.add_subplot(224)
+
+    grafiek11.hist(dt_t1hoog_t2hoog, bins2ns5, histtype='step')
+    grafiek11.set_title('ph1,ph2 == HOOG')
+    #grafiek11.set_xlabel('t1-t2 [ns]')
+
+    grafiek12.hist(dt_t1laag_t2laag, bins2ns5, histtype='step')
+    grafiek12.set_title('ph1,ph2 == LAAG')
+    #grafiek12.set_xlabel('t1-t2 [ns]')
+
+    grafiek21.hist(dt_t1laag_t2hoog, bins2ns5, histtype='step')
+    grafiek21.set_title('ph1,ph2 == LAAG, HOOG')
+    grafiek21.set_xlabel('t1-t2 [ns]')
+
+    grafiek22.hist(dt_t1hoog_t2laag, bins2ns5, histtype='step')
+    grafiek22.set_title('ph1,ph2 == HOOG, LAAG')
+    grafiek22.set_xlabel('t1-t2 [ns]')
+
+    grafiek.show()
+
+    print "t1-t2, std dev (HOOG HOOG): %2.1f ns. " % np.std(dt_t1hoog_t2hoog)
+    print "t1-t2, std dev (LAAG LAAG): %2.1f ns. " % np.std(dt_t1laag_t2laag)

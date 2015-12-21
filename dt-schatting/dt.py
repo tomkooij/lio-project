@@ -10,6 +10,9 @@ import progressbar as pb
 import matplotlib.pyplot as plt
 import gauss_fit_histogram
 
+FOKKEMA = 2.5  # spreiding op een tijdmeting uit Fokkema2012 H4.
+RESOLUTIE = FOKKEMA*np.sqrt(2)  # tijdverschil dus sigma * srt(2)
+
 progress = pb.ProgressBar(widgets=[pb.Percentage(),pb.Bar(), pb.ETA()])
 STAPPEN =  187
 
@@ -41,13 +44,13 @@ if __name__ == '__main__':
                 # waarbij de tijdsverschillen met grote kans vaker voorkomen
                 # en random "versmering" met sigma = 2.5ns
                 for item in np.arange(0, weging, 1.):
-                    dt_list.append((delta_t) + np.random.normal(0,2.5))
+                    dt_list.append((delta_t) + np.random.normal(0,RESOLUTIE))
 
     print "gem, stddev = ",np.mean(dt_list), np.std(dt_list)
 
 
     plt.figure()
-    n1, bins1, blaat = plt.hist(dt_list, histtype='step', bins=np.arange(-25.5,25.5,1.))
+    n1, bins1, blaat = plt.hist(dt_list, histtype='step', bins=np.arange(-30,30,1.))
 
     sigma_list = np.sqrt(dt_list)
     c, fitx, fity = gauss_fit_histogram.gauss_fit_histogram(n1, bins1, sigma=np.sqrt(n1))
