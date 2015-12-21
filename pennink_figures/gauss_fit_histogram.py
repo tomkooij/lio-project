@@ -59,14 +59,14 @@ def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], ve
     middle = [(bins[i]+bins[i+1])/2 for i in range(len(bins)-1)]
 
     # Least squares: scipy.optimize.curve_fit:
-    c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma)
+    c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma, absolute_sigma=True)
 
     if (verbose):
         print "exp[-0.5((x-mu)/sigma)^2]"
         print "Fit Coefficients:"
-        print c[0],c[1],abs(c[2]),c[3]
-        print "Co-variance matrix:"
-        print cov
+        print "A %.2f, mu %.2f,sigma %.2f, bg %.2f" % (c[0],c[1],abs(c[2]),c[3])
+        #print "Co-variance matrix:"
+        #print cov
 
     fit =  fit_func(middle, c[0], c[1], abs(c[2]), c[3])
 
@@ -102,8 +102,12 @@ if __name__=='__main__':
     mu = c[1]
     sigma = abs(c[2])
 
+    fitx = middle
+    fity = fit_func(fitx, c[0], c[1], abs(c[2]), c[3])
+
+
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
     plt.xlabel('pulseheight [ADC]')
-    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'random data' ], loc = 2)
+    plt.legend([r'fit: $ \mu = %.3f\  \sigma = %.3f\ $' %(mu, sigma), 'random data' ], loc = 2, bbox_to_anchor=(1,1))
     plt.show()
