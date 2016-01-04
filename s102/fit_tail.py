@@ -16,6 +16,10 @@ import math
 import tables
 from scipy.optimize import curve_fit
 
+# time walk correction function
+# fit_clas_note_02_2007.py:
+t_walk = lambda x: -4 + 22.3 / (x-20.)**0.156
+
 
 
 PLOT_TRACES = False   # download en plot traces
@@ -51,7 +55,11 @@ if __name__ == '__main__':
     ph1 = ph[:, 0]
     ph2 = ph[:, 1]
 
-    bins = np.arange(-251.25, 251.25, 7.5)  # 7.5 ns kan ook. 5ns NIET!
+    # timewalk
+    t1 = t1 - t_walk(ph1)
+    #t2 = t2 - t_walk(ph2)
+
+    bins = np.arange(-151.25, 151.25, 7.5)  # 7.5 ns kan ook. 5ns NIET!
 
     # remove -1 and -999
     # select events based on pulseheight
