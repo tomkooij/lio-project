@@ -16,9 +16,10 @@ import math
 import tables
 from scipy.optimize import curve_fit
 
+
 # time walk correction function
 # fit_clas_note_02_2007.py:
-t_walk = lambda x: -4 + 22.3 / (x-20.)**0.156
+t_walk = lambda x: -0.27 + 17.43 / (x-20.)**0.22
 
 
 
@@ -27,7 +28,7 @@ FILENAME = 's102_heel2015.h5'
 
 MIP = 150 / 0.57  # ADC =  mV/0.57
 LOW_PH = 0.5*MIP
-HIGH_PH = 1.*MIP
+HIGH_PH = 2.*MIP
 
 #
 # fit = gauss + tail + background
@@ -57,13 +58,13 @@ if __name__ == '__main__':
 
     # timewalk
     t1 = t1 - t_walk(ph1)
-    #t2 = t2 - t_walk(ph2)
+    t2 = t2 - t_walk(ph2)
 
-    bins = np.arange(-151.25, 151.25, 7.5)  # 7.5 ns kan ook. 5ns NIET!
+    bins = np.arange(-251.25, 251.25, 7.5)  # 7.5 ns kan ook. 5ns NIET!
 
     # remove -1 and -999
     # select events based on pulseheight
-    filter = (t1 >= 0) & (t2 >= 0) & (ph1 > 0) & (ph1 < LOW_PH) & (ph2 > HIGH_PH)
+    filter = (t1 >= 0) & (t2 >= 0) & (ph1 > 0) & (ph1 > 0) & (ph1 > HIGH_PH) & (ph2 > HIGH_PH)
     t1_laag = t1.compress(filter)
     t2_hoog = t2.compress(filter)
     ph1_filtered = ph1.compress(filter)
