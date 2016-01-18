@@ -12,8 +12,8 @@ from sapphire import (GroundParticlesSimulation, HiSPARCStations,
                       ReconstructESDEvents, ReconstructESDCoincidences)
 from sapphire.utils import angle_between
 
-RESULT_PATH = 'result_400_gen_16394.h5'
-CORSIKA_DATA = 'corsika.h5'
+RESULT_PATH = 'result.h5'
+#CORSIKA_DATA = 'corsika.h5'
 GRAYS = ['black', 'darkgray', 'gray', 'lightgray']
 COLORS = ['black', 'teal', 'orange', 'purple', 'cyan', 'green', 'blue', 'red',
           'gray']
@@ -153,7 +153,7 @@ def reconstruct_simulations():
             rec_events = ReconstructESDEvents(data, station_group, station,
                                               overwrite=True, progress=True)
             rec_events.prepare_output()
-            rec_events.offsets = station.detector_offsets
+            rec_events.offsets =[d.offset for d in station.detectors]
             rec_events.store_offsets()
             try:
                 rec_events.reconstruct_directions()
@@ -164,8 +164,8 @@ def reconstruct_simulations():
         rec_coins = ReconstructESDCoincidences(data, '/coincidences',
                                                overwrite=True, progress=True)
         rec_coins.prepare_output()
-        rec_coins.offsets = {station.number: [o + station.gps_offset
-                                              for o in station.detector_offsets]
+        rec_coins.offsets = {station.number: [d.offset + station.gps_offset
+                                              for d in station.detectors]
                              for station in cluster.stations}
         try:
             rec_coins.reconstruct_directions()
@@ -175,7 +175,7 @@ def reconstruct_simulations():
 
 if __name__ == '__main__':
 
-    run_simulation()
-#    reconstruct_simulations()
-#    scatter_n()
+    #run_simulation()
+    #reconstruct_simulations()
+    scatter_n()
 #    plot_reconstruction_accuracy()
