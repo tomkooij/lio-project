@@ -39,7 +39,7 @@ N = {N}
 cluster = HiSPARCStations([501, 502, 503, 504, 505, 506, 508, 509])
 
 CORSIKAFILE = '/data/hisparc/corsika/data/{seed}/corsika.h5'
-OUTPUTFILE = '/data/hisparc/tom/simruns/fotons/{seed}.h5'
+OUTPUTFILE = '/data/hisparc/tom/science_park/{seed}.h5'
 
 with tables.open_file(OUTPUTFILE, 'w') as data:
     sim = GroundParticlesGammaSimulation(CORSIKAFILE, max_r, cluster, data, '/', N, progress=False)
