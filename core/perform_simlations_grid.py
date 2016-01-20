@@ -39,11 +39,8 @@ N = {N}
 
 
 def make_grid(N_grid = 10, D_grid = 10):
-    """
-    Create a cluster object with a square grid of stations
-    (N_grid+1) x (N_grid+1) stations with a single detector each
-    D_grid = distance between each station. (Grid constant)
-    """
+    # Create a cluster object with a square grid of stations
+    
     transform = lambda x : D_grid * x - N_grid/2 * D_grid
     cluster = BaseCluster()
 
