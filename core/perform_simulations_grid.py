@@ -38,21 +38,16 @@ max_r = {max_r}
 N = {N}
 
 
-class GroundParticlesSimulationNoTrigger(GroundParticlesSimulation):
+class GroundParticlesSimulationModifiedTrigger(GroundParticlesSimulation):
     # overwrite simulate_trigger for stations with a single detector
+    #  use simulated low trigger for the single detector
     def simulate_trigger(self, detector_observables):
 
         n_detectors = len(detector_observables)
         detectors_low = sum([True for observables in detector_observables
                              if observables['n'] > 0.3])
-        detectors_high = sum([True for observables in detector_observables
-                              if observables['n'] > 0.5])
 
-        if n_detectors == 4 and (detectors_high >= 2 or detectors_low >= 3):
-            return True
-        elif n_detectors == 2 and detectors_low >= 2:
-            return True
-        elif n_detectors == 1 and detectors_low == 1:
+        if n_detectors == 1 and detectors_low == 1:
             return True
         else:
             return False
@@ -77,7 +72,7 @@ OUTPUTFILE = '/data/hisparc/tom/grid/{seed}.h5'
 cluster = make_grid(Ngrid, Dgrid)
 
 with tables.open_file(OUTPUTFILE, 'w') as data:
-    sim = GroundParticlesSimulationNoTrigger(CORSIKAFILE, max_r, cluster, data, '/', N, progress=False)
+    sim = GroundParticlesSimulationModifiedTrigger(CORSIKAFILE, max_r, cluster, data, '/', N, progress=False)
     sim.run()
     sim.finish()
 
