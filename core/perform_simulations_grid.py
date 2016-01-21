@@ -6,16 +6,16 @@ import math
 from numpy.random import choice
 
 from sapphire import CorsikaQuery
-from sapphire.qsub import check_queue, submit_job
+from sapphire.qsub import check_queue, submit_job, create_script
 from sapphire.utils import pbar
 from sapphire.simulations.detector import HiSPARCSimulation
 
 
 NUMBER_OF_JOBS = 10
 
-max_r = 200  #
-N = int(1e3)
-ENERGY_LOG10 = 17
+max_r = 100  #
+N = 1000
+ENERGY_LOG10 = 16
 
 OVERVIEW_LOCAL = '../science_park/corsika_overview.h5'
 OVERVIEW = '/data/hisparc/corsika/corsika_overview.h5'
@@ -69,7 +69,7 @@ END
 def round_to_7_5(x, base=7.5):
     return base * round(float(x)/base)
 
-def perform_simulations():
+def perform_simulations(TEST=False):
     query = CorsikaQuery(OVERVIEW)
 
     for job in range(NUMBER_OF_JOBS):
@@ -95,6 +95,7 @@ def perform_simulations():
 def perform_job(seeds, queue):
     script = SCRIPT.format(seed=seeds, N=N, max_r=max_r)
     submit_job(script, seeds, queue)
+    #print create_script(script, 'test')
 
 
 if __name__ == "__main__":
