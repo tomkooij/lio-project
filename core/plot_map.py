@@ -5,7 +5,7 @@ plot map of (simulated) cluster extracted from GroundparticlesSim result file
 import matplotlib.pyplot as plt
 import tables
 
-RESULTFILE = 'result-11x11.h5'
+RESULTFILE = 'small.h5'
 
 if __name__ == '__main__':
 
@@ -18,3 +18,11 @@ if __name__ == '__main__':
         plt.title('stations with a single detector')
         plt.scatter(x,y)
         plt.show(block=False)
+
+        recs = data.root.coincidences.reconstructions.read()
+
+        for rec in recs:
+            # figure out which station is active and plot
+            reconstructed_core = (rec['x'], rec['y'])
+            core = (rec['reference_x'], rec['reference_y'])
+            print core, reconstructed_core
