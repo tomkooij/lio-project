@@ -6,11 +6,10 @@ import tables
 import pdb
 from sapphire import ReconstructESDEvents, ReconstructESDCoincidences
 from sapphire.utils import pbar
+ 
 
-#PATHS = '/Users/arne/Datastore/cluster_efficiency/151013*.h5'
 
-
-PATHS = 'small.h5'
+PATHS = '/data/hisparc/tom/grid/5x5/*.h5'
 
 
 def reconstruct_simulations(path):
@@ -27,6 +26,7 @@ def reconstruct_simulations(path):
             # Reconstruct coincidences
             rec_coins = ReconstructESDCoincidences(data, '/coincidences',
                                                overwrite=True, progress=False)
+                                               #destination='rec_ldf', overwrite=True, progress=False)
             rec_coins.prepare_output()
             rec_coins.offsets = {station.number: [d.offset + station.gps_offset
                                               for d in station.detectors]

@@ -13,7 +13,7 @@ from sapphire.simulations.detector import HiSPARCSimulation
 
 NUMBER_OF_JOBS = 10
 
-max_r = 100  #
+max_r = 40  #
 N = 1000
 ENERGY_LOG10 = 16
 
@@ -31,7 +31,7 @@ from sapphire.clusters import BaseCluster
 
 import tables
 
-Ngrid = 10  # (n+1) x (n+1) stations with 1 detector each
+Ngrid = 4  # (n+1) x (n+1) stations with 1 detector each
 Dgrid = 10  # m   stations (grid) distance
 
 max_r = {max_r}
@@ -52,6 +52,33 @@ class GroundParticlesSimulationModifiedTrigger(GroundParticlesSimulation):
         else:
             return False
 
+    def simulate_gps(self, station_observables, shower_parameters, station):
+    # overwrite simulate_gps to set t_trigger (needed for dirrec) even if n_dectectors == 1
+
+        arrival_times = [station_observables['t%d' % id]
+                         for id in range(1, 5)
+                         if station_observables.get('n%d' % id, -1) > 0]
+
+        if len(arrival_times) == 1:
+            trigger_time = arrival_times[0]
+            
+            ext_timestamp = shower_parameters['ext_timestamp']
+            ext_timestamp += int(trigger_time + station.gps_offset +
+                                 self.simulate_gps_uncertainty())
+            timestamp = int(ext_timestamp / int(1e9))
+            nanoseconds = int(ext_timestamp % int(1e9))
+
+            gps_timestamp = {{ 'ext_timestamp': ext_timestamp,
+                             'timestamp': timestamp,
+                             'nanoseconds': nanoseconds,
+                             't_trigger': trigger_time}}
+            station_observables.update(gps_timestamp)
+
+            return station_observables
+
+        else:
+            return super(GroundParticlesSimulation, self).simulate_gps(station_observables, shower_parameters, station)
+
 
 def make_grid(N_grid = 10, D_grid = 10):
     # Create a cluster object with a square grid of stations
@@ -67,7 +94,7 @@ def make_grid(N_grid = 10, D_grid = 10):
     return cluster
 
 CORSIKAFILE = '/data/hisparc/corsika/data/{seed}/corsika.h5'
-OUTPUTFILE = '/data/hisparc/tom/grid/{seed}.h5'
+OUTPUTFILE = '/data/hisparc/tom/grid/5x5/{seed}.h5'
 
 cluster = make_grid(Ngrid, Dgrid)
 
@@ -85,7 +112,6 @@ def round_to_7_5(x, base=7.5):
     return base * round(float(x)/base)
 
 def perform_simulations(TEST=False):
-
     query = CorsikaQuery(OVERVIEW)
 
     for job in range(NUMBER_OF_JOBS):
@@ -103,15 +129,15 @@ def perform_simulations(TEST=False):
             print "/data/hisparc/corsika/data/{seeds}/corsika.h5 does not exist".format(seeds=seed)
             continue
 
-        perform_job(seed, 'long')
+        perform_job(seed, 'short')
 
     query.finish()
 
 
 def perform_job(seeds, queue):
     script = SCRIPT.format(seed=seeds, N=N, max_r=max_r)
-    submit_job(script, seeds, queue)
-    #print create_script(script, 'test')
+    #submit_job(script, seeds, queue)
+    print create_script(script, 'test')
 
 
 if __name__ == "__main__":
@@ -119,5 +145,4 @@ if __name__ == "__main__":
         # local test
         OVERVIEW = OVERVIEW_LOCAL
 
-    print "Do not run! t_trigger broken... See ...5x5.py"
-    #perform_simulations()
+    perform_simulations()
