@@ -47,15 +47,17 @@ def plot_map_basemap(x,y):
 def plot_map_OSM(x,y,numbers):
     """
     plot stations on top of OSM tiles
-    TODO: fix zoomlevel
     """
-    plt.figure()
-    map = smopy.Map((min(y), min(x)), (max(y),max(x)), z=17, margin=.1)
+
+    assert smopy.__version__ == '0.0.3-arne', 'Wrong smopy!'  # this REALLY needs fixing
+
+    map = smopy.Map((min(y), min(x)), (max(y),max(x)), margin=.1)
     ax = map.show_mpl(figsize=(8, 6))
     for px,py,station in zip(x,y,numbers):
         y, x = map.to_pixels(py, px)
         ax.plot(y, x, 'or', ms=10, mew=2)
         ax.text(y, x, str(station))
+    #plt.savefig('science_park.png', dpi=200)
     plt.show()
 
 def plot_map(x,y):
@@ -74,8 +76,10 @@ if __name__ == '__main__':
     with open('locations.json') as f:
         station_locations = json.load(f)
 
-    cluster = Network().station_numbers(subcluster=500)
 
+    cluster = Network().station_numbers(subcluster=500)
+    #cluster = [102,104,105]
+    #cluster = [101,102,103,104,105]
     y = [station['latitude'] for station in station_locations if station['number'] in cluster]
     x = [station['longitude'] for station in station_locations if station['number'] in cluster]
 
