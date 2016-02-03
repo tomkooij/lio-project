@@ -11,11 +11,15 @@ def get_station_locations(stations):
 
     for station in pbar(stations):
         try:
-            loc = Station(station,allow_stale=False).location()
-            loc['number'] = station
-            station_locations.append(loc)
+            loc = Station(station).location()
+
         except:
-            print 'API call for station %d failed. Skipping.' % station
+            print 'API call for station %d failed. Setting to (0,0).' % station
+            loc['latitude'] = 0.0
+            loc['longitude'] = 0.0
+
+        loc['number'] = station
+        station_locations.append(loc)
 
     return station_locations
 
