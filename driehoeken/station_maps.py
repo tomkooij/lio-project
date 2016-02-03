@@ -56,7 +56,6 @@ def plot_station_map_OSM(stations):
     lat = [l['latitude'] for l in loc]
     lon = [l['longitude'] for l in loc]
     numbers = [l['number'] for l in loc]
-    print loc, lat, lon, numbers
     plot_map_OSM(lat, lon, numbers)
 
 def plot_map_OSM(lat, lon, numbers):
@@ -93,9 +92,5 @@ if __name__ == '__main__':
 
 
     cluster = Network().station_numbers(subcluster=500)
-    #cluster = [102,104,105]
-    #cluster = [101,102,103,104,105]
-    y = [station['latitude'] for station in station_locations if station['number'] in cluster]
-    x = [station['longitude'] for station in station_locations if station['number'] in cluster]
 
-    plot_map_OSM(x,y,cluster)
+    plot_station_map_OSM(cluster)
