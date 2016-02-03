@@ -1,5 +1,5 @@
 import json
-from station_maps import plot_map_OSM
+from station_maps import plot_station_map_OSM
 from itertools import combinations
 from sapphire.utils import pbar
 from math import radians, sqrt, sin, cos, atan2
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         stations = Network().station_numbers(cluster=int(cluster['number']))
         print "%d stations in cluster." % len(stations)
         for s1,s2,s3 in pbar(combinations(stations, 3)):
-            d, r2, r3 = check_triangle(latlon[s1], latlon[s2], latlon[s3])
+            d, r2, r3 = check_triangle(latlon[s1], latlon[s2], latlon[s3], max_ratio=10.)
             if d is not None:
                 print "FOUND: %d %d %d. max_d = %4.f m. r2/r1 = %.2f r3/r1 = %.2f" % (s1,s2,s3, d, r2, r3)
-                #plot_map_OSM([s1,s2,s3])
+                #plot_station_map_OSM([s1,s2,s3])
