@@ -7,21 +7,19 @@ from mpl_toolkits.basemap import Basemap
 
 def get_station_locations(stations):
     """ get station locations from API add station id """
-    station_locations = []
+    return [get_station_location(station) for station in stations]
 
-    for station in pbar(stations):
-        try:
-            loc = Station(station).location()
+def get_station_location(station):
+    """ get station location from API add station id """
+    try:
+        loc = Station(station).location()
+    except:
+        print 'API call for station %d failed. Setting to (0,0).' % station
+        loc['latitude'] = 0.0
+        loc['longitude'] = 0.0
 
-        except:
-            print 'API call for station %d failed. Setting to (0,0).' % station
-            loc['latitude'] = 0.0
-            loc['longitude'] = 0.0
-
-        loc['number'] = station
-        station_locations.append(loc)
-
-    return station_locations
+    loc['number'] = station
+    return loc
 
 def plot_map_basemap(x,y):
     """
@@ -48,19 +46,32 @@ def plot_map_basemap(x,y):
     map.scatter(xx,yy)
     plt.show()
 
-def plot_map_OSM(x,y,numbers):
+def plot_station_map_OSM(stations):
+    """
+    plot a map with OSM tile background
+    :param: stations: list of tuples (lat, lon, marker)
+    """
+
+    loc = [get_station_location(station) for station in stations]
+    lat = [loc[station]['latitude'] for station in range(len(stations))] #ouch
+    lon = [loc[station]['longitude'] for station in range(len(stations))]
+    numbers = [loc[station]['number'] for station in range(len(stations))]
+    print loc, lat, lon, numbers
+    plot_map_OSM(lat, lon, numbers)
+
+def plot_map_OSM(lat, lon, numbers):
     """
     plot stations on top of OSM tiles
     """
 
     assert smopy.__version__ == '0.0.3-arne', 'Wrong smopy!'  # this REALLY needs fixing
 
-    map = smopy.Map((min(y), min(x)), (max(y),max(x)), margin=.1)
+    map = smopy.Map((min(lat), min(lon)), (max(lat),max(lon)), margin=.1)
     ax = map.show_mpl(figsize=(8, 6))
-    for px,py,station in zip(x,y,numbers):
-        y, x = map.to_pixels(py, px)
-        ax.plot(y, x, 'or', ms=10, mew=2)
-        ax.text(y, x, str(station))
+    for px,py, station in zip(lat, lon, numbers):
+        x, y = map.to_pixels(px, py)
+        ax.plot(x, y, 'or', ms=10, mew=2)
+        ax.text(x, y, str(station))
     #plt.savefig('science_park.png', dpi=200)
     plt.show()
 
