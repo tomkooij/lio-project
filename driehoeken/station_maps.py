@@ -53,9 +53,9 @@ def plot_station_map_OSM(stations):
     """
 
     loc = [get_station_location(station) for station in stations]
-    lat = [loc[station]['latitude'] for station in range(len(stations))] #ouch
-    lon = [loc[station]['longitude'] for station in range(len(stations))]
-    numbers = [loc[station]['number'] for station in range(len(stations))]
+    lat = [l['latitude'] for l in loc]
+    lon = [l['longitude'] for l in loc]
+    numbers = [l['number'] for l in loc]
     print loc, lat, lon, numbers
     plot_map_OSM(lat, lon, numbers)
 
