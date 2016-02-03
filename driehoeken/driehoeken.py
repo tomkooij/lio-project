@@ -27,7 +27,7 @@ def geocalc((lat1, lon1), (lat2, lon2)):
     c = atan2(y, x)
     return EARTH_R * c
 
-def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1000):
+def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1000, max_ratio=4.):
 
     leg1 = geocalc((lat1,lon1),(lat2,lon2))
     if leg1 > max_distance:
@@ -43,14 +43,13 @@ def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1000):
     q = leg1/leg3
     r = leg2/leg3
 
-    #print "legs: ", leg1, leg2, leg3
-    #print "pqr:", p, q, r
 
     for x in [p,q,r]:
-        if x > 1.25 or x < 0.8:
+        if x > max_ratio or x < 1./max_ratio:
             return (None, None, None)
 
-    return (leg1, leg2, leg3)
+    legs = sorted([leg1, leg2, leg3],reverse=True)
+    return (legs[0], legs[1]/legs[0], legs[2]/legs[0])
 
 if __name__ == '__main__':
     with open('locations.json') as f:
@@ -60,10 +59,14 @@ if __name__ == '__main__':
     for s in station_locations:
         latlon[int(s['number'])] = (float(s['latitude']), float(s['longitude']))
 
-    cluster = Network().station_numbers(cluster=3000) #subcluster=500)
+    clusters = Network().clusters()
 
-    for s1,s2,s3 in pbar(combinations(cluster, 3)):
-        leg1, leg2, leg3 = check_triangle(latlon[s1], latlon[s2], latlon[s3])
-        if leg1 is not None:
-            print "FOUND!", s1,s2,s3, leg1, leg2, leg3
-            #plot_map_OSM([s1,s2,s3])
+    for cluster in clusters:
+        print "Cluster %s." % cluster['name']
+        stations = Network().station_numbers(cluster=int(cluster['number']))
+        print "%d stations in cluster." % len(stations)
+        for s1,s2,s3 in pbar(combinations(stations, 3)):
+            d, r2, r3 = check_triangle(latlon[s1], latlon[s2], latlon[s3])
+            if d is not None:
+                print "FOUND: %d %d %d. max_d = %4.f m. r2/r1 = %.2f r3/r1 = %.2f" % (s1,s2,s3, d, r2, r3)
+                #plot_map_OSM([s1,s2,s3])
