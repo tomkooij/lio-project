@@ -21,7 +21,7 @@ def get_station_location(station):
     return loc
 
 
-def plot_station_map_OSM(stations):
+def plot_station_map_OSM(stations, filename=None):
     """
     plot a map with OSM tile background
     :param: stations: list of tuples (lat, lon, marker)
@@ -32,7 +32,10 @@ def plot_station_map_OSM(stations):
     lon = [l['longitude'] for l in loc]
     numbers = [l['number'] for l in loc]
     plot_map_OSM(lat, lon, numbers)
-
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
 
 def plot_map_OSM(lat, lon, numbers):
     """
@@ -48,8 +51,6 @@ def plot_map_OSM(lat, lon, numbers):
         x, y = map.to_pixels(px, py)
         ax.plot(x, y, 'or', ms=10, mew=2)
         ax.text(x, y, str(station))
-    # plt.savefig('science_park.png', dpi=200)
-    plt.show()
 
 
 if __name__ == '__main__':

@@ -51,12 +51,12 @@ import matplotlib.pyplot as plt
 # Constants
 # -----------------------------------------------------------------------------
 __version__ = '0.0.3-arne'
-TILE_SIZE = 512
+TILE_SIZE = 256  # 512 for cartoDB
 MAXTILES = 25
 
 TILE_SERVER_LABEL = "http://tile.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
-TILE_SERVER = "http://tile.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png"
-
+#TILE_SERVER = "http://tile.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png"
+TILE_SERVER = "http://tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 # -----------------------------------------------------------------------------
 # OSM functions
