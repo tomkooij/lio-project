@@ -3,7 +3,7 @@ import numpy as np
 from station_maps import plot_station_map_OSM, get_station_locations
 from itertools import combinations
 from math import radians, degrees, sqrt, sin, cos, acos, atan2, pi
-from sapphire import Network
+from sapphire import Network, Station
 from os import path
 import cPickle as pickle
 import pandas as pd
@@ -135,20 +135,24 @@ if __name__ == '__main__':
             stations = [x for x in stations if x not in [507,510]]#range(501,512)]
             print stations
 
+        if 20001 in stations:
+            print "removing Aarhus --> GPS != ok"
+            stations = [x for x in stations if x not in range(20001,20004)]
+
         print "%d stations in cluster." % len(stations)
 
         for s1,s2,s3 in combinations(stations, 3):
-            d, r, a = check_triangle(latlon[s1], latlon[s2], latlon[s3])
+            d, r, a = check_triangle(latlon[s1], latlon[s2], latlon[s3], min_angle=radians(15))
 
             if d is not None:
                 print "FOUND: %d %d %d. d = %4.1f max ratio = %.2f min angle = %.2f" % (s1, s2, s3, d, r, degrees(a))
                 days = get_number_of_hours_with_data([s1,s2,s3], stations_with_events) / 24.
-                driehoeken.append((int(d), int(degrees(a)), int(days),(s1,s2,s3)))
+                driehoeken.append((int(d), int(degrees(a)), int(days), (s1,s2,s3), Station(s1).subcluster()))
 
                 filename = 'driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, degrees(a))
                 #if not path.exists(filename):
                 #    plot_station_map_OSM([s1,s2,s3], filename=filename)
 
     driehoeken.sort()
-    df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations'])
+    df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations', 'subcluster'])
     print df
