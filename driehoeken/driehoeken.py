@@ -5,6 +5,8 @@ from itertools import combinations
 from math import radians, degrees, sqrt, sin, cos, acos, atan2, pi
 from sapphire import Network
 from os import path
+import cPickle as pickle
+import pandas as pd
 
 
 def geocalc((lat1, lon1), (lat2, lon2)):
@@ -68,10 +70,11 @@ def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1500, max_r
     leg1, leg2, leg3 = sorted([leg1, leg2, leg3], reverse=True)
     return (leg1, leg3/leg1, angle)
 
+
 def check(s1,s2,s3):
     """
     check a tuple of stations (for interactive use)
-    >>> check(501, 506, 509) 
+    >>> check(501, 506, 509)
     """
 
     stations = [s1, s2, s3]
@@ -82,13 +85,40 @@ def check(s1,s2,s3):
     return check_triangle(latlon[s1], latlon[s2], latlon[s3])
 
 
+def get_number_of_hours_with_data(stations, stations_with_events):
+    """
+    adapted from topaz 150805_n_active
+    returns the number of HOURS all stations have simultaneous data/events
+
+    :param stations: a list of station ids
+    :param stations_with_events: a dict of tuples (see: get_data.py)
+    """
+    data = { key: stations_with_events[key] for key in stations}
+
+    first = min(values['timestamp'][0] for values in data.values())
+    last = max(values['timestamp'][-1] for values in data.values())
+
+    is_active = np.zeros((len(data.keys()), (last - first) / 3600 + 1))
+    all_active = np.array(len(is_active[0]) * [True])
+
+    for i, sn in enumerate(data.keys()):
+        start = (data[sn]['timestamp'][0] - first) / 3600
+        end = start + len(data[sn])
+        is_active[i, start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
+        all_active = all_active & (is_active[i]==1.)
+
+    return sum(all_active)
+
+
 if __name__ == '__main__':
     with open('locations.json') as f:
         station_locations = json.load(f)
-
     latlon = {}  # dict for fast lookups
     for s in station_locations:
         latlon[int(s['number'])] = (float(s['latitude']), float(s['longitude']))
+
+    with open('stations_with_events', 'rb') as f:
+        stations_with_events = pickle.load(f)
 
     clusters = Network().clusters()
 
@@ -112,8 +142,13 @@ if __name__ == '__main__':
 
             if d is not None:
                 print "FOUND: %d %d %d. d = %4.1f max ratio = %.2f min angle = %.2f" % (s1, s2, s3, d, r, degrees(a))
-                driehoeken.append((int(d),int(degrees(a)),(s1,s2,s3)))
+                days = get_number_of_hours_with_data([s1,s2,s3], stations_with_events) / 24.
+                driehoeken.append((int(d), int(degrees(a)), int(days),(s1,s2,s3)))
 
                 filename = 'driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, degrees(a))
                 #if not path.exists(filename):
                 #    plot_station_map_OSM([s1,s2,s3], filename=filename)
+
+    driehoeken.sort()
+    df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations'])
+    print df
