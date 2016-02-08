@@ -74,3 +74,4 @@ corsika/output'
 corsika/output100k
 corsika/output_exp
 *.png
+Datastore/*
