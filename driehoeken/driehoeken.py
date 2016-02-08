@@ -83,6 +83,9 @@ if __name__ == '__main__':
         print "Cluster %s." % cluster['name']
         stations = Network().station_numbers(cluster=int(cluster['number']))
 
+        if 501 in stations:
+            print "removing SPA"
+            stations = [x for x in stations if x not in range(501,512)]
         print "%d stations in cluster." % len(stations)
         for s1,s2,s3 in combinations(stations, 3):
             d, r2, r3 = check_triangle(latlon[s1], latlon[s2], latlon[s3], max_ratio=5., min_angle=pi/4)
