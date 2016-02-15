@@ -38,12 +38,12 @@ def Iyono(x, A, B):
     return A*np.sin(x)*np.exp(-B*((1/np.cos(x)) - 1))
 
 
-def fit_zenith(zenith):
+def fit_zenith(zenith, nbins=10):
     """ plot zenith histogram and plot fit """
 
     zenith = zenith[zenith < 0.8]
     plt.figure()
-    n, bins, patches = plt.hist(zenith, bins=10, histtype='step', color='b')
+    n, bins, patches = plt.hist(zenith, bins=nbins, histtype='step', color='b')
     middle = (bins[:-1] + bins[1:])/2.
     sigma = np.sqrt(n)
     popt, pcov = curve_fit(Iyono, middle, n)
@@ -51,7 +51,9 @@ def fit_zenith(zenith):
     x = np.linspace(0, 1., num=100)
     plt.plot(x,  Iyono(x, *popt), color='r')
 
-    plt.legend(['zenith angles', 'fit: A=%.1f B=%.1f' %(popt[0], popt[1])])
+    plt.title('Zenith angle distribution')
+    plt.xlabel('zenith angle (rad)')
+    plt.legend(['fit: B=%.2f' %(popt[1]),'counts'])
     plt.show()
 
     n_fit = Iyono(middle, *popt)
@@ -72,4 +74,5 @@ if __name__ == '__main__':
         zenith = zenith[~np.isnan(zenith)]
         azimuth = azimuth[~np.isnan(azimuth)]
 
-    print fit_zenith(zenith)
+    for nbins in [10, 15, 20]:
+        print "%d: %.1f" % (nbins, fit_zenith(zenith, nbins=nbins))
