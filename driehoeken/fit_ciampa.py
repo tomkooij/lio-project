@@ -37,8 +37,28 @@ def Iyono(x, A, B):
     
     return A*np.sin(x)*np.exp(-B*((1/np.cos(x)) - 1))
 
-
 def fit_zenith(zenith, nbins=10):
+    """ 
+    fit zenith distribution
+    return "B" parameter and Chi-squared error
+    """
+
+    zenith = zenith[zenith < 0.8]
+    n, bins = np.histogram(zenith, bins=nbins)
+    middle = (bins[:-1] + bins[1:])/2.
+    sigma = np.sqrt(n)
+    try:
+        popt, pcov = curve_fit(Iyono, middle, n)
+    except ValueError:
+        return None, None
+
+    n_fit = Iyono(middle, *popt)
+    n_dof = len(popt)
+    chi_squared = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
+
+    return popt[1], chi_squared
+
+def plot_zenith(zenith, nbins=10):
     """ plot zenith histogram and plot fit """
 
     zenith = zenith[zenith < 0.8]
@@ -74,5 +94,7 @@ if __name__ == '__main__':
         zenith = zenith[~np.isnan(zenith)]
         azimuth = azimuth[~np.isnan(azimuth)]
 
-    for nbins in [10, 15, 20]:
-        print "%d: %.1f" % (nbins, fit_zenith(zenith, nbins=nbins))
+    results = {}
+    for nbins in range(5, 50): 
+        results[nbins] = fit_zenith(zenith, nbins=nbins)
+        
