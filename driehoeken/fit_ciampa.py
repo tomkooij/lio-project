@@ -40,7 +40,7 @@ def Iyono(x, A, B):
 def fit_zenith(zenith, nbins=10):
     """ 
     fit zenith distribution
-    return "B" parameter and Chi-squared error
+    return "B" parameter and reduced Chi-squared error
     """
 
     zenith = zenith[zenith < 0.8]
@@ -53,10 +53,10 @@ def fit_zenith(zenith, nbins=10):
         return None, None
 
     n_fit = Iyono(middle, *popt)
-    n_dof = len(popt)
-    chi_squared = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
+    n_dof = len(n)-len(popt)
+    reduced_chi_square = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
 
-    return popt[1], chi_squared
+    return popt[1], reduced_chi_square
 
 def plot_zenith(zenith, nbins=10):
     """ plot zenith histogram and plot fit """
@@ -76,12 +76,6 @@ def plot_zenith(zenith, nbins=10):
     plt.legend(['fit: B=%.2f' %(popt[1]),'counts'])
     plt.show()
 
-    n_fit = Iyono(middle, *popt)
-    n_dof = len(popt)
-    chi_squared = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
-
-    return chi_squared
-    #returnn, n_fit, sigma  
 
 if __name__ == '__main__':
     with tables.open_file(FILENAME, 'a') as data:
@@ -97,4 +91,7 @@ if __name__ == '__main__':
     results = {}
     for nbins in range(5, 50): 
         results[nbins] = fit_zenith(zenith, nbins=nbins)
-        
+    #results = sorted(results.items(), key=lambda x: x[1][1])   
+    nbins, vals = results.items()
+    
+
