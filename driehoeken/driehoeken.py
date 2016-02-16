@@ -128,7 +128,7 @@ if __name__ == '__main__':
         print "Cluster %s." % cluster['name']
         stations = Network().station_numbers(cluster=int(cluster['number']))
 
-        if 501 in stations:
+        if 0: #501 in stations:
             print "removing SPA"
             stations = [x for x in stations if x not in range(501,512)]
         if 501 in stations:
