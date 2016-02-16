@@ -91,19 +91,21 @@ def plot_zenith(zenith, nbins=10, fitfunc=Ciampa):
     plt.legend(['fit: C=%.2f' %(popt[1]),'counts'])
     plt.show()
 
+def get_zenith(filename, stations):
+    """ open hdf5 filename. Read or reconstruct directions. Return zenith angles """
 
-if __name__ == '__main__':
-    with tables.open_file(FILENAME, 'a') as data:
-        if not CountReconstructedDirections(data): 
+    with tables.open_file(filename, 'a') as data:
+        if not CountReconstructedDirections(data):
             rec = DirectionsOnly(data, overwrite=True)
-            rec.reconstruct_and_store(STATIONS)
+            rec.reconstruct_and_store(stations)
 
         zenith = data.root.coincidences.reconstructions.col('zenith')
-        #azimuth = data.root.coincidences.reconstructions.col('azimuth')
         zenith = zenith[~np.isnan(zenith)]
-        #azimuth = azimuth[~np.isnan(azimuth)]
 
-    results = {}
+    return zenith
+
+if __name__ == '__main__':
+    zenith = get_zenith(FILENAME, STATIONS)
     #for nbins in range(5, 50): 
     #    results[nbins] = fit_zenith(zenith, nbins=nbins)
     print fit_zenith(zenith, nbins=20, fitfunc=Ciampa)
