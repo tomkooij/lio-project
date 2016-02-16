@@ -6,10 +6,10 @@ from scipy.optimize import curve_fit
 
 FILENAME = 'zaanstad_102_104_105.h5'
 STATIONS = [102, 104, 105]
-FILENAME = 'spa_501_504_506.h5'
-STATIONS = [501, 504, 506]
-FILENAME = 'adam_2_22_23.h5'
-STATIONS =  [2, 22, 23]
+#FILENAME = 'spa_501_504_506.h5'
+#STATIONS = [501, 504, 506]
+#FILENAME = 'adam_2_22_23.h5'
+#STATIONS =  [2, 22, 23]
 
 class DirectionsOnly(ReconstructESDCoincidences):
     def reconstruct_and_store(self, station_numbers=None):
@@ -38,14 +38,20 @@ def CountReconstructedDirections(data):
 def Iyono(x, A, B):
     """ Iyono 2007: zenith angle distribution """
 
-    return A*np.sin(x)*np.exp(-B*((1/np.cos(x)) - 1))
+    # celestial solid angle: dOmega = sin(theta)*dtheta*dphi
+    # effective area of detector: dA = cos(theta)*dtheta*dphi
+    geometry = np.sin(x)*np.cos(x)
+    return A * geometry * np.exp(-B*((1/np.cos(x)) - 1))
 
 def Ciampa(x, A, C, D):
     """ Ciampa 1998: zenith angle distribution """
 
-    return A*np.sin(x)*np.exp(C *(1/np.cos(x)) - D)
+    # celestial solid angle: dOmega = sin(theta)*dtheta*dphi
+    # effective area of detector: dA = cos(theta)*dtheta*dphi
+    geometry = np.sin(x)*np.cos(x)
+    return A * geometry * np.exp(C *(1/np.cos(x)) - D)
 
-def fit_zenith(zenith, nbins=10):
+def fit_zenith(zenith, nbins=10, fitfunc=Ciampa):
     """
     fit zenith distribution
     return "B" parameter and reduced Chi-squared error
@@ -56,17 +62,17 @@ def fit_zenith(zenith, nbins=10):
     middle = (bins[:-1] + bins[1:])/2.
     sigma = np.sqrt(n)
     try:
-        popt, pcov = curve_fit(Iyono, middle, n)
+        popt, pcov = curve_fit(fitfunc, middle, n)
     except ValueError:
         return None, None
 
-    n_fit = Iyono(middle, *popt)
+    n_fit = fitfunc(middle, *popt)
     n_dof = len(n)-len(popt)
     reduced_chi_square = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
 
     return popt[1], reduced_chi_square
 
-def plot_zenith(zenith, nbins=10):
+def plot_zenith(zenith, nbins=10, fitfunc=Ciampa):
     """ plot zenith histogram and plot fit """
 
     zenith = zenith[zenith < 0.8]
@@ -74,10 +80,11 @@ def plot_zenith(zenith, nbins=10):
     n, bins, patches = plt.hist(zenith, bins=nbins, histtype='step', color='b')
     middle = (bins[:-1] + bins[1:])/2.
     sigma = np.sqrt(n)
-    popt, pcov = curve_fit(Ciampa, middle, n)
+    popt, pcov = curve_fit(fitfunc, middle, n)
+    print popt
     plt.errorbar(middle, n, yerr=sigma, fmt='o',  color= 'b')
     x = np.linspace(0, 1., num=100)
-    plt.plot(x,  Ciampa(x, *popt), color='r')
+    plt.plot(x,  fitfunc(x, *popt), color='r')
 
     plt.title('Zenith angle distribution')
     plt.xlabel('zenith angle (rad)')
@@ -97,7 +104,10 @@ if __name__ == '__main__':
         #azimuth = azimuth[~np.isnan(azimuth)]
 
     results = {}
-    for nbins in range(5, 50): 
-        results[nbins] = fit_zenith(zenith, nbins=nbins)
+    #for nbins in range(5, 50): 
+    #    results[nbins] = fit_zenith(zenith, nbins=nbins)
+    print fit_zenith(zenith, nbins=20, fitfunc=Ciampa)
+    print fit_zenith(zenith, nbins=20, fitfunc=Iyono)
+
     plot_zenith(zenith)
 
