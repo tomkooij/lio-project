@@ -95,6 +95,13 @@ def get_zenith(filename, stations):
     """ open hdf5 filename. Read or reconstruct directions. Return zenith angles """
 
     with tables.open_file(filename, 'a') as data:
+        try:
+            n = len(data.root.coincidences.coincidences)
+            if n == 0:
+                return None
+        except:
+            return None
+
         if not CountReconstructedDirections(data):
             rec = DirectionsOnly(data, overwrite=True)
             rec.reconstruct_and_store(stations)
