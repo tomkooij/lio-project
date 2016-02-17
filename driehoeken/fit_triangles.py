@@ -1,11 +1,13 @@
-import json
+import pandas as pd
 import tables
 from fit_ciampa import get_zenith, fit_zenith
 from sapphire import download_coincidences
 from datetime import datetime
+from ast import literal_eval
 
-DATASTORE = 'd:/Datastore/driehoeken/'
-#DATASTORE = '/data/hisparc/tom/driehoeken/'
+
+#DATASTORE = 'd:/Datastore/driehoeken/'
+DATASTORE = '/data/hisparc/tom/driehoeken/'
 
 
 def get_data(filename, stations, start, end):
@@ -18,24 +20,31 @@ def get_data(filename, stations, start, end):
 
 
 if __name__ == '__main__':
-    with open('driehoeken.json') as f:
-        d = json.load(f)
+    df = pd.read_csv('driehoeken.csv')
+    
+    all_triangles = []    
+    for s in df['stations']:
+        all_triangles.append(list(literal_eval(s)))
+    #print all_triangles
+    #assert False
 
-        start = datetime(2015,1,1)
-        end = datetime(2015,12,31)
+    start = datetime(2015,1,1)
+    end = datetime(2015,12,31)
 
-        results = {}
+    results = {}
 
-        for stations in d['stations'].values():
-            print stations
+    for stations in all_triangles:
+        print stations
 
-            s1, s2, s3 = stations
-            filename = DATASTORE+'2015full_%d_%d_%d.h5' % (s1, s2, s3)
+        s1, s2, s3 = stations
+        filename = DATASTORE+'2015full_%d_%d_%d.h5' % (s1, s2, s3)
+        print filename
 
-            if 1: # check file exist, events exist... bla
-                get_data(filename, stations, start, end)
+        if 1: # check file exist, events exist... bla
+            get_data(filename, stations, start, end)
 
-            zenith = get_zenith(filename, stations)
+        zenith = get_zenith(filename, stations)
+        if zenith is not None:
             results[tuple(stations)] = (len(zenith), fit_zenith(zenith, nbins=15))
 
-        print results
+    print results
