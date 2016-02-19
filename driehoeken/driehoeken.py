@@ -99,16 +99,17 @@ def get_number_of_hours_with_data(stations, stations_with_events):
     first = min(values['timestamp'][0] for values in data.values())
     last = max(values['timestamp'][-1] for values in data.values())
 
-    is_active = np.zeros((len(data.keys()), (last - first) / 3600 + 1))
-    all_active = np.array(len(is_active[0]) * [True])
+    is_active = np.zeros((last - first) / 3600 + 1)
+    all_active = np.ones(len(is_active))
 
-    for i, sn in enumerate(data.keys()):
+    for sn in data.keys():
         start = (data[sn]['timestamp'][0] - first) / 3600
         end = start + len(data[sn])
-        is_active[i, start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
-        all_active = all_active & (is_active[i]==1.)
+        is_active[start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
+        #pdb.set_trace()
+        all_active = logical_and(all_active, is_active)
 
-    return sum(all_active)
+    return np.count_nonzero(all_active)
 
 
 if __name__ == '__main__':
@@ -152,8 +153,11 @@ if __name__ == '__main__':
 
                 filename = 'maps\driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, degrees(a))
                 if not path.exists(filename):
-                    plot_station_map_OSM([s1,s2,s3], filename=filename)
+                    pass
+                    #plot_station_map_OSM([s1,s2,s3], filename=filename)
 
     driehoeken.sort()
     df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations', 'subcluster'])
+    store = pd.HDF5Store('driehoeken.h5')
+    store['driehoeken'] = df
     print df[(df['data days'] > 0) & (df['min angle'] > 30)]
