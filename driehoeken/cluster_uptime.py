@@ -26,8 +26,8 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
         data[sn] = get_eventtime(sn)
 
     if start is None:
-        first = min(values['timestamp'][0] for values in data.values())
-        last = max(values['timestamp'][-1] for values in data.values())
+        first = int(min(values['timestamp'][0] for values in data.values()))
+        last = int(max(values['timestamp'][-1] for values in data.values()))
     else:
         # do some sanity checks
         pass
@@ -72,7 +72,7 @@ def get_eventtime(sn):
        warnings.warn('%d not on disk. Downloading eventtime (slow)' % sn)
        urllib.urlretrieve(BASE % sn, path)
 
-    return np.genfromtxt(path, delimiter='\t', dtype=None, names=['timestamp', 'counts'])
+    return np.genfromtxt(path, delimiter='\t', names=['timestamp', 'counts'])
 
 
 if __name__ == "__main__":
