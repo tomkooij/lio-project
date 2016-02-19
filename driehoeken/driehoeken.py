@@ -107,7 +107,7 @@ def get_number_of_hours_with_data(stations, stations_with_events):
         end = start + len(data[sn])
         is_active[start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
         #pdb.set_trace()
-        all_active = logical_and(all_active, is_active)
+        all_active = np.logical_and(all_active, is_active)
 
     return np.count_nonzero(all_active)
 
@@ -158,6 +158,4 @@ if __name__ == '__main__':
 
     driehoeken.sort()
     df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations', 'subcluster'])
-    store = pd.HDF5Store('driehoeken.h5')
-    store['driehoeken'] = df
     print df[(df['data days'] > 0) & (df['min angle'] > 30)]
