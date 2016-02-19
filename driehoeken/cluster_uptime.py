@@ -72,7 +72,7 @@ def get_eventtime(sn):
        warnings.warn('%d not on disk. Downloading eventtime (slow)' % sn)
        urllib.urlretrieve(BASE % sn, path)
 
-    return np.genfromtxt(path, delimiter='\t', names=['timestamp', 'counts'])
+    return np.genfromtxt(path, delimiter='\t', dtype=np.uint32, names=['timestamp', 'counts'])
 
 
 if __name__ == "__main__":
