@@ -5,7 +5,7 @@ from itertools import combinations
 from math import radians, degrees, sqrt, sin, cos, acos, atan2, pi
 from sapphire import Network, Station
 from os import path
-import cPickle as pickle
+from cluster_uptime import get_number_of_hours_with_data
 import pandas as pd
 
 
@@ -85,31 +85,6 @@ def check(s1,s2,s3):
     return check_triangle(latlon[s1], latlon[s2], latlon[s3])
 
 
-def get_number_of_hours_with_data(stations, stations_with_events):
-    """
-    adapted from topaz 150805_n_active
-    returns the number of HOURS all stations have simultaneous data/events
-
-    :param stations: a list of station ids
-    :param stations_with_events: a dict of tuples (see: get_data.py)
-    :returns: number of hours with simultaneous data
-    """
-    data = { key: stations_with_events[key] for key in stations }
-
-    first = min(values['timestamp'][0] for values in data.values())
-    last = max(values['timestamp'][-1] for values in data.values())
-
-    is_active = np.zeros((last - first) / 3600 + 1)
-    all_active = np.ones(len(is_active))
-
-    for sn in data.keys():
-        start = (data[sn]['timestamp'][0] - first) / 3600
-        end = start + len(data[sn])
-        is_active[start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
-        #pdb.set_trace()
-        all_active = np.logical_and(all_active, is_active)
-
-    return np.count_nonzero(all_active)
 
 
 if __name__ == '__main__':
@@ -118,9 +93,6 @@ if __name__ == '__main__':
     latlon = {}  # dict for fast lookups
     for s in station_locations:
         latlon[int(s['number'])] = (float(s['latitude']), float(s['longitude']))
-
-    with open('stations_with_events', 'rb') as f:
-        stations_with_events = pickle.load(f)
 
     clusters = Network().clusters()
 
@@ -148,7 +120,7 @@ if __name__ == '__main__':
 
             if d is not None:
                 print "FOUND: %d %d %d. d = %4.1f max ratio = %.2f min angle = %.2f" % (s1, s2, s3, d, r, degrees(a))
-                days = get_number_of_hours_with_data([s1,s2,s3], stations_with_events) / 24.
+                days = get_number_of_hours_with_data([s1,s2,s3]) / 24.
                 driehoeken.append((int(d), int(degrees(a)), int(days), (s1,s2,s3), Station(s1).subcluster()))
 
                 filename = 'maps\driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, degrees(a))
