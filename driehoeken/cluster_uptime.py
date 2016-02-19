@@ -7,10 +7,18 @@ import functools
 import os
 import urllib
 import numpy as np
+import datetime
+from sapphire.transformations.clock import datetime_to_gps
 
 PATH = '../Datastore/publicdb_csv/eventtime/'
 BASE = 'http://data.hisparc.nl/show/source/eventtime/%d/'
 
+def process_time(time):
+    if type(time)  == int:
+        return time
+    if type(time) == datetime.datetime:
+        return datetime_to_gps(time)
+    raise RuntimeError('Unable to parse time: ', time)
 
 def get_number_of_hours_with_data(stations, start=None, end=None):
     """
@@ -25,15 +33,21 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
     for sn in stations:
         data[sn] = get_eventtime(sn)
 
-    if start is None:
-        first = int(min(values['timestamp'][0] for values in data.values()))
-        last = int(max(values['timestamp'][-1] for values in data.values()))
-    else:
-        # do some sanity checks
-        pass
+    first = min(values['timestamp'][0] for values in data.values())
+    last = max(values['timestamp'][-1] for values in data.values())
 
     is_active = np.zeros((last - first) / 3600 + 1)
     all_active = np.ones(len(is_active))
+
+    if start is not None:
+        start_index = max(0, process_time(start) - first) / 3600
+    else:
+        start_index = 0
+
+    if end is not None:
+        end_index = min(last, process_time(end) - first) / 3600
+    else:
+        end_index = len(all_active)
 
     for sn in data.keys():
         start = (data[sn]['timestamp'][0] - first) / 3600
@@ -42,7 +56,7 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
         #pdb.set_trace()
         all_active = np.logical_and(all_active, is_active)
 
-    return np.count_nonzero(all_active)
+    return np.count_nonzero(all_active[start_index:end_index])
 
 
 def memoize(obj):
