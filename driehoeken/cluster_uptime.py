@@ -31,7 +31,7 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
     """
     data = {}
     for sn in stations:
-        data[sn] = get_eventtime(sn)
+        data[sn] = get_eventtime(sn, binfiles=True)
 
     first = min(values['timestamp'][0] for values in data.values())
     last = max(values['timestamp'][-1] for values in data.values())
@@ -75,18 +75,27 @@ def memoize(obj):
 
 
 @memoize
-def get_eventtime(sn):
+def get_eventtime(sn, binfiles=False):
     """
     download eventtime histogram if not in cache
     returns eventtime histogram for station sn
     """
+    if binfiles:
+        path = PATH + '%d.npy' % sn
+        if not os.path.exists(path):
+            warnings.warn('%d not on disk in numpy bin format. Getting TSV and converting' % sn)
+            data = get_eventtime(sn, binfiles=False)
+            with open(path, 'wb') as f:
+                np.save(f, data)
+            return data
+        return np.load(path)
+    else:
+        path = PATH + '%d.tsv' % sn
+        if not os.path.exists(path):
+           warnings.warn('%d not on disk. Downloading eventtime (slow)' % sn)
+           urllib.urlretrieve(BASE % sn, path)
 
-    path = PATH + '%d.tsv' % sn
-    if not os.path.exists(path):
-       warnings.warn('%d not on disk. Downloading eventtime (slow)' % sn)
-       urllib.urlretrieve(BASE % sn, path)
-
-    return np.genfromtxt(path, delimiter='\t', dtype=np.uint32, names=['timestamp', 'counts'])
+        return np.genfromtxt(path, delimiter='\t', dtype=np.uint32, names=['timestamp', 'counts'])
 
 
 if __name__ == "__main__":
