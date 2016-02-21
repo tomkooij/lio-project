@@ -36,9 +36,19 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
     first = min(values['timestamp'][0] for values in data.values())
     last = max(values['timestamp'][-1] for values in data.values())
 
-    is_active = np.zeros((last - first) / 3600 + 1)
-    all_active = np.ones(len(is_active))
+    len_array = (last - first) / 3600 + 1
+    all_active = np.ones(len_array)
 
+
+    for sn in data.keys():
+        is_active = np.zeros(len_array)
+        start_i = (data[sn]['timestamp'][0] - first) / 3600
+        end_i = start_i + len(data[sn])
+        is_active[start_i:end_i] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
+        #print "debug: ", sn, np.count_nonzero(is_active)
+        all_active = np.logical_and(all_active, is_active)
+
+    # filter start, end
     if start is not None:
         start_index = max(0, process_time(start) - first) / 3600
     else:
@@ -48,13 +58,6 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
         end_index = min(last, process_time(end) - first) / 3600
     else:
         end_index = len(all_active)
-
-    for sn in data.keys():
-        start = (data[sn]['timestamp'][0] - first) / 3600
-        end = start + len(data[sn])
-        is_active[start:end] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
-        #pdb.set_trace()
-        all_active = np.logical_and(all_active, is_active)
 
     return np.count_nonzero(all_active[start_index:end_index])
 
@@ -101,8 +104,5 @@ def get_eventtime(sn, binfiles=False):
 if __name__ == "__main__":
     print "testing station uptime from eventtime hist"
     print "PATH = ", PATH
-    print get_number_of_hours_with_data([102,104,105])
-    print "testing @memoisation cache. First call ", get_eventtime(501)
-    print "next 10 calls:"
-    for _ in range(10):
-        print get_eventtime(501)
+    print get_number_of_hours_with_data([102,104,105])/24
+    print get_number_of_hours_with_data([504,509, 511])/24
