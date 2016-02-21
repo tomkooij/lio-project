@@ -41,7 +41,9 @@ def sss(a,b,c):
 
 
 def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1500, max_ratio=10., min_angle=pi/10):
-
+    """ check if triangle meets conditions (kwargs)
+    returns (None,None, None) if triangle fails
+    """
     leg1 = geocalc((lat1,lon1),(lat2,lon2))
     if leg1 > max_distance:
         return (None, None, None)
@@ -52,7 +54,6 @@ def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1500, max_r
     if leg3 > max_distance:
         return (None, None, None)
 
-    #print "d legs: ",leg1, leg2, leg3
     p = leg1/leg2
     q = leg1/leg3
     r = leg2/leg3
@@ -63,7 +64,6 @@ def check_triangle((lat1,lon1),(lat2,lon2),(lat3,lon3), max_distance=1500, max_r
 
     # check shape
     angle, _, _ = sorted(sss(leg1, leg2, leg3))
-    #print map(degrees, sss(leg1,leg2,leg3))
     if angle < min_angle:
         return (None, None, None)
 
@@ -86,14 +86,26 @@ def check(s1,s2,s3):
 
 
 
+def get_network_latlon():
+    """
+    load station GPS locations from JSON for speed
+    returns a dict:  latlon[station number] = (lat, lon)
+    """
 
-if __name__ == '__main__':
     with open('locations.json') as f:
         station_locations = json.load(f)
     latlon = {}  # dict for fast lookups
     for s in station_locations:
         latlon[int(s['number'])] = (float(s['latitude']), float(s['longitude']))
 
+    return latlon
+
+def find_triangles():
+    """ foreach cluster: try all combinations of stations
+    return triangles passing some criteria
+    """
+
+    latlon = get_network_latlon()
     clusters = Network().clusters()
 
     driehoeken = []
@@ -101,13 +113,9 @@ if __name__ == '__main__':
         print "Cluster %s." % cluster['name']
         stations = Network().station_numbers(cluster=int(cluster['number']))
 
-        if 0: #501 in stations:
-            print "removing SPA"
-            stations = [x for x in stations if x not in range(501,512)]
         if 501 in stations:
             print "removing 507 and 510 from SPA",
-            stations = [x for x in stations if x not in [507,510]]#range(501,512)]
-            print stations
+            stations = [x for x in stations if x not in [507,510]]
 
         if 20001 in stations:
             print "removing Aarhus --> GPS != ok"
@@ -123,11 +131,29 @@ if __name__ == '__main__':
                 days = get_number_of_hours_with_data([s1,s2,s3]) / 24.
                 driehoeken.append((int(d), int(degrees(a)), int(days), (s1,s2,s3), Station(s1).subcluster()))
 
-                filename = 'maps\driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, degrees(a))
-                if not path.exists(filename):
-                    pass
-                    #plot_station_map_OSM([s1,s2,s3], filename=filename)
-
     driehoeken.sort()
-    df = pd.DataFrame(driehoeken, columns=['max distance', 'min angle', 'data days', 'stations', 'subcluster'])
+    df = np.array(driehoeken, dtype=[('max distance', int), ('min angle', int), ('data days', int), ('stations', tuple), ('subcluster', (str, 35))])
+    return df
+
+
+if __name__ == '__main__':
+
+    data = find_triangles()
+    df = pd.DataFrame(data)
     print df[(df['data days'] > 0) & (df['min angle'] > 30)]
+    # save dataframe to disk (csv)
+    df.to_csv('driehoeken.csv')
+
+    # save numpy array to disk
+    np.save('driehoeken.npy', data)
+
+    # plot station maps
+    print "Plotting maps"
+    for row in data:
+        s1, s2, s3 = row['stations']
+        d = row['max distance']
+        a = row['min angle']
+        filename = 'maps\driehoek_%s_%s_%s_d_%4.f_a_%2.f.png'% (s1,s2,s3, d, a)
+        if not path.exists(filename):
+            pass
+            #plot_station_map_OSM([s1,s2,s3], filename=filename)
