@@ -10,7 +10,11 @@ import numpy as np
 import datetime
 from sapphire.transformations.clock import datetime_to_gps
 
-PATH = '../Datastore/publicdb_csv/eventtime/'
+if os.path.exists('/data/hisparc'):
+    PATA = '/data/hisparc/tom/driehoeken/pubic_db/eventtime/'
+else:
+    PATH = '../Datastore/publicdb/eventtime/'
+
 BASE = 'http://data.hisparc.nl/show/source/eventtime/%d/'
 
 def process_time(time):
