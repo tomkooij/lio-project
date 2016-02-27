@@ -11,7 +11,7 @@ import datetime
 from sapphire.transformations.clock import datetime_to_gps
 
 if os.path.exists('/data/hisparc'):
-    PATA = '/data/hisparc/tom/driehoeken/pubic_db/eventtime/'
+    PATH = '/data/hisparc/tom/driehoeken/public_db/eventtime/'
 else:
     PATH = '../Datastore/publicdb/eventtime/'
 
