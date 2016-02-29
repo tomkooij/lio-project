@@ -43,6 +43,17 @@ def Iyono(x, A, B):
     geometry = np.sin(x)*np.cos(x)
     return A * geometry * np.exp(-B*((1/np.cos(x)) - 1))
 
+def ModCiampa(x, A, C):
+    """
+    zenith angle distribution for LIO project 2016
+    based on Ciampa 1988.
+    positive C parameter
+    """
+    # celestial solid angle: dOmega = sin(theta)*dtheta*dphi
+    # effective area of detector: dA = cos(theta)*dtheta*dphi
+    geometry = np.sin(x)*np.cos(x)
+    return A * geometry * np.exp(-C *(1/np.cos(x)))
+
 def Ciampa(x, A, C, D):
     """ Ciampa 1998: zenith angle distribution """
 
@@ -51,10 +62,11 @@ def Ciampa(x, A, C, D):
     geometry = np.sin(x)*np.cos(x)
     return A * geometry * np.exp(C *(1/np.cos(x)) - D)
 
-def fit_zenith(zenith, nbins=10, fitfunc=Ciampa):
+
+def fit_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     """
     fit zenith distribution
-    return "B" parameter and reduced Chi-squared error
+    :returns: "C" parameter and reduced Chi-squared error
     """
 
     zenith = zenith[zenith < 0.8]
@@ -70,9 +82,9 @@ def fit_zenith(zenith, nbins=10, fitfunc=Ciampa):
     n_dof = len(n)-len(popt)
     reduced_chi_square = np.sum(np.power((n-n_fit)/sigma, 2))/n_dof
 
-    return popt[1], reduced_chi_square
+    return {'C': popt[1], 'Chi2': reduced_chi_square}
 
-def plot_zenith(zenith, nbins=10, fitfunc=Ciampa):
+def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     """ plot zenith histogram and plot fit """
 
     zenith = zenith[zenith < 0.8]
@@ -117,6 +129,7 @@ if __name__ == '__main__':
     #    results[nbins] = fit_zenith(zenith, nbins=nbins)
     print fit_zenith(zenith, nbins=20, fitfunc=Ciampa)
     print fit_zenith(zenith, nbins=20, fitfunc=Iyono)
+    print fit_zenith(zenith, nbins=20, fitfunc=ModCiampa)
 
     plot_zenith(zenith)
 
