@@ -19,6 +19,24 @@ FILENAME = 'test_%d_%d_%d.h5' % STATIONS
 start = datetime(2015,1,1)
 end = datetime(2015,12,31)
 
+class MonkeyPatchedRecESD(ReconstructESDCoincidences):
+    def get_station_timing_offsets(self):
+        self.offsets = {
+                        501: [-1.10338, 0.0000, 5.35711, 3.1686],
+                        502: [8.,8.,8.,8.],
+                        505: [22.,22.,22.,22.]}
+
+    def reconstruct_and_store(self, station_numbers=None):
+        """Shorthand function to reconstruct coincidences and store results"""
+
+        print "WARNING: MONKEY PATCHED ReconstructESDCoincidences. no cores"
+        self.prepare_output()
+        self.get_station_timing_offsets()
+        self.reconstruct_directions(station_numbers=station_numbers)
+        #self.reconstruct_cores(station_numbers=station_numbers)
+        self.store_reconstructions()
+
+
 def open():
     if os.path.exists(FILENAME):
         print "%s exist: opening" % FILENAME
@@ -44,7 +62,7 @@ if __name__ == '__main__':
 
     data = open()  # keep open for interactive...
 
-    rec = ReconstructESDCoincidences(data, overwrite=True)
+    rec = MonkeyPatchedRecESD(data, overwrite=True)
     rec.reconstruct_and_store()
 
     # interactive %pylab
