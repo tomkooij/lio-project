@@ -6,8 +6,8 @@ from datetime import datetime
 from ast import literal_eval
 
 
-#DATASTORE = 'd:/Datastore/driehoeken/'
-DATASTORE = '/data/hisparc/tom/driehoeken/'
+# lio project datatore
+DATASTORE = '../Datastore/'
 
 
 def get_data(filename, stations, start, end):
