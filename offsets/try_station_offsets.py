@@ -88,8 +88,6 @@ if __name__ == '__main__':
         p_ = p_.compress(~np.isnan(p_))
 
     try:
-        data.get_node('/coincidences/rec_offsets')
-        print "skipping reconstruction"
         t = data.root.coincidences.rec_offsets.col('zenith')
         t = t.compress(~np.isnan(t))
         p = data.root.coincidences.rec_offsets.col('azimuth')
