@@ -17,18 +17,12 @@ STATIONS = (501, 504, 505)
 # station 501-502 = +8ns
 # station 501-505 = +22ns
 # manually changing the station offsets in sapphire removes big sinewave
-FILENAME = 'test_%d_%d_%d.h5' % STATIONS
+FILENAME = '2014_%d_%d_%d.h5' % STATIONS
 
 start = datetime(2014,1,1)
 end = datetime(2014,12,31)
-x
-c:lass MonkeyPatchedRecESD(ReconstructESDCoincidences):
-    def get_station_timing_offsets(self):
-        self.offsets = {
-                        501: [0., 0., 0., 0.],
-                        502: [8.,8.,8.,8.],
-                        504: [32.,32.,32.,32.],
-                        505: [22.,22.,22.,22.]}
+
+class MonkeyPatchedRecESD(ReconstructESDCoincidences):
 
     def reconstruct(self, station_numbers=None):
         """Shorthand function to reconstruct coincidences and store results"""
@@ -40,6 +34,20 @@ c:lass MonkeyPatchedRecESD(ReconstructESDCoincidences):
         #self.reconstruct_cores(station_numbers=station_numbers)
         self.store_reconstructions()
         return self.theta, self.phi
+
+class OldOffsets(MonkeyPatchedRecESD):
+    def get_station_timing_offsets(self):
+        self.offsets = {102: [-3.1832, 0.0000, 0.0000, 0.0000],
+                104: [-1.5925, -5.0107, 0.0000, 0.0000],
+                105: [-14.1325, -10.9451, 0.0000, 0.0000],
+                501: [-1.10338, 0.0000, 5.35711, 3.1686],
+                502: [-8.11711, -8.5528, -8.72451, -9.3388],
+                503: [-22.9796, -26.6098, -22.7522, -21.8723],
+                504: [-15.4349, -15.2281, -15.1860, -16.5545],
+                505: [-21.6035, -21.3060, -19.6826, -25.5366],
+                506: [-20.2320, -15.8309, -14.1818, -14.1548],
+                508: [-26.2402, -24.9859, -24.0131, -23.2882],
+                509: [-24.8369, -23.0218, -20.6011, -24.3757]}
 
 def open():
     if os.path.exists(FILENAME):
@@ -65,10 +73,16 @@ if __name__ == '__main__':
 
     data = open()  # keep open for interactive...
 
-    t_ = data.root.coincidences.reconstructions.col('zenith')
-    t_ = t_.compress(~np.isnan(t_))
-    p_ = data.root.coincidences.reconstructions.col('azimuth')
-    p_ = p_.compress(~np.isnan(p_))
+    try:
+        t_ = data.root.coincidences.reconstructions.col('zenith')
+        t_ = t_.compress(~np.isnan(t_))
+        p_ = data.root.coincidences.reconstructions.col('azimuth')
+        p_ = p_.compress(~np.isnan(p_))
+    except:
+        rec = OldOffsets(data, overwrite=True)
+        t, p = rec.reconstruct()
+        print "run again..."
+        assert False
 
     try:
         data.get_node('/coincidences/rec_offsets')
@@ -97,7 +111,7 @@ if __name__ == '__main__':
     ax.set_xticklabels(['E','','N','','W','','S',''])
 
     ax = plt.subplot(222)
-    ax.set_title('Coincidences. N=3 2015 jan-dec.\nestimated offsets')
+    ax.set_title('Coincidences. N=3 2014 jan-dec.\nestimated offsets')
     ax.hist(p, bins=20, histtype='step')
     ax.set_xlim(-np.pi, np.pi)
 
@@ -106,8 +120,5 @@ if __name__ == '__main__':
     ax.set_xticklabels(['E','','N','','W','','S',''])
     ax.set_xlabel('azimuth distribution')
 
-    plt.savefig('azimuth_%d_%d_%d.png' % 
-             
-             
-             STATIONS, dpi=200)
+    plt.savefig('azimuth_%d_%d_%d.png' % STATIONS, dpi=200)
     plt.show()
