@@ -6,6 +6,8 @@ import pylab as plt
 def polar_hist(x, ax=None, N=91, normalize=True):
     """ circular (polar) histogram
 
+    data is assumed in [-pi,pi]
+
     :param x: array of values
     :param ax: optional axes of subplot
     :param N: optional number of bins
@@ -16,7 +18,7 @@ def polar_hist(x, ax=None, N=91, normalize=True):
         ax = plt.subplot(111, projection='polar')
 
     # calc histogram
-    n, bins = np.histogram(x, bins=np.linspace(0, 2 * np.pi, N))
+    n, bins = np.histogram(x, bins=np.linspace(-np.pi, np.pi, N))
 
     # create histogram line
     theta = 2 * np.pi * np.arange(0, 1., 0.001)
@@ -29,7 +31,7 @@ def polar_hist(x, ax=None, N=91, normalize=True):
     idx = [int(i * mapping_factor) for i in range(len(theta))]
     r = [n[i] / scale_factor for i in idx]
 
-    ax.plot(theta, r)
+    ax.plot(-theta, r)
     ax.set_rmax(1.1 * max(n) / scale_factor)
 
 
