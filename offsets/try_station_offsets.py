@@ -12,8 +12,9 @@ import pylab as plt
 
 from polar_hist import polar_hist
 
-STATIONS = (501, 504, 505)
+#STATIONS = (501, 504, 505)
 #STATIONS = (501, 502, 505)
+STATIONS = (501, 502, 508)
 # station 501-502 = +8ns
 # station 501-505 = +22ns
 # manually changing the station offsets in sapphire removes big sinewave
@@ -80,9 +81,11 @@ if __name__ == '__main__':
         p_ = p_.compress(~np.isnan(p_))
     except:
         rec = OldOffsets(data, overwrite=True)
-        t, p = rec.reconstruct()
-        print "run again..."
-        assert False
+        t_, p_ = rec.reconstruct()
+        t_ = np.array(t_)
+        t_ = t_.compress(~np.isnan(t_))
+        p_ = np.array(p_)
+        p_ = p_.compress(~np.isnan(p_))
 
     try:
         data.get_node('/coincidences/rec_offsets')
