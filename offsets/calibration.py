@@ -33,7 +33,7 @@ def determine_station_timing_offset(dt, dz=0, debug=False, plot=False):
     station_offset, rchi2 = fit_timing_offset(dt, bins, debug=debug, plot=plot) 
     station_offset += dz/c
     if abs(station_offset) > 1000:
-        station_offset = nan, nan
+        return nan, nan
     return station_offset, rchi2
 
 def gauss(x, N, mu, sigma, background):
