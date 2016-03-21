@@ -36,9 +36,9 @@ def determine_station_timing_offset(dt, dz=0, debug=False, plot=False):
         station_offset = nan, nan
     return station_offset, rchi2
 
-def gauss(x, N, mu, sigma):
+def gauss(x, N, mu, sigma, background):
 
-    return N*norm.pdf(x, mu, sigma)
+    return N*norm.pdf(x, mu, sigma) + background
 
 def fit_timing_offset(dt, bins, plot=False, debug=False):
     """Fit the time difference distribution.
@@ -55,7 +55,7 @@ def fit_timing_offset(dt, bins, plot=False, debug=False):
         print "BLECH! warning encountered empty-like bins!", sum(y<5)
         print "empty bins", sum(y==0)
     try:
-        popt, pcov = curve_fit(gauss, x, y, p0=(len(dt), 0., std(dt)),
+        popt, pcov = curve_fit(gauss, x, y, p0=(len(dt), 0., std(dt), 0. ),
                                sigma = sigma, absolute_sigma=False)
         offset = popt[1]
         #sigma_fit = sqrt(diag(popt))
@@ -65,6 +65,7 @@ def fit_timing_offset(dt, bins, plot=False, debug=False):
         if debug:
             print "result of fit: "
             print "offset = %4.2f " % offset
+            print "background = %4.2f " % popt[3]
             print "r chi2 = %1.2f " % rchi2
         if plot:
             plt.figure()
