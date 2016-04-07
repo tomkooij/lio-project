@@ -2,15 +2,18 @@
 from __future__ import division
 import tables
 from sapphire.utils import pbar
-from sapphire.corsika.store_corsika_data import GroundParticles
+from sapphire.corsika.store_corsika_data import (GroundParticles,
+                                                 create_index)
 from collections import namedtuple
 from heapq import merge
 
 FILENAME = 'corsika_unsorted.h5'
-FILENAME = 'huge_corsika_unsorted.h5'
+#FILENAME = 'huge_corsika_unsorted.h5'
 
 TEMP = 'tempfile.h5'
 DEST = 'sorted.h5'
+
+BUFSIZE = 100000
 
 def iter_chunk(table):
     """
@@ -44,11 +47,8 @@ def write_table(out_file, table_name, tablechunk):
 
 
 def create_temp_table(t, out, idx, start, stop):
-    print "read...", idx
     tablechunk = t.read(start=start, stop=stop)
-    print "sort...", idx
     sort_table(tablechunk)
-    print " write...", idx
     table = write_table(out, 'table_%d' % idx, tablechunk)
 
     return iter_chunk(table)
@@ -75,32 +75,34 @@ with tables.open_file(FILENAME,'r') as data, \
     output_table = output.create_table('/', 'groundparticles',
                                        GroundParticles,
                                        expectedrows=int(1e9))
-    rowbuf = output_table._get_container(10000)
+    rowbuf = output_table._get_container(BUFSIZE)
     idx = 0
 
     old, new = (-1e99, -1e99)
-    for lineno, keyedrow in enumerate(merge(*iterators)):
-        #print row['x']
+    print "merging: "
+    for keyedrow in pbar(merge(*iterators), length=nrows):
         x, row = keyedrow
 
-        if idx == 10000:
+        if idx == BUFSIZE:
             output_table.append(rowbuf)
+            output_table.flush()
             idx = 0
+
         values = row.fetch_all_fields()
         rowbuf[idx] = values
         idx += 1
 
         old, new = new, row['x']
         if new < old:
-            print "FAIL: line, new, old: ", lineno, new, old
+            print "FAIL: new, old: ", new, old
             print row
             break
 
-        if not lineno % 100000:
-            print "flush at line: ", idx, x
-            output_table.flush()
 
     #store last lines in buffer
     output_table.append(rowbuf[0:idx])
     output_table.flush()
 
+print "Adding CSIndex:"
+with tables.open_file(DEST, 'a') as hdf5:
+    create_index(hdf5, progress=True)
