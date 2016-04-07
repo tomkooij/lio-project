@@ -11,7 +11,7 @@ FILENAME = 'huge_corsika_unsorted.h5'
 
 TEMP = 'tempfile.h5'
 
-def iter_chunk(tablechunk, table):
+def iter_chunk(table):
     """
     iter over sorted rows of particles
     return key first
@@ -28,18 +28,15 @@ def sort_table(tablechunk):
     TODO: check performance of mergesort
     TODO: is this just a "view" or an in place sort?
     """
-    return tablechunk.sort(order='x')
+    return tablechunk.sort(order='x', kind='mergesort')
 
 
 def write_table(out_file, table_name, tablechunk):
     """
     write a chunk to a table
-    return the table so we can iterator over it in
-    the merge part
     """
     out_table = out_file.create_table('/', table_name, GroundParticles,
                           expectedrows=len(tablechunk))
-
 
     out_table.append(tablechunk)
     out_table.flush()
@@ -47,30 +44,36 @@ def write_table(out_file, table_name, tablechunk):
     return out_table
 
 
+def create_temp_table(t, out, idx, start, stop):
+    print "read...", idx
+    tablechunk = t.read(start=start, stop=stop)
+    print "sort...", idx
+    sort_table(tablechunk)
+    print " write...", idx
+    table = write_table(out, 'table_%d' % idx, tablechunk)
+
+    return iter_chunk(table)
+
 with tables.open_file(FILENAME,'r') as data, \
         tables.open_file(TEMP, 'w') as out:
     t = data.get_node('/groundparticles')
     nrows = len(t)
     print "nrows: ", nrows
-    print "chunksize, nrowsinbuf", t.chunkshape[0], t.nrowsinbuf
-    chunk = t.nrowsinbuf * 100  # initial guess... TODO: fix! 
+    print "hdf5 chunksize, nrowsinbuf", t.chunkshape[0], t.nrowsinbuf
+    # chunksize is 10 millions rows (350MB)
+    chunk = int(1e7)
 
+    print "chopping in %d chunks of %d rows" % (int(nrows/chunk)+1, chunk)
     iterators = []
     for idx, start in pbar(enumerate(xrange(0, nrows, chunk)),
                            length=int(nrows/chunk)):
-        print "read...", idx
-        tablechunk = t.read(start=start, stop=start+chunk)
-        sort_table(tablechunk)
-        print " write...", idx
-        table = write_table(out, 'table_%d' % idx, tablechunk)
-        print "appending iterator"
-        iterators.append(iter_chunk(tablechunk, table))
+        iterators.append(create_temp_table(t, out, idx, start, start+chunk))
 
     old, new = (-1e99, -1e99)
+
     for idx, keyedrow in enumerate(merge(*iterators)):
         #print row['x']
         x, row = keyedrow
-        assert x == row['x']
 
         old, new = new, row['x']
         if new < old:
@@ -80,3 +83,4 @@ with tables.open_file(FILENAME,'r') as data, \
 
         if not idx % 100000:
             print "line: ", idx, x
+
