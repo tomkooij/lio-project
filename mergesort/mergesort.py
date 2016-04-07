@@ -10,6 +10,7 @@ FILENAME = 'corsika_unsorted.h5'
 FILENAME = 'huge_corsika_unsorted.h5'
 
 TEMP = 'tempfile.h5'
+DEST = 'sorted.h5'
 
 def iter_chunk(table):
     """
@@ -24,9 +25,7 @@ def iter_chunk(table):
 def sort_table(tablechunk):
     """
     sort the chunk by x
-    alg = quicksort O(n^2), mergesort O(nlogn) is available
-    TODO: check performance of mergesort
-    TODO: is this just a "view" or an in place sort?
+    use mergesort: much faster than quicksort and heapsort for large chunks
     """
     return tablechunk.sort(order='x', kind='mergesort')
 
@@ -54,8 +53,10 @@ def create_temp_table(t, out, idx, start, stop):
 
     return iter_chunk(table)
 
+
 with tables.open_file(FILENAME,'r') as data, \
-        tables.open_file(TEMP, 'w') as out:
+        tables.open_file(TEMP, 'w') as temp, \
+        tables.open_file(DEST, 'w') as output:
     t = data.get_node('/groundparticles')
     nrows = len(t)
     print "nrows: ", nrows
@@ -67,20 +68,39 @@ with tables.open_file(FILENAME,'r') as data, \
     iterators = []
     for idx, start in pbar(enumerate(xrange(0, nrows, chunk)),
                            length=int(nrows/chunk)):
-        iterators.append(create_temp_table(t, out, idx, start, start+chunk))
+        iterators.append(create_temp_table(t, temp, idx, start, start+chunk))
+
+
+
+    output_table = output.create_table('/', 'groundparticles',
+                                       GroundParticles,
+                                       expectedrows=int(1e9))
+    rowbuf = output_table._get_container(10000)
+    idx = 0
 
     old, new = (-1e99, -1e99)
-
-    for idx, keyedrow in enumerate(merge(*iterators)):
+    for lineno, keyedrow in enumerate(merge(*iterators)):
         #print row['x']
         x, row = keyedrow
 
+        if idx == 10000:
+            output_table.append(rowbuf)
+            idx = 0
+        values = row.fetch_all_fields()
+        rowbuf[idx] = values
+        idx += 1
+
         old, new = new, row['x']
         if new < old:
-            print "FAIL: line, new, old: ", idx, new, old
+            print "FAIL: line, new, old: ", lineno, new, old
             print row
             break
 
-        if not idx % 100000:
-            print "line: ", idx, x
+        if not lineno % 100000:
+            print "flush at line: ", idx, x
+            output_table.flush()
+
+    #store last lines in buffer
+    output_table.append(rowbuf[0:idx])
+    output_table.flush()
 
