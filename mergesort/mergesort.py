@@ -4,7 +4,6 @@ import tables
 from sapphire.utils import pbar
 from sapphire.corsika.store_corsika_data import (GroundParticles,
                                                  create_index)
-from collections import namedtuple
 from heapq import merge
 
 FILENAME = 'corsika_unsorted.h5'
@@ -14,6 +13,7 @@ TEMP = 'tempfile.h5'
 DEST = 'sorted.h5'
 
 BUFSIZE = 100000
+
 
 def iter_chunk(table):
     """
@@ -38,7 +38,7 @@ def write_table(out_file, table_name, tablechunk):
     write a chunk to a table
     """
     out_table = out_file.create_table('/', table_name, GroundParticles,
-                          expectedrows=len(tablechunk))
+                                      expectedrows=len(tablechunk))
 
     out_table.append(tablechunk)
     out_table.flush()
@@ -54,7 +54,7 @@ def create_temp_table(t, out, idx, start, stop):
     return iter_chunk(table)
 
 
-with tables.open_file(FILENAME,'r') as data, \
+with tables.open_file(FILENAME, 'r') as data, \
         tables.open_file(TEMP, 'w') as temp, \
         tables.open_file(DEST, 'w') as output:
     t = data.get_node('/groundparticles')
@@ -64,13 +64,11 @@ with tables.open_file(FILENAME,'r') as data, \
     # chunksize is 10 millions rows (350MB)
     chunk = int(1e7)
 
-    print "chopping in %d chunks of %d rows" % (int(nrows/chunk)+1, chunk)
+    print "chopping in %d chunks of %d rows" % (int(nrows / chunk) + 1, chunk)
     iterators = []
     for idx, start in pbar(enumerate(xrange(0, nrows, chunk)),
-                           length=int(nrows/chunk)):
-        iterators.append(create_temp_table(t, temp, idx, start, start+chunk))
-
-
+                           length=int(nrows / chunk)):
+        iterators.append(create_temp_table(t, temp, idx, start, start + chunk))
 
     output_table = output.create_table('/', 'groundparticles',
                                        GroundParticles,
@@ -98,8 +96,7 @@ with tables.open_file(FILENAME,'r') as data, \
             print row
             break
 
-
-    #store last lines in buffer
+    # store last lines in buffer
     output_table.append(rowbuf[0:idx])
     output_table.flush()
 
