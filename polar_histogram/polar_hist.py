@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
-import pylab as plt
+import matplotlib.pyplot as plt
+import tables
 
 
 def polar_hist(x, ax=None, N=91, normalize=True):
@@ -36,9 +37,12 @@ def polar_hist(x, ax=None, N=91, normalize=True):
 
 
 if __name__ == '__main__':
-    x = np.random.uniform(0, 2 * np.pi, 10000)
-    ax = plt.subplot(121, projection='polar')
-    polar_hist(x, ax=ax)
-    ax = plt.subplot(122, projection='polar')
-    polar_hist(x, ax=ax, normalize=False)
+    data = tables.open_file('../Datastore/spa_501_503_506.h5', 'r')
+    phi = data.root.coincidences.reconstructions.col('azimuth')
+
+    plt.figure()
+    plt.title('Azimuth distribution')
+    ax = plt.subplot(111, projection='polar')
+    polar_hist(phi, ax=ax, normalize=False)
+    ax.set_xticklabels(['E', '', 'N', '', 'W', '', 'S', ''])
     plt.show()
