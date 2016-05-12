@@ -6,8 +6,7 @@ from sapphire import download_coincidences
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-#DATASTORE = 'd:/Datastore/driehoeken/'
-DATASTORE = '/data/hisparc/tom/driehoeken/'
+DATASTORE = '../Datastore/'
 
 
 def get_data(filename, stations, start, end):
