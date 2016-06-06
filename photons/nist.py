@@ -60,19 +60,19 @@ def create_table_for_sapphire():
     """
     E_list, l_list, c_list = load_XCOM2()
 
-    print "l_pair =  np.array([ \ \n\t\t"
+    print "\tl_pair = np.array([ \ ",
     for idx, (E, l) in enumerate(zip(E_list, l_list)):
         if not idx % 3:
             print "\n\t\t",
-        print "[%.0f, %3.2f]," % (E, l),
-    print "\n\t\t])"
+        print "(%.0f, %3.2f)," % (E, l),
+    print "\b\b])"
 
-    print "l_compton =  np.array([\ "
+    print "\tl_compton = np.array([\ ",
     for idx, (E, c) in enumerate(zip(E_list, c_list)):
         if not idx % 3:
             print "\n\t\t",
-        print "[%.0f, %3.2f]," % (E, c),
-    print "\n\t\t])"
+        print "(%.0f, %3.2f)," % (E, c),
+    print "\b\b])"
 
 
 def load_XCOM2():
