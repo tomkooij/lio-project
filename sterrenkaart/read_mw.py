@@ -20,6 +20,7 @@ def read_line(f):
         dec = float(dec)+float(decm)/60
         return action, ra, dec
 
+
 def read_block(f):
     """ READ block:
 
@@ -39,6 +40,7 @@ def read_block(f):
         action, readra, readdec = read_line(f)
     return ra, dec
 
+
 def read_blocks(f):
     ra, dec = read_block(f)
     while len(ra) > 0:
@@ -49,10 +51,10 @@ with open('Milkyway.sol', 'r') as f:
 
     ax = plt.subplot(111, projection='mollweide')
     for ra, dec in read_blocks(f):
-        ra_ = np.radians([(x/24*360) -180. for x in ra])
+        ra_ = np.radians([(x / 24 * 360) - 180. for x in ra])
         dec_ = np.radians(dec)
-        ax.set_xticklabels(['14h','16h','18h','20h','22h','0h','2h','4h','6h',
-                            '8h','10h'])
+        ax.set_xticklabels(['14h', '16h', '18h', '20h', '22h', '0h',
+                            '2h', '4h', '6h', '8h', '10h'])
         ax.grid(True)
         ax.plot(ra_, dec_, color='grey')
     plt.show()
