@@ -104,15 +104,16 @@ def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     plt.show()
 
 def get_zenith(filename, stations):
-    """ open hdf5 filename. Read or reconstruct directions. Return zenith angles """
+    """ open hdf5 filename. Read directions. Return zenith angles """
 
-    with tables.open_file(filename, 'a') as data:
+    with tables.open_file(filename, 'r') as data:
         try:
             n = len(data.root.coincidences.coincidences)
             if n == 0:
                 return None
         except:
             return None
+
 
         #if not CountReconstructedDirections(data):
         #    rec = DirectionsOnly(data, overwrite=True)
