@@ -93,7 +93,7 @@ def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     middle = (bins[:-1] + bins[1:])/2.
     sigma = np.sqrt(n)
     popt, pcov = curve_fit(fitfunc, middle, n)
-    print popt
+    print(popt)
     plt.errorbar(middle, n, yerr=sigma, fmt='o',  color= 'b')
     x = np.linspace(0, 1., num=100)
     plt.plot(x,  fitfunc(x, *popt), color='r')
@@ -104,19 +104,15 @@ def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     plt.show()
 
 def get_zenith(filename, stations):
-    """ open hdf5 filename. Read or reconstruct directions. Return zenith angles """
+    """ open hdf5 filename. Read directions. Return zenith angles """
 
-    with tables.open_file(filename, 'a') as data:
+    with tables.open_file(filename, 'r') as data:
         try:
             n = len(data.root.coincidences.coincidences)
             if n == 0:
                 return None
         except:
             return None
-
-        if not CountReconstructedDirections(data):
-            rec = DirectionsOnly(data, overwrite=True)
-            rec.reconstruct_and_store(stations)
 
         zenith = data.root.coincidences.reconstructions.col('zenith')
         zenith = zenith[~np.isnan(zenith)]
@@ -127,9 +123,9 @@ if __name__ == '__main__':
     zenith = get_zenith(FILENAME, STATIONS)
     #for nbins in range(5, 50): 
     #    results[nbins] = fit_zenith(zenith, nbins=nbins)
-    print fit_zenith(zenith, nbins=20, fitfunc=Ciampa)
-    print fit_zenith(zenith, nbins=20, fitfunc=Iyono)
-    print fit_zenith(zenith, nbins=20, fitfunc=ModCiampa)
+    print(fit_zenith(zenith, nbins=20, fitfunc=Ciampa))
+    print(fit_zenith(zenith, nbins=20, fitfunc=Iyono))
+    print(fit_zenith(zenith, nbins=20, fitfunc=ModCiampa))
 
     plot_zenith(zenith)
 

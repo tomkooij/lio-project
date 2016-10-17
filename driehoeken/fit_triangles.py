@@ -7,44 +7,43 @@ from ast import literal_eval
 
 
 # lio project datatore
-DATASTORE = '../Datastore/'
-
-
-def get_data(filename, stations, start, end):
-    """ open filename and download coincidences if /coincidences group does not exists """
-    with tables.open_file(filename, 'a') as data:
-        if '/coincidences' not in data:
-            download_coincidences(data, stations=stations, start=start, end=end, n=3)
-        else:
-            print '/coincidences exists in %s.' % filename
-
+DATASTORE = '/data/hisparc/tom/Datastore/driehoeken/'
 
 if __name__ == '__main__':
     df = pd.read_csv('driehoeken.csv')
-    
-    all_triangles = []    
-    for s in df['stations']:
-        all_triangles.append(list(literal_eval(s)))
-    #print all_triangles
-    #assert False
 
-    start = datetime(2015,1,1)
-    end = datetime(2015,12,31)
+    all_triangles = []
+    for s in df['stations']:
+        sns = list(literal_eval(s))
+        d = int(df.loc[df['stations']==s]['max distance'])
+        all_triangles.append((sns, d))
+    print(all_triangles)
 
     results = {}
 
-    for stations in all_triangles:
-        print stations
+    for stations, d in all_triangles:
+        print(stations)
 
         s1, s2, s3 = stations
-        filename = DATASTORE+'2015full_%d_%d_%d.h5' % (s1, s2, s3)
-        print filename
-
-        if 1: # check file exist, events exist... bla
-            get_data(filename, stations, start, end)
+        filename = DATASTORE+'%d_%d_%d_all.h5' % (s1, s2, s3)
+        print(filename)
 
         zenith = get_zenith(filename, stations)
         if zenith is not None:
-            results[tuple(stations)] = (len(zenith), fit_zenith(zenith, nbins=15))
+            results[tuple(stations)] = (d, len(zenith), fit_zenith(zenith, nbins=15))
 
-    print results
+    print(results)
+
+    d, n, C = [], [], []
+
+    for r in results.values():
+        d.append(r[0])
+        n.append(r[1])
+        C.append(r[2]['C'])
+
+    import matplotlib.pyplot as plt
+
+    plt.figure()
+    plt.scatter(d, n)
+    plt.title('Aantal gereconstrueerde coincidenties vs afstand tussen meetstations')
+    plt.show()
