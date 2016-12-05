@@ -67,6 +67,10 @@ Thumbs.db
 *.mtc1
 *.out
 *.synctex.gz
+
+# jupyter notebooks
+.ipynb_checkpoints/
+
 corsika/corsika_datafile_plot_particles - kopie.py
 corsika/out
 corsika/output
