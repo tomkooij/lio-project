@@ -2,15 +2,17 @@
 # create dict of eventtimes for all stations in hisparc network.
 # serialise and save to disk for driehoeken.py
 
+from __future__ import print_function, division
 import warnings
 import functools
 import os
-import urllib
 import numpy as np
 import datetime
-from sapphire.transformations.clock import datetime_to_gps
+from sapphire import datetime_to_gps
+from six.moves.urllib.request import urlopen
+from six import BytesIO
 
-BASE = 'http://data.hisparc.nl/show/source/eventtime/%d/' 
+BASE = 'http://data.hisparc.nl/show/source/eventtime/%d/'
 PATH = '../Datastore/publicdb/eventtime/'
 
 def process_time(time):
@@ -36,13 +38,13 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
     first = min(values['timestamp'][0] for values in data.values())
     last = max(values['timestamp'][-1] for values in data.values())
 
-    len_array = (last - first) / 3600 + 1
+    len_array = (last - first) // 3600 + 1
     all_active = np.ones(len_array)
 
 
     for sn in data.keys():
         is_active = np.zeros(len_array)
-        start_i = (data[sn]['timestamp'][0] - first) / 3600
+        start_i = (data[sn]['timestamp'][0] - first) // 3600
         end_i = start_i + len(data[sn])
         is_active[start_i:end_i] = (data[sn]['counts'] > 500) & (data[sn]['counts'] < 5000)
         #print "debug: ", sn, np.count_nonzero(is_active)
@@ -50,12 +52,12 @@ def get_number_of_hours_with_data(stations, start=None, end=None):
 
     # filter start, end
     if start is not None:
-        start_index = max(0, process_time(start) - first) / 3600
+        start_index = max(0, process_time(start) - first) // 3600
     else:
         start_index = 0
 
     if end is not None:
-        end_index = min(last, process_time(end) - first) / 3600
+        end_index = min(last, process_time(end) - first) // 3600
     else:
         end_index = len(all_active)
 
@@ -96,13 +98,13 @@ def get_eventtime(sn, binfiles=False):
         path = PATH + '%d.tsv' % sn
         if not os.path.exists(path):
            warnings.warn('%d not on disk. Downloading eventtime (slow)' % sn)
-           urllib.urlretrieve(BASE % sn, path)
+           tsv_data = urlopen(BASE % sn).read()
 
-        return np.genfromtxt(path, delimiter='\t', dtype=np.uint32, names=['timestamp', 'counts'])
+        return np.genfromtxt(BytesIO(tsv_data), delimiter='\t', dtype=np.uint32, names=['timestamp', 'counts'])
 
 
 if __name__ == "__main__":
-    print "testing station uptime from eventtime hist"
-    print "PATH = ", PATH
-    print get_number_of_hours_with_data([102,104,105])/24
-    print get_number_of_hours_with_data([504,509, 511])/24
+    print("testing station uptime from eventtime hist")
+    print("PATH = ", PATH)
+    print(get_number_of_hours_with_data([102,104,105])/24)
+    print(get_number_of_hours_with_data([504,509, 511])/24)

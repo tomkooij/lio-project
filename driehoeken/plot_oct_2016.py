@@ -61,4 +61,4 @@ n = df['n']
 C = df['C']
 
 plot_d_vs_n(d, n, filename='d_vs_n.png')
-plot_d_vs_C(d, C, filename='opp_vs_n.png')
+plot_d_vs_C(d, C, filename='d_vs_C.png')

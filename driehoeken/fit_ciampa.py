@@ -84,11 +84,11 @@ def fit_zenith(zenith, nbins=10, fitfunc=ModCiampa):
 
     return {'C': popt[1], 'Chi2': reduced_chi_square}
 
-def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
+def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa, filename=None):
     """ plot zenith histogram and plot fit """
 
     zenith = zenith[zenith < 0.8]
-    plt.figure()
+    fig = plt.figure()
     n, bins, patches = plt.hist(zenith, bins=nbins, histtype='step', color='b')
     middle = (bins[:-1] + bins[1:])/2.
     sigma = np.sqrt(n)
@@ -101,7 +101,10 @@ def plot_zenith(zenith, nbins=10, fitfunc=ModCiampa):
     plt.title('Zenith angle distribution')
     plt.xlabel('zenith angle (rad)')
     plt.legend(['fit: C=%.2f' %(popt[1]),'counts'])
+    if filename:
+        plt.savefig(filename, dpi=200)
     plt.show()
+    plt.close(fig)
 
 def get_zenith(filename, stations):
     """ open hdf5 filename. Read directions. Return zenith angles """
