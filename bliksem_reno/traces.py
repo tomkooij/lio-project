@@ -1,4 +1,5 @@
 # print alle traces van de events uit FILENAME
+import csv
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,7 +7,13 @@ import matplotlib.pyplot as plt
 from sapphire import Station
 from sapphire.utils import pbar
 
-FILENAME = 'li-sh-10km-0.0002work.csv'
+FILENAME = 'dec12.csv'
+# dec12.csv -> gemaakt met Reno o.b.v. 'coincidences_10km_120sec_bver7.txt'
+#
+# In excel zijn header en de eerste 371 regels verwijderd. 
+# Daarna in excel: text->kolommen met spaties
+# uit excel komt:
+# 2994;/s22;(12670L,;1278789234;520638897L,;1278789234520638897L,;;;;;;;;;;;;
 
 
 def plot_trace(traces, sn, ts):
@@ -20,9 +27,27 @@ def plot_trace(traces, sn, ts):
     plt.savefig('trace-ts%d-sn%d.png' % (ts, sn), dpi=200)
     plt.close()
 
-bliksem_data = np.genfromtxt(FILENAME)
+
+def get_station_from_group(s):
+    """ '/s202' --> int(202) """
+    return int(s.split('s')[1])
+
+
+def fix(s):
+    """ '520638897L,' --> int(520638897)"""
+    return int(s[:-2])
+
+
+
+
+with open(FILENAME, 'r') as f:
+    csvfile = csv.reader(f, delimiter=';')
+    bliksem_data = [(get_station_from_group(line[1]), int(line[3]),
+                     fix(line[4])) for line in csvfile]
+
+
 for bliksem in pbar(bliksem_data):
-    sn, ts, ns = map(int, [bliksem[1], bliksem[3], bliksem[4]])
+    sn, ts, ns = bliksem
 
     #print('get trace: ', sn, ts, ns)
     s = Station(sn)
