@@ -7,24 +7,26 @@ import matplotlib.pyplot as plt
 from sapphire import Station
 from sapphire.utils import pbar
 
-FILENAME = 'dec12.csv'
+FILENAME = 'maart_7,0ms.csv'
 # dec12.csv -> gemaakt met Reno o.b.v. 'coincidences_10km_120sec_bver7.txt'
 #
-# In excel zijn header en de eerste 371 regels verwijderd. 
+# In excel zijn header en de eerste 371 regels verwijderd.
 # Daarna in excel: text->kolommen met spaties
 # uit excel komt:
 # 2994;/s22;(12670L,;1278789234;520638897L,;1278789234520638897L,;;;;;;;;;;;;
 
 
-def plot_trace(traces, sn, ts):
+def plot_trace(traces, sn, ts, nanosec):
     plt.figure()
     for trace in traces:
         time = np.linspace(0, 2.5*(len(trace)-1), num=len(trace))
         plt.plot(time, trace)
+        plotted=True
+
     plt.title('Station %d(%d) at %d' % (sn, len(traces), ts))
     plt.xlabel('[ns]')
     plt.ylabel('ADC counts')
-    plt.savefig('trace-ts%d-sn%d.png' % (ts, sn), dpi=200)
+    plt.savefig('trace-ts%d_%d-sn%d.png' % (ts, nanosec, sn), dpi=200)
     plt.close()
 
 
@@ -45,11 +47,12 @@ with open(FILENAME, 'r') as f:
     bliksem_data = [(get_station_from_group(line[1]), int(line[3]),
                      fix(line[4])) for line in csvfile]
 
+    print(len(bliksem_data))
 
 for bliksem in pbar(bliksem_data):
-    sn, ts, ns = bliksem
+    sn, ts, nanosec = bliksem
 
     #print('get trace: ', sn, ts, ns)
     s = Station(sn)
-    trace = s.event_trace(ts, ns)
-    plot_trace(trace, sn, ts)
+    trace = s.event_trace(ts, nanosec)
+    plot_trace(trace, sn, ts, nanosec)
