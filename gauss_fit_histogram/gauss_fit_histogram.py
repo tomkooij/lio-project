@@ -1,18 +1,22 @@
-#
-# Fit een histogram met een Gauss verdeling
-#
-# bron: http://stackoverflow.com/questions/7805552/
-#
-# Dit is een test file om een robuste manier voor het fitten van een histogram
-#  met een Normale verdeling te regelen. norm.fit() bepaald simpelweg het gemiddelde
-#  van de data en is dus niet bruikbaar. Ook heeft norm.fit() problemen met
-#  niet genormaliseerde data
-#
-# Deze code leest een CSV met data in,
-#  maakt een histogram
-#  fit een willekeurige gauss verdeling met kleinste kwaderen (scipy.optimize.leastsq)
-#  plot de verdeling in het histogram
-#
+"""
+Fit een normale verdeling aan een histrogram
+
+Voorbeeld:
+
+    import matplotlib.pylot as plt
+
+    from gauss_fit_histogram import gauss_fit_histogram
+
+    dataset = np.random.normal(5., 10., 5000)
+    n, bins, _ = plt.hist(dataset)
+
+    c, fitx, fity = gauss_fit_histogram(n, bins)
+    print (c)
+    plt.plot(fitx, fity)
+
+"""
+from __future__ import print_function
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
@@ -62,11 +66,9 @@ def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], ve
     c, cov = curve_fit(fit_func, middle, n, p0=initialguess, sigma=sigma, absolute_sigma=True)
 
     if (verbose):
-        print "exp[-0.5((x-mu)/sigma)^2]"
-        print "Fit Coefficients:"
-        print "A %.2f, mu %.2f,sigma %.2f, bg %.2f" % (c[0],c[1],abs(c[2]),c[3])
-        #print "Co-variance matrix:"
-        #print cov
+        print("exp[-0.5((x-mu)/sigma)^2]")
+        print("Fit Coefficients:")
+        print("A %.2f, mu %.2f,sigma %.2f, bg %.2f" % (c[0],c[1],abs(c[2]),c[3]))
 
     fit =  fit_func(middle, c[0], c[1], abs(c[2]), c[3])
 
@@ -76,12 +78,13 @@ def gauss_fit_histogram(n, bins, sigma=None, initialguess = [1., 1., 1., 0.], ve
 
     if (verbose):
         chi2 = sum(np.power((n - fit)/sigma,2)) / (len(n) - len(c))
-        print "Reduced Chi-squared: ", chi2
+        print("Reduced Chi-squared: ", chi2)
 
         pearsson = sum(np.power((n - fit),2)/fit) / (len(n) - len(c))
-        print 'Reduced Pearsons Chi-squared: ', pearsson
+        print("Reduced Pearsons Chi-squared: ", pearsson)
 
     return c, middle, fit
+
 
 if __name__=='__main__':
     # random data
@@ -96,15 +99,11 @@ if __name__=='__main__':
     #
     # sigma: standaard deviatie van de meetwaarden (=wortel(aantal per bin))
     #
-    sigma_list = np.sqrt(n)
+    sigma_list = np.sqrt(n)  # + 1
 
     c, fitx, fity = gauss_fit_histogram(n, bins, sigma=sigma_list, verbose=True)
     mu = c[1]
     sigma = abs(c[2])
-
-    fitx = middle
-    fity = fit_func(fitx, c[0], c[1], abs(c[2]), c[3])
-
 
     plt.plot(fitx, fity ,'r--', linewidth=3)
     plt.title('gauss_fit_histogram.py');
