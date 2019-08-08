@@ -11,6 +11,8 @@ def find_peaks(trace, threshold=20):
     in_peak = False
     t_end = 0
 
+    trace.append(0)  # add 0 to make sure last peak is detected
+
     for t, value in enumerate(trace):
         if in_peak:
             if value > threshold:
@@ -24,11 +26,7 @@ def find_peaks(trace, threshold=20):
             # not in peak
             if value > threshold:
                 in_peak = True
-                if t > 10 and t - t_end < 10:
-                    # assume still in same peak
-                    peak_idxs.pop()
-                else:
-                    t_start = t
+                t_start = t
 
     if len(peak_idxs):
         t0 = peak_idxs[0][0]
@@ -38,9 +36,7 @@ def find_peaks(trace, threshold=20):
 
     return peaks
 
+
 if __name__ == '__main__':
-    import pickle
-    with open('traces-102-8jul2019.pickle', 'rb') as f:
-        all_traces = pickle.load(f)
-    traces = all_traces[(1562457694, 165768607)]
-    print(find_peaks(traces[0]))
+    trace = [9, 0, -12, 30, 30, 30, 45, 0, 0, 20, 20, 20, 21, 22, 0, 50]
+    print(find_peaks(trace))
